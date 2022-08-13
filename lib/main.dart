@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:personalized_speech_interpreter/main_page.dart';
+
+import 'main_page.dart';
+
 
 void main() => runApp(PSI());
 
@@ -13,7 +15,7 @@ class PSI extends StatelessWidget{
         debugShowCheckedModeBanner: false,
         initialRoute: ROOT_PAGE,
         routes: {
-          ROOT_PAGE: (context) => main_page()
+          ROOT_PAGE: (context) => MainPage()
         }
     );
   }
