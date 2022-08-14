@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
 
 class MainPage extends StatefulWidget {
-
   @override
   State createState() => _MainPageState();
 }
@@ -15,22 +14,42 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter
-          )
-        ),
+            gradient: LinearGradient(
+                colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter)),
         child: Stack(
           children: <Widget>[
+            Container(
+                margin: const EdgeInsets.fromLTRB(0, 32, 0, 0),
+                alignment: Alignment.topRight,
+                child: Builder(
+                  builder: (context) {
+                    return InkWell(
+                        onDoubleTap: () {
+                          Scaffold.of(context).openEndDrawer();
+                        },
+                        child: Image.asset("assets/images/main_btn_null.png"));
+                  },
+                )),
             Pinned.fromPins(
-              Pin(size: 157.0, middle: 0.53),
-              Pin(size: 157.0, end: 32.0),
-              child: IconButton(
-                onPressed: _isRecording ? _stopRecording : _startRecording,
-                icon: _isRecording ? Image.asset("assets/images/main_btn_record_pressed.png", gaplessPlayback: true,) : Image.asset("assets/images/main_btn_record_norm.png", gaplessPlayback: true,),
-              )
-            ),
+                Pin(size: 157.0, middle: 0.53), Pin(size: 157.0, end: 32.0),
+                child: IconButton(
+                  onPressed: () => {
+                    setState(() {
+                      _isRecording = !_isRecording;
+                    })
+                  },
+                  icon: _isRecording
+                      ? Image.asset(
+                          "assets/images/main_btn_record_pressed.png",
+                          gaplessPlayback: true,
+                        )
+                      : Image.asset(
+                          "assets/images/main_btn_record_norm.png",
+                          gaplessPlayback: true,
+                        ),
+                )),
             Pinned.fromPins(
                 Pin(start: 32.0, end: 32.0), Pin(size: 180.0, middle: 0.3645),
                 child: Image.asset("assets/images/main_iv_signal.png")),
@@ -73,9 +92,12 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ),
-        ],
+          ],
         ),
-    ));
+      ),
+      endDrawer: Drawer(child: ListView()),
+      endDrawerEnableOpenDragGesture: false,
+    );
   }
 
   Future<void> _startRecording() async {
@@ -100,17 +122,17 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _isRecording = false;
     });
-  //   // 녹음 중지
-  //   _recordingSession.closeAudioSession();
-  //
-  //   setState(() {
-  //     // 파일 리스트 갱신
-  //     _fl.fileList = _fl.loadFiles();
-  //     _setPathForRecord();
-  //     if (_fl.fileList.length == 1) {
-  //       _fl.selectedFile = _fl.fileList[0];
-  //     }
-  //   });
-  //   return await _recordingSession.stopRecorder();
+    //   // 녹음 중지
+    //   _recordingSession.closeAudioSession();
+    //
+    //   setState(() {
+    //     // 파일 리스트 갱신
+    //     _fl.fileList = _fl.loadFiles();
+    //     _setPathForRecord();
+    //     if (_fl.fileList.length == 1) {
+    //       _fl.selectedFile = _fl.fileList[0];
+    //     }
+    //   });
+    //   return await _recordingSession.stopRecorder();
   }
 }
