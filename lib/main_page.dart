@@ -34,22 +34,24 @@ class _MainPageState extends State<MainPage> {
                 )),
             Pinned.fromPins(
                 Pin(size: 157.0, middle: 0.53), Pin(size: 157.0, end: 32.0),
-                child: IconButton(
-                  onPressed: () => {
-                    setState(() {
-                      _isRecording = !_isRecording;
-                    })
-                  },
-                  icon: _isRecording
+                child: GestureDetector(
+                  onTapDown: (_) => setState(() {
+                    _isRecording = !_isRecording;
+                  }),
+                  onTapCancel: () => setState(() {
+                    _isRecording = !_isRecording;
+                  }),
+                  child: _isRecording
                       ? Image.asset(
-                          "assets/images/main_btn_record_pressed.png",
-                          gaplessPlayback: true,
-                        )
+                    "assets/images/main_btn_record_pressed.png",
+                    gaplessPlayback: true,
+                  )
                       : Image.asset(
-                          "assets/images/main_btn_record_norm.png",
-                          gaplessPlayback: true,
-                        ),
-                )),
+                    "assets/images/main_btn_record_norm.png",
+                    gaplessPlayback: true,
+                  ),
+                )
+            ),
             Pinned.fromPins(
                 Pin(start: 32.0, end: 32.0), Pin(size: 180.0, middle: 0.3645),
                 child: Image.asset("assets/images/main_iv_signal.png")),
