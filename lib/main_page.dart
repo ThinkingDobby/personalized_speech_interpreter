@@ -8,6 +8,10 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   bool _isRecording = false;
+  bool _isNotRecording = true;
+
+  String time = "00:00";
+  String message = "거실 불 켜";
 
   @override
   Widget build(BuildContext context) {
@@ -33,23 +37,67 @@ class _MainPageState extends State<MainPage> {
                   },
                 )),
             Pinned.fromPins(
-                Pin(size: 157.0, middle: 0.53), Pin(size: 157.0, end: 32.0),
-                child: GestureDetector(
-                  onTapDown: (_) => setState(() {
-                    _isRecording = !_isRecording;
-                  }),
-                  onTapCancel: () => setState(() {
-                    _isRecording = !_isRecording;
-                  }),
-                  child: _isRecording
-                      ? Image.asset(
-                    "assets/images/main_btn_record_pressed.png",
-                    gaplessPlayback: true,
-                  )
-                      : Image.asset(
-                    "assets/images/main_btn_record_norm.png",
-                    gaplessPlayback: true,
-                  ),
+              Pin(size: 200.0, middle: 0.5), Pin(size: 200.0, end: 16.0),
+              child: Image.asset("assets/images/main_iv_record_frame.png"),
+            ),
+            Pinned.fromPins(
+                Pin(size: 200, middle: 0.5), Pin(size: 200.0, end: 16.0),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget> [
+                    Container(
+                      width: 100,
+                      height:100,
+                      margin: EdgeInsets.fromLTRB(0, 0, 0, 16),
+                      child: GestureDetector(
+                        onTapDown: _isNotRecording ? (_) => setState(() {
+                          _isRecording = !_isRecording;
+                        }) : null,
+                        onTapCancel: _isNotRecording ? () => setState(() {
+                          _isRecording = !_isRecording;
+                        }) : null,
+                        onTap: _isNotRecording ? () => setState(() {
+                          _isNotRecording = !_isNotRecording;
+                          _startRecording();
+                        }) : null,
+                        child: _isRecording
+                            ? Image.asset(
+                          "assets/images/main_btn_record_pressed.png",
+                          gaplessPlayback: true,
+                        )
+                            : Image.asset(
+                          "assets/images/main_btn_record.png",
+                          gaplessPlayback: true,
+                        ),
+                      ),
+                    ),
+                    Container(
+                        width: 42,
+                        height:42,
+                        margin: EdgeInsets.fromLTRB(113, 96, 0, 0),
+                        child: GestureDetector(
+                          onTapDown: _isRecording ? (_) => setState(() {
+                            _isNotRecording = !_isNotRecording;
+                          }) : null,
+                          onTapCancel: _isRecording ? () => setState(() {
+                            _isNotRecording = !_isNotRecording;
+                          }) : null,
+                          onTap: _isRecording ? () => setState(() {
+                            _isRecording = !_isRecording;
+                            _stopRecording();
+                          }) : null,
+                          child: _isNotRecording
+                              ? Image.asset(
+                            "assets/images/main_btn_stop_pressed.png",
+                            gaplessPlayback: true,
+                          )
+                              : Image.asset(
+                            "assets/images/main_btn_stop.png",
+                            gaplessPlayback: true,
+                          ),
+                        )
+                    )
+                  ],
                 )
             ),
             Pinned.fromPins(
@@ -67,11 +115,11 @@ class _MainPageState extends State<MainPage> {
                 width: 126.0,
                 height: 68.0,
                 child: Text(
-                  '00:00',
-                  style: TextStyle(
+                  time,
+                  style: const TextStyle(
                     fontFamily: 'Roboto',
                     fontSize: 52,
-                    color: const Color(0xff676767),
+                    color: Color(0xff676767),
                     fontWeight: FontWeight.w300,
                   ),
                   softWrap: false,
@@ -84,11 +132,11 @@ class _MainPageState extends State<MainPage> {
                 width: 87.0,
                 height: 26.0,
                 child: Text(
-                  '거실 불 켜',
-                  style: TextStyle(
+                  message,
+                  style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontSize: 18,
-                    color: const Color(0xff000000),
+                    color: Color(0xff000000),
                   ),
                   softWrap: false,
                 ),
@@ -103,9 +151,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _startRecording() async {
-    setState(() {
-      _isRecording = true;
-    });
+    // print("start recording");
     // // print("filePathForRecording: ${_filePathForRecord}");
     // Directory directory = Directory(dirname(_filePathForRecord));
     // if (!directory.existsSync()) {
@@ -121,9 +167,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<String?> _stopRecording() async {
-    setState(() {
-      _isRecording = false;
-    });
+    // print("stop recording");
     //   // 녹음 중지
     //   _recordingSession.closeAudioSession();
     //
