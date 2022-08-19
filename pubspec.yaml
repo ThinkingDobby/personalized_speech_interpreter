@@ -41,6 +41,7 @@ dependencies:
 
   # for recording
   flutter_sound: ^8.1.9
+  audio_waveforms: ^0.1.4
   # for playing
   assets_audio_player: ^3.0.3+3
 

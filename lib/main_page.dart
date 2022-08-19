@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -38,12 +40,15 @@ class _MainPageState extends State<MainPage> {
 
   // 녹음 위한 객체 저장
   late FlutterSoundRecorder _recordingSession;
+  // 음성 신호 시각화 위한 객체 저장
+  late RecorderController _recorderController;
 
   // 재생 위한 객체 저장
   final _audioPlayer = AssetsAudioPlayer();
 
   // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
   late String _filePathForRecord;
+  late String _filePathForWaveVisualize;
 
   // 파일 로드, 삭제 위한 객체
   final _fl = FileLoader();
@@ -191,6 +196,24 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ),
+            Pinned.fromPins(
+              Pin(start: 32.0, end: 32.0), Pin(size: 180.0, middle: 0.3645),
+              child: AudioWaveforms(
+                waveStyle: WaveStyle(
+                  gradient: ui.Gradient.linear(
+                    const Offset(70, 50),
+                    Offset(MediaQuery.of(context).size.width / 2, 0),
+                    [const Color(0xffdc8379), const Color(0xfff5b6ae)],
+                  ),
+                  showMiddleLine: false,
+                  extendWaveform: true,
+                ),
+                enableGesture: true,
+                size: Size(MediaQuery.of(context).size.width, 180.0),
+                recorderController: _recorderController,
+              ),
+            ),
+
           ],
         ),
       ),
@@ -208,12 +231,14 @@ class _MainPageState extends State<MainPage> {
       _fl.fileList = _fl.loadFiles();
       _setPathForRecord();
     });
+    _filePathForWaveVisualize = '${_fl.storagePath}/waveform.wav';
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
     }
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _setRecordingSession();
+    _recorderController = RecorderController();
   }
 
   _setPathForRecord() {
@@ -263,6 +288,7 @@ class _MainPageState extends State<MainPage> {
       toFile: _filePathForRecord,
       codec: Codec.pcm16WAV,
     );
+    await _recorderController.record(_filePathForWaveVisualize);
 
     _time = 0;
     _timeText = "00:00";
@@ -278,6 +304,7 @@ class _MainPageState extends State<MainPage> {
     // print("stop recording");
       // 녹음 중지
       _recordingSession.closeAudioSession();
+      await _recorderController.pause();
 
       setState(() {
         // 파일 리스트 갱신
@@ -347,5 +374,11 @@ class _MainPageState extends State<MainPage> {
     setState((){
       _state = "Disconnected";
     });
+  }
+
+  @override
+  void dispose() {
+    _recorderController.dispose();
+    super.dispose();
   }
 }
