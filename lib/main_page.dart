@@ -1,17 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:sprintf/sprintf.dart';
 
 import 'package:adobe_xd/pinned.dart';
 
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:sprintf/sprintf.dart';
+import 'package:personalized_speech_interpreter/tcp_clients/file_transfer_test_client.dart';
 
 import 'file/file_loader.dart';
 
@@ -30,6 +33,9 @@ class _MainPageState extends State<MainPage> {
   String _timeText = "00:00";
   String _message = "거실 불 켜";
 
+  String _state = "Unconnected";
+  final String FIN_CODE = "Transfer Finished";
+
   // 녹음 위한 객체 저장
   late FlutterSoundRecorder _recordingSession;
 
@@ -44,9 +50,15 @@ class _MainPageState extends State<MainPage> {
 
   late Timer _timer;
 
+  late FileTransferTestClient _client;
+
+  // 실행 시간 측정 위한 객체
+  late Stopwatch stopwatch;
+
   @override
   void initState() {
     super.initState();
+    _client = FileTransferTestClient();
     _initializer();
   }
 
@@ -205,7 +217,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   _setPathForRecord() {
-    _filePathForRecord = '${_fl.storagePath}/temp${_fl.fileList.length + 1}.wav';
+    _filePathForRecord = '${_fl.storagePath}/input.wav'; // 파일 고정
   }
 
   RadioListTile _setListItemBuilder(BuildContext context, int i) {
@@ -253,6 +265,7 @@ class _MainPageState extends State<MainPage> {
     );
 
     _time = 0;
+    _timeText = "00:00";
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _time += 1;
@@ -277,7 +290,10 @@ class _MainPageState extends State<MainPage> {
 
       _timer.cancel();
 
-      return await _recordingSession.stopRecorder();
+      await _recordingSession.stopRecorder();
+      await _startCon();
+      await _sendData();
+      await _stopCon();
   }
 
   Future<void> _startPlaying() async {
@@ -298,5 +314,38 @@ class _MainPageState extends State<MainPage> {
   Future<void> _stopPlaying() async {
     // 재생 중지
     _audioPlayer.stop();
+  }
+
+  Future<void> _startCon() async {
+    await _client.sendRequest();
+    setState((){
+      _state = "Connected";
+    });
+    _client.clntSocket.listen((List<int> event) {
+      setState(() {
+        _state = utf8.decode(event);
+        if (_state == FIN_CODE) {
+          _client.clntSocket.done;
+          print("time elapsed: ${stopwatch.elapsed}");
+        }
+      });
+    });
+  }
+
+  Future<void> _sendData() async {
+    try {
+      Uint8List data = await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
+      stopwatch = Stopwatch()..start();
+      _client.sendFile(1, data);  // 임시 - 타입 1
+    } on FileSystemException {
+      print("File not exists: ${_fl.selectedFile}");
+    }
+  }
+
+  Future<void> _stopCon() async {
+    _client.stopClnt();
+    setState((){
+      _state = "Disconnected";
+    });
   }
 }
