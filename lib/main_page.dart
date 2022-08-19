@@ -1,5 +1,20 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
 import 'package:adobe_xd/pinned.dart';
+
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:sprintf/sprintf.dart';
+
+import 'file/file_loader.dart';
+
 
 class MainPage extends StatefulWidget {
   @override
@@ -9,9 +24,31 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   bool _isRecording = false;
   bool _isNotRecording = true;
+  bool _isPlaying = false;
 
-  String time = "00:00";
-  String message = "거실 불 켜";
+  int _time = 0;
+  String _timeText = "00:00";
+  String _message = "거실 불 켜";
+
+  // 녹음 위한 객체 저장
+  late FlutterSoundRecorder _recordingSession;
+
+  // 재생 위한 객체 저장
+  final _audioPlayer = AssetsAudioPlayer();
+
+  // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
+  late String _filePathForRecord;
+
+  // 파일 로드, 삭제 위한 객체
+  final _fl = FileLoader();
+
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializer();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +152,7 @@ class _MainPageState extends State<MainPage> {
                 width: 126.0,
                 height: 68.0,
                 child: Text(
-                  time,
+                  _timeText,
                   style: const TextStyle(
                     fontFamily: 'Roboto',
                     fontSize: 52,
@@ -132,7 +169,7 @@ class _MainPageState extends State<MainPage> {
                 width: 87.0,
                 height: 26.0,
                 child: Text(
-                  message,
+                  _message,
                   style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontSize: 18,
@@ -150,35 +187,116 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  void _initializer() async {
+    // 내부저장소 경로 로드
+    var docsDir = await getApplicationDocumentsDirectory();
+    _fl.storagePath = docsDir.path;
+    setState(() {
+      // 파일 리스트 초기화
+      _fl.fileList = _fl.loadFiles();
+      _setPathForRecord();
+    });
+    if (_fl.fileList.isNotEmpty) {
+      _fl.selectedFile = _fl.fileList[0];
+    }
+
+    // 녹음 위한 FlutterSoundRecorder 객체 설정
+    _setRecordingSession();
+  }
+
+  _setPathForRecord() {
+    _filePathForRecord = '${_fl.storagePath}/temp${_fl.fileList.length + 1}.wav';
+  }
+
+  RadioListTile _setListItemBuilder(BuildContext context, int i) {
+    return RadioListTile(
+        title: Text(_fl.fileList[i]),
+        value: _fl.fileList[i],
+        groupValue: _fl.selectedFile,
+        onChanged: (val) {
+          setState(() {
+            _fl.selectedFile = _fl.fileList[i];
+          });
+        });
+  }
+
+  _setRecordingSession() async {
+    // 객체 설정
+    _recordingSession = FlutterSoundRecorder();
+    await _recordingSession.openAudioSession(
+        focus: AudioFocus.requestFocusAndStopOthers,
+        category: SessionCategory.playAndRecord,
+        mode: SessionMode.modeDefault,
+        device: AudioDevice.speaker);
+    await _recordingSession
+        .setSubscriptionDuration(const Duration(milliseconds: 10));
+    await initializeDateFormatting();
+
+    // 권한 요청
+    await Permission.microphone.request();
+    await Permission.storage.request();
+    await Permission.manageExternalStorage.request();
+  }
+
   Future<void> _startRecording() async {
     // print("start recording");
-    // // print("filePathForRecording: ${_filePathForRecord}");
-    // Directory directory = Directory(dirname(_filePathForRecord));
-    // if (!directory.existsSync()) {
-    //   directory.createSync();
-    // }
-    // _recordingSession.openAudioSession();
-    // // 녹음 시작
-    // await _recordingSession.startRecorder(
-    //   toFile: _filePathForRecord,
-    //   codec: Codec.pcm16WAV,
-    //   sampleRate: 32000,  // 테스트 위한 조정
-    // );
+    // print("filePathForRecording: ${_filePathForRecord}");
+    Directory directory = Directory(dirname(_filePathForRecord));
+    if (!directory.existsSync()) {
+      directory.createSync();
+    }
+    _recordingSession.openAudioSession();
+    // 녹음 시작
+    await _recordingSession.startRecorder(
+      toFile: _filePathForRecord,
+      codec: Codec.pcm16WAV,
+    );
+
+    _time = 0;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _time += 1;
+        _timeText = sprintf("%02d:%02d", [_time ~/ 60, _time % 60]);
+      });
+    });
   }
 
   Future<String?> _stopRecording() async {
     // print("stop recording");
-    //   // 녹음 중지
-    //   _recordingSession.closeAudioSession();
-    //
-    //   setState(() {
-    //     // 파일 리스트 갱신
-    //     _fl.fileList = _fl.loadFiles();
-    //     _setPathForRecord();
-    //     if (_fl.fileList.length == 1) {
-    //       _fl.selectedFile = _fl.fileList[0];
-    //     }
-    //   });
-    //   return await _recordingSession.stopRecorder();
+      // 녹음 중지
+      _recordingSession.closeAudioSession();
+
+      setState(() {
+        // 파일 리스트 갱신
+        _fl.fileList = _fl.loadFiles();
+        _setPathForRecord();
+        if (_fl.fileList.length == 1) {
+          _fl.selectedFile = _fl.fileList[0];
+        }
+      });
+
+      _timer.cancel();
+
+      return await _recordingSession.stopRecorder();
+  }
+
+  Future<void> _startPlaying() async {
+    // 재생
+    _audioPlayer.open(
+      Audio.file('${_fl.storagePath}/${_fl.selectedFile}'),
+      autoStart: true,
+      showNotification: true,
+    );
+    // print("filePathForPlaying ${_fl.storagePath}/${_fl.selectedFile}");
+    _audioPlayer.playlistAudioFinished.listen((event) {
+      setState(() {
+        _isPlaying = false;
+      });
+    });
+  }
+
+  Future<void> _stopPlaying() async {
+    // 재생 중지
+    _audioPlayer.stop();
   }
 }

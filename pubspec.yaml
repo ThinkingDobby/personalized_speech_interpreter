@@ -30,7 +30,22 @@ dependencies:
   flutter:
     sdk: flutter
 
+  permission_handler: ^8.1.2
+  path: ^1.8.0
+  path_provider: ^2.0.11
+  intl: ^0.17.0
+  sprintf: ^6.0.2
+
+  # xd to flutter
   adobe_xd: 2.0.1
+
+  # for recording
+  flutter_sound: ^8.1.9
+  # for playing
+  assets_audio_player: ^3.0.3+3
+
+  # fast fourier transformation
+  fftea: ^1.2.0+1
 
 
   # The following adds the Cupertino Icons font to your application.
