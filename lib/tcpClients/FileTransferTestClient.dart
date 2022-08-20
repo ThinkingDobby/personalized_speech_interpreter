@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:fftea/impl.dart';
 
 import '../util/util.dart';
-import 'basic_test_client.dart';
+import 'BasicTestClient.dart';
 
 class FileTransferTestClient extends BasicTestClient {
   void sendFile(int type, Uint8List data) async {

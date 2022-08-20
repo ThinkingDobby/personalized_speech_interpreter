@@ -16,9 +16,10 @@ import 'package:adobe_xd/pinned.dart';
 
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:personalized_speech_interpreter/tcp_clients/file_transfer_test_client.dart';
+import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 
-import 'file/file_loader.dart';
+import 'file/FileLoader.dart';
+import 'main.dart';
 
 
 class MainPage extends StatefulWidget {
@@ -85,7 +86,7 @@ class _MainPageState extends State<MainPage> {
                   builder: (context) {
                     return InkWell(
                         onDoubleTap: () {
-                          Scaffold.of(context).openEndDrawer();
+                          Navigator.pushNamed(context, TEST_PAGE);
                         },
                         child: Image.asset("assets/images/main_btn_null.png"));
                   },
@@ -217,8 +218,6 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
-      endDrawer: Drawer(child: ListView()),
-      endDrawerEnableOpenDragGesture: false,
     );
   }
 
