@@ -209,7 +209,7 @@ class _MainPageState extends State<MainPage> {
                   showMiddleLine: false,
                   extendWaveform: true,
                 ),
-                enableGesture: true,
+                enableGesture: false,
                 size: Size(MediaQuery.of(context).size.width, 180.0),
                 recorderController: _recorderController,
               ),
@@ -289,8 +289,10 @@ class _MainPageState extends State<MainPage> {
     );
     await _recorderController.record(_filePathForWaveVisualize);
 
-    _time = 0;
-    _timeText = "00:00";
+    setState(() {
+      _time = 0;
+      _timeText = "00:00";
+    });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _time += 1;
