@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'MainPage.dart';
 import 'TestPage.dart';
+import 'TrainingPage.dart';
 
 
 void main() => runApp(PSI());
 
 const String ROOT_PAGE = '/';
 const String TEST_PAGE = '/test';
+const String TRAINING_PAGE = '/training';
 
 class PSI extends StatelessWidget{
   @override
@@ -18,7 +20,8 @@ class PSI extends StatelessWidget{
         initialRoute: ROOT_PAGE,
         routes: {
           ROOT_PAGE: (context) => MainPage(),
-          TEST_PAGE: (context) => TestPage()
+          TEST_PAGE: (context) => TestPage(),
+          TRAINING_PAGE: (context) => TrainingPage()
         }
     );
   }

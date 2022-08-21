@@ -214,8 +214,15 @@ class _MainPageState extends State<MainPage> {
                 recorderController: _recorderController,
               ),
             ),
-
-          ],
+            Container(
+              alignment: Alignment.bottomRight,
+              margin: const EdgeInsets.fromLTRB(0, 0, 16, 16),
+              child: IconButton(
+                icon: Image.asset("assets/images/icon.png"),
+                onPressed: () => Navigator.pushNamed(context, TRAINING_PAGE),
+              )
+            )
+           ],
         ),
       ),
     );
