@@ -92,18 +92,18 @@ class _MainPageState extends State<MainPage> {
                   },
                 )),
             Pinned.fromPins(
-              Pin(size: 200.0, middle: 0.5), Pin(size: 200.0, end: 16.0),
+              Pin(size: 252.0, middle: 0.5), Pin(size: 200.0, end: 16.0),
               child: Image.asset("assets/images/main_iv_record_frame.png"),
             ),
             Pinned.fromPins(
-                Pin(size: 200, middle: 0.5), Pin(size: 200.0, end: 16.0),
+                Pin(size: 252, middle: 0.5), Pin(size: 200.0, end: 16.0),
                 child: Stack(
                   alignment: Alignment.center,
                   children: <Widget> [
                     Container(
                       width: 100,
                       height:100,
-                      margin: EdgeInsets.fromLTRB(0, 0, 0, 16),
+                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                       child: GestureDetector(
                         onTapDown: _isNotRecording ? (_) => setState(() {
                           _isRecording = !_isRecording;
@@ -129,7 +129,7 @@ class _MainPageState extends State<MainPage> {
                     Container(
                         width: 42,
                         height:42,
-                        margin: EdgeInsets.fromLTRB(113, 96, 0, 0),
+                        margin: const EdgeInsets.fromLTRB(162, 0, 0, 0),
                         child: GestureDetector(
                           onTapDown: _isRecording ? (_) => setState(() {
                             _isNotRecording = !_isNotRecording;
