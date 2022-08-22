@@ -229,6 +229,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _initializer() async {
+    _recorderController = RecorderController();
     // 내부저장소 경로 로드
     var docsDir = await getApplicationDocumentsDirectory();
     _fl.storagePath = docsDir.path;
@@ -244,7 +245,6 @@ class _MainPageState extends State<MainPage> {
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _setRecordingSession();
-    _recorderController = RecorderController();
   }
 
   _setPathForRecord() {

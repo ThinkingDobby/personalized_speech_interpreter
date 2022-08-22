@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:path/path.dart';
+
 class FileLoader {
   //  저장소 경로
   late String storagePath;
@@ -14,6 +16,10 @@ class FileLoader {
   List<String> loadFiles() {
     List<String> files = <String>[];
 
+    Directory directory = Directory(storagePath);
+    if (!directory.existsSync()) {
+      directory.createSync();
+    }
     var dir = Directory(storagePath).listSync();
     for (var file in dir) {
       // 확장자 검사
