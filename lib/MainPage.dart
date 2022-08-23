@@ -296,7 +296,7 @@ class _MainPageState extends State<MainPage> {
     );
 
     // iOS 환경에서 오류 발생
-    // await _recorderController.record(_filePathForWaveVisualize);
+    await _recorderController.record(_filePathForWaveVisualize);
 
     setState(() {
       _time = 0;
