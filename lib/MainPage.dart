@@ -295,8 +295,7 @@ class _MainPageState extends State<MainPage> {
       codec: Codec.pcm16WAV,
     );
 
-    // iOS 환경에서 오류 발생
-    await _recorderController.record(_filePathForWaveVisualize);
+    await _recorderController.record(); // 경로 임시 제거 - 기본 경로: git log 참고
 
     setState(() {
       _time = 0;
