@@ -330,8 +330,8 @@ class _TrainingPageState extends State<TrainingPage> {
           children: [
             Text(_fl.fileList[i]),
             const Expanded(child: SizedBox(width: 0,)),
-            IconButton(onPressed: () => _startPlaying(i), icon: Image.asset("assets/images/icon.png")),
-            IconButton(onPressed: () => _deleteFile(i), icon: Image.asset("assets/images/icon.png"))
+            IconButton(onPressed: () => _startPlaying(i), icon: Image.asset("assets/images/training_iv_play.png")),
+            IconButton(onPressed: () => _deleteFile(i), icon: Image.asset("assets/images/training_iv_delete.png"))
           ],
         ),
         value: _fl.fileList[i],
