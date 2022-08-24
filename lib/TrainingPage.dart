@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
@@ -111,6 +112,26 @@ class _TrainingPageState extends State<TrainingPage> {
                                 height: 98,
                                 child: Image.asset(
                                     "assets/images/training_iv_control.png")),
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(26, 365, 0, 0),
+                              width: 97,
+                              height: 50,
+                              alignment: Alignment.center,
+                              child: AudioWaveforms(
+                                waveStyle: WaveStyle(
+                                  gradient: ui.Gradient.linear(
+                                    const Offset(70, 50),
+                                    Offset(MediaQuery.of(context).size.width / 2, 0),
+                                    [const Color(0xffdc8379), const Color(0xfff5b6ae)],
+                                  ),
+                                  showMiddleLine: false,
+                                  extendWaveform: true,
+                                ),
+                                enableGesture: false,
+                                size: Size(MediaQuery.of(context).size.width, 40.0),
+                                recorderController: _recorderController,
+                              ),
+                            ),
                             Container(
                                 margin:
                                     const EdgeInsets.fromLTRB(138, 366, 0, 0),
@@ -333,7 +354,7 @@ class _TrainingPageState extends State<TrainingPage> {
       toFile: _filePathForRecord,
       codec: Codec.pcm16WAV,
     );
-    await _recorderController.record(_filePathForWaveVisualize);
+    await _recorderController.record();
   }
 
   Future<String?> _stopRecording() async {
@@ -352,9 +373,6 @@ class _TrainingPageState extends State<TrainingPage> {
     });
 
     await _recordingSession.stopRecorder();
-    await _startCon();
-    await _sendData();
-    await _stopCon();
   }
 
   Future<void> _startPlaying() async {
