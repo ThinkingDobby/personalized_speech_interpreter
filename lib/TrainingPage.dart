@@ -10,13 +10,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'package:adobe_xd/pinned.dart';
-
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 
 import 'file/FileLoader.dart';
+
 
 class TrainingPage extends StatefulWidget {
   @override
@@ -61,171 +60,209 @@ class _TrainingPageState extends State<TrainingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter)),
-      child: Scaffold(
-          backgroundColor: const Color(0xffffffff),
-          body: Stack(
-            children: <Widget>[
-              Pinned.fromPins(
-                  Pin(start: 22.0, end: 22.0), Pin(size: 400.0, middle: 0.425),
-                  child: Image.asset(
-                      "assets/images/training_iv_list_background.png")),
-              Pinned.fromPins(
-                Pin(size: 296.0, middle: 0.5),
-                Pin(size: 40.0, start: 64.0),
-                child: const Text(
-                  '단어 학습',
-                  style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 28,
-                    color: Color(0xff191919),
-                    fontWeight: FontWeight.w600,
-                  ),
-                  softWrap: false,
-                ),
-              ),
-              Pinned.fromPins(
-                Pin(size: 332.0, middle: 0.5),
-                Pin(size: 66.0, end: 12.0),
-                child: GestureDetector(
-                  onTapDown: _isSending
-                      ? null
-                      : (_) => setState(() {
-                            _isSendBtnClicked = !_isSendBtnClicked;
-                          }),
-                  onTapCancel: _isSending
-                      ? null
-                      : () => setState(() {
-                            _isSendBtnClicked = !_isSendBtnClicked;
-                          }),
-                  onTap: _isSending ? null : () => _startSend(),
-                  child: _isSendBtnClicked
-                      ? Image.asset(
-                          "assets/images/test_btn_send_clicked.png",
-                          gaplessPlayback: true,
-                        )
-                      : Image.asset(
-                          "assets/images/test_btn_send.png",
-                          gaplessPlayback: true,
+    return Scaffold(
+        body: Container(
+            margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter)),
+            child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                scrollDirection: Axis.vertical,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      const SizedBox(height: 64),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(32, 0, 0, 0),
+                        width: 296,
+                        height: 40,
+                        child: const Text(
+                          '단어 학습',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 28,
+                            color: Color(0xff191919),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          softWrap: false,
                         ),
-                ),
-              ),
-              Pinned.fromPins(
-                Pin(size: 142.0, middle: 0.5),
-                Pin(size: 21.0, end: 35.0),
-                child: GestureDetector(
-                  onTapDown: _isSending
-                      ? null
-                      : (_) => setState(() {
-                            _isSendBtnClicked = !_isSendBtnClicked;
-                          }),
-                  onTapCancel: _isSending
-                      ? null
-                      : () => setState(() {
-                            _isSendBtnClicked = !_isSendBtnClicked;
-                          }),
-                  onTap: _isSending ? null : () => _startSend(),
-                  child: Text(
-                    '입력한 음성으로 학습',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      color: _isSendBtnClicked
-                          ? const Color(0xfffecdc8)
-                          : const Color(0xfffefefe),
-                      fontWeight: FontWeight.w600,
-                    ),
-                    softWrap: false,
-                  ),
-                ),
-              ),
-              // 드롭다운
-              Pinned.fromPins(
-                Pin(start: 32.0, end: 32.0),
-                Pin(size: 40.0, start: 114.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xfffcfcfc),
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                ),
-              ),
-              Pinned.fromPins(
-                  Pin(size: 320.0, middle: 0.5), Pin(size: 98.0, middle: 0.734),
-                  child: Image.asset("assets/images/training_iv_control.png")),
-              Pinned.fromPins(
-                  Pin(size: 320.0, middle: 0.5), Pin(size: 98.0, middle: 0.734),
-                  child: Container(
-                      margin: const EdgeInsets.fromLTRB(139, 0, 0, 10),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 52,
-                            height: 52,
-                            child: GestureDetector(
-                              onTapDown: _isNotRecording ? (_) => setState(() {
-                                _isRecording = !_isRecording;
-                              }) : null,
-                              onTapCancel: _isNotRecording ? () => setState(() {
-                                _isRecording = !_isRecording;
-                              }) : null,
-                              onTap: _isNotRecording ? () => setState(() {
-                                _isNotRecording = !_isNotRecording;
-                                _startRecording();
-                              }) : null,
-                              child: _isRecording
-                                  ? Image.asset(
-                                "assets/images/training_btn_record_pressed.png",
-                                gaplessPlayback: true,
-                              )
-                                  : Image.asset(
-                                "assets/images/training_btn_record.png",
-                                gaplessPlayback: true,
+                      ),
+                      // 단어 선택창
+                      const SizedBox(height: 72),
+                      Container(
+                        alignment: Alignment.topCenter,
+                        width: 320,
+                        height: 446,
+                        child: Stack(
+                          children: [
+                            SizedBox(
+                                width: 316,
+                                height: 400,
+                                child: Image.asset(
+                                    "assets/images/training_iv_list_background.png")),
+                            Container(
+                                margin: const EdgeInsets.fromLTRB(0, 348, 0, 0),
+                                width: 320,
+                                height: 98,
+                                child: Image.asset(
+                                    "assets/images/training_iv_control.png")),
+                            Container(
+                                margin:
+                                    const EdgeInsets.fromLTRB(138, 366, 0, 0),
+                                child: Row(
+                                  children: <Widget>[
+                                    SizedBox(
+                                      width: 52,
+                                      height: 52,
+                                      child: GestureDetector(
+                                        onTapDown: _isNotRecording
+                                            ? (_) => setState(() {
+                                                  _isRecording = !_isRecording;
+                                                })
+                                            : null,
+                                        onTapCancel: _isNotRecording
+                                            ? () => setState(() {
+                                                  _isRecording = !_isRecording;
+                                                })
+                                            : null,
+                                        onTap: _isNotRecording
+                                            ? () => setState(() {
+                                                  _isNotRecording =
+                                                      !_isNotRecording;
+                                                  _startRecording();
+                                                })
+                                            : null,
+                                        child: _isRecording
+                                            ? Image.asset(
+                                                "assets/images/training_btn_record_pressed.png",
+                                                gaplessPlayback: true,
+                                              )
+                                            : Image.asset(
+                                                "assets/images/training_btn_record.png",
+                                                gaplessPlayback: true,
+                                              ),
+                                      ),
+                                    ),
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            2, 0, 0, 0),
+                                        width: 52,
+                                        height: 52,
+                                        child: GestureDetector(
+                                          onTapDown: _isRecording
+                                              ? (_) => setState(() {
+                                                    _isNotRecording =
+                                                        !_isNotRecording;
+                                                  })
+                                              : null,
+                                          onTapCancel: _isRecording
+                                              ? () => setState(() {
+                                                    _isNotRecording =
+                                                        !_isNotRecording;
+                                                  })
+                                              : null,
+                                          onTap: _isRecording
+                                              ? () => setState(() {
+                                                    _isRecording =
+                                                        !_isRecording;
+                                                    _stopRecording();
+                                                  })
+                                              : null,
+                                          child: _isNotRecording
+                                              ? Image.asset(
+                                                  "assets/images/training_btn_stop_pressed.png",
+                                                  gaplessPlayback: true,
+                                                )
+                                              : Image.asset(
+                                                  "assets/images/training_btn_stop.png",
+                                                  gaplessPlayback: true,
+                                                ),
+                                        )),
+                                    Container(
+                                      margin:
+                                          const EdgeInsets.fromLTRB(2, 0, 0, 0),
+                                      width: 52,
+                                      height: 52,
+                                      child: Image.asset(
+                                          "assets/images/training_btn_stop.png"),
+                                    ),
+                                  ],
+                                )),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 64),
+                      Container(
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 332,
+                              height: 66,
+                              child: GestureDetector(
+                                onTapDown: _isSending
+                                    ? null
+                                    : (_) => setState(() {
+                                  _isSendBtnClicked = !_isSendBtnClicked;
+                                }),
+                                onTapCancel: _isSending
+                                    ? null
+                                    : () => setState(() {
+                                  _isSendBtnClicked = !_isSendBtnClicked;
+                                }),
+                                onTap: _isSending ? null : () => _startSend(),
+                                child: _isSendBtnClicked
+                                    ? Image.asset(
+                                  "assets/images/test_btn_send_clicked.png",
+                                  gaplessPlayback: true,
+                                )
+                                    : Image.asset(
+                                  "assets/images/test_btn_send.png",
+                                  gaplessPlayback: true,
+                                ),
                               ),
                             ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(2, 0, 0, 0),
-                            width: 52,
-                            height: 52,
-                            child: GestureDetector(
-                              onTapDown: _isRecording ? (_) => setState(() {
-                                _isNotRecording = !_isNotRecording;
-                              }) : null,
-                              onTapCancel: _isRecording ? () => setState(() {
-                                _isNotRecording = !_isNotRecording;
-                              }) : null,
-                              onTap: _isRecording ? () => setState(() {
-                                _isRecording = !_isRecording;
-                                _stopRecording();
-                              }) : null,
-                              child: _isNotRecording
-                                  ? Image.asset(
-                                "assets/images/training_btn_stop_pressed.png",
-                                gaplessPlayback: true,
-                              )
-                                  : Image.asset(
-                                "assets/images/training_btn_stop.png",
-                                gaplessPlayback: true,
+                            Container(
+                              width: 332,
+                              height: 62,
+                              alignment: Alignment.center,
+                              child: GestureDetector(
+                                onTapDown: _isSending
+                                    ? null
+                                    : (_) => setState(() {
+                                  _isSendBtnClicked = !_isSendBtnClicked;
+                                }),
+                                onTapCancel: _isSending
+                                    ? null
+                                    : () => setState(() {
+                                  _isSendBtnClicked = !_isSendBtnClicked;
+                                }),
+                                onTap: _isSending ? null : () => _startSend(),
+                                child: Text(
+                                  '입력한 음성으로 학습',
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontSize: 16,
+                                    color: _isSendBtnClicked
+                                        ? const Color(0xfffecdc8)
+                                        : const Color(0xfffefefe),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  softWrap: false,
+                                ),
                               ),
-                            )
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(2, 0, 0, 0),
-                            width: 52,
-                            height: 52,
-                            child: Image.asset(
-                                "assets/images/training_btn_stop.png"),
-                          ),
-                        ],
-                      )))
-            ],
-          )),
+                            ),
+                          ],
+                        )
+                      ),
+                      const SizedBox(height: 12),
+                    ])
+            )
+        )
     );
   }
 
@@ -248,9 +285,9 @@ class _TrainingPageState extends State<TrainingPage> {
     _setRecordingSession();
   }
 
-
   _setPathForRecord() {
-    _filePathForRecord = '${_fl.storagePath}/temp${_fl.fileList.length + 1}.wav';
+    _filePathForRecord =
+        '${_fl.storagePath}/temp${_fl.fileList.length + 1}.wav';
   }
 
   RadioListTile _setListItemBuilder(BuildContext context, int i) {
@@ -357,7 +394,7 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Future<void> _startCon() async {
     await _client.sendRequest();
-    setState((){
+    setState(() {
       _state = "Connected";
     });
     _client.clntSocket.listen((List<int> event) {
@@ -372,8 +409,9 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Future<void> _sendData() async {
     try {
-      Uint8List data = await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
-      _client.sendFile(1, data);  // 임시 - 타입 1
+      Uint8List data =
+          await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
+      _client.sendFile(1, data); // 임시 - 타입 1
     } on FileSystemException {
       print("File not exists: ${_fl.selectedFile}");
     }
@@ -381,7 +419,7 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Future<void> _stopCon() async {
     _client.stopClnt();
-    setState((){
+    setState(() {
       _state = "Disconnected";
     });
   }

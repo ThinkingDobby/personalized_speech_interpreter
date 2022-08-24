@@ -72,6 +72,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: Container(
           margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+          width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           decoration: const BoxDecoration(
               gradient: LinearGradient(
