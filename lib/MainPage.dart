@@ -6,13 +6,12 @@ import 'dart:ui' as ui;
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sprintf/sprintf.dart';
-
-import 'package:adobe_xd/pinned.dart';
 
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
@@ -20,7 +19,6 @@ import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClien
 
 import 'file/FileLoader.dart';
 import 'main.dart';
-
 
 class MainPage extends StatefulWidget {
   @override
@@ -41,6 +39,7 @@ class _MainPageState extends State<MainPage> {
 
   // 녹음 위한 객체 저장
   late FlutterSoundRecorder _recordingSession;
+
   // 음성 신호 시각화 위한 객체 저장
   late RecorderController _recorderController;
 
@@ -72,159 +71,202 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter)),
-        child: Stack(
-          children: <Widget>[
-            Container(
-                margin: const EdgeInsets.fromLTRB(0, 32, 0, 0),
-                alignment: Alignment.topRight,
-                child: Builder(
-                  builder: (context) {
-                    return InkWell(
-                        onDoubleTap: () {
-                          Navigator.pushNamed(context, TEST_PAGE);
-                        },
-                        child: Image.asset("assets/images/main_btn_null.png"));
-                  },
-                )),
-            Pinned.fromPins(
-              Pin(size: 252.0, middle: 0.5), Pin(size: 200.0, end: 16.0),
-              child: Image.asset("assets/images/main_iv_record_frame.png"),
-            ),
-            Pinned.fromPins(
-                Pin(size: 252, middle: 0.5), Pin(size: 200.0, end: 16.0),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: <Widget> [
+          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+          height: MediaQuery.of(context).size.height,
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter)),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
                     Container(
-                      width: 100,
-                      height:100,
-                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                      child: GestureDetector(
-                        onTapDown: _isNotRecording ? (_) => setState(() {
-                          _isRecording = !_isRecording;
-                        }) : null,
-                        onTapCancel: _isNotRecording ? () => setState(() {
-                          _isRecording = !_isRecording;
-                        }) : null,
-                        onTap: _isNotRecording ? () => setState(() {
-                          _isNotRecording = !_isNotRecording;
-                          _startRecording();
-                        }) : null,
-                        child: _isRecording
-                            ? Image.asset(
-                          "assets/images/main_btn_record_pressed.png",
-                          gaplessPlayback: true,
-                        )
-                            : Image.asset(
-                          "assets/images/main_btn_record.png",
-                          gaplessPlayback: true,
+                        width: 32,
+                        height: 32,
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        child: Builder(
+                          builder: (context) {
+                            return InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, TRAINING_PAGE);
+                                },
+                                child: Image.asset("assets/images/icon.png"));
+                          },
+                        )),
+                    Container(
+                        width: 32,
+                        height: 32,
+                        margin: const EdgeInsets.fromLTRB(32, 0, 0, 0),
+                        child: Builder(
+                          builder: (context) {
+                            return InkWell(
+                                onDoubleTap: () {
+                                  Navigator.pushNamed(context, TEST_PAGE);
+                                },
+                                child: Image.asset("assets/images/icon.png"));
+                          },
+                        )),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  alignment: Alignment.center,
+                  width: 296.0,
+                  height: 68.0,
+                  child: Text(
+                    _timeText,
+                    style: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 52,
+                      color: Color(0xff676767),
+                      fontWeight: FontWeight.w300,
+                    ),
+                    softWrap: false,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Stack(
+                  children: [
+                    SizedBox(
+                        width: 296,
+                        height: 180,
+                        child: Image.asset("assets/images/main_iv_signal.png")),
+                    SizedBox(
+                      width: 296,
+                      height: 180,
+                      child: AudioWaveforms(
+                        waveStyle: WaveStyle(
+                          gradient: ui.Gradient.linear(
+                            const Offset(70, 50),
+                            Offset(MediaQuery.of(context).size.width / 2, 0),
+                            [const Color(0xffdc8379), const Color(0xfff5b6ae)],
+                          ),
+                          showMiddleLine: false,
+                          extendWaveform: true,
                         ),
+                        enableGesture: false,
+                        size: Size(MediaQuery.of(context).size.width, 180.0),
+                        recorderController: _recorderController,
                       ),
                     ),
-                    Container(
-                        width: 42,
-                        height:42,
-                        margin: const EdgeInsets.fromLTRB(162, 0, 0, 0),
-                        child: GestureDetector(
-                          onTapDown: _isRecording ? (_) => setState(() {
-                            _isNotRecording = !_isNotRecording;
-                          }) : null,
-                          onTapCancel: _isRecording ? () => setState(() {
-                            _isNotRecording = !_isNotRecording;
-                          }) : null,
-                          onTap: _isRecording ? () => setState(() {
-                            _isRecording = !_isRecording;
-                            _stopRecording();
-                          }) : null,
-                          child: _isNotRecording
-                              ? Image.asset(
-                            "assets/images/main_btn_stop_pressed.png",
-                            gaplessPlayback: true,
-                          )
-                              : Image.asset(
-                            "assets/images/main_btn_stop.png",
-                            gaplessPlayback: true,
-                          ),
-                        )
-                    )
                   ],
-                )
-            ),
-            Pinned.fromPins(
-                Pin(start: 32.0, end: 32.0), Pin(size: 180.0, middle: 0.3645),
-                child: Image.asset("assets/images/main_iv_signal.png")),
-            Pinned.fromPins(
-                Pin(start: 22, end: 22), Pin(size: 112.0, middle: 0.633),
-                child: Image.asset("assets/images/main_iv_result_shadow.png")),
-            Pinned.fromPins(
-                Pin(start: 32.0, end: 32.0), Pin(size: 96.0, middle: 0.6222),
-                child: Image.asset("assets/images/main_iv_result.png")),
-            Align(
-              alignment: Alignment(0.0, -0.656),
-              child: SizedBox(
-                width: 126.0,
-                height: 68.0,
-                child: Text(
-                  _timeText,
-                  style: const TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 52,
-                    color: Color(0xff676767),
-                    fontWeight: FontWeight.w300,
-                  ),
-                  softWrap: false,
                 ),
-              ),
-            ),
-            Align(
-              alignment: Alignment(0.004, 0.222),
-              child: SizedBox(
-                width: 87.0,
-                height: 26.0,
-                child: Text(
-                  _message,
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 18,
-                    color: Color(0xff000000),
-                  ),
-                  softWrap: false,
+                const SizedBox(height: 32),
+                Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    Container(
+                        width: 316,
+                        height: 112,
+                        child: Image.asset(
+                            "assets/images/main_iv_result_shadow.png")),
+                    Container(
+                        margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                        width: 296,
+                        height: 96,
+                        child: Image.asset("assets/images/main_iv_result.png")),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                      alignment: Alignment.center,
+                      width: 296,
+                      height: 96,
+                      child: Text(
+                        _message,
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 18,
+                          color: Color(0xff000000),
+                        ),
+                        softWrap: false,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-            Pinned.fromPins(
-              Pin(start: 32.0, end: 32.0), Pin(size: 180.0, middle: 0.3645),
-              child: AudioWaveforms(
-                waveStyle: WaveStyle(
-                  gradient: ui.Gradient.linear(
-                    const Offset(70, 50),
-                    Offset(MediaQuery.of(context).size.width / 2, 0),
-                    [const Color(0xffdc8379), const Color(0xfff5b6ae)],
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: 252,
+                  height: 200,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.asset("assets/images/main_iv_record_frame.png"),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                        child: GestureDetector(
+                          onTapDown: _isNotRecording
+                              ? (_) => setState(() {
+                                    _isRecording = !_isRecording;
+                                  })
+                              : null,
+                          onTapCancel: _isNotRecording
+                              ? () => setState(() {
+                                    _isRecording = !_isRecording;
+                                  })
+                              : null,
+                          onTap: _isNotRecording
+                              ? () => setState(() {
+                                    _isNotRecording = !_isNotRecording;
+                                    _startRecording();
+                                  })
+                              : null,
+                          child: _isRecording
+                              ? Image.asset(
+                                  "assets/images/main_btn_record_pressed.png",
+                                  gaplessPlayback: true,
+                                )
+                              : Image.asset(
+                                  "assets/images/main_btn_record.png",
+                                  gaplessPlayback: true,
+                                ),
+                        ),
+                      ),
+                      Container(
+                          width: 42,
+                          height: 42,
+                          margin: const EdgeInsets.fromLTRB(162, 0, 0, 0),
+                          child: GestureDetector(
+                            onTapDown: _isRecording
+                                ? (_) => setState(() {
+                                      _isNotRecording = !_isNotRecording;
+                                    })
+                                : null,
+                            onTapCancel: _isRecording
+                                ? () => setState(() {
+                                      _isNotRecording = !_isNotRecording;
+                                    })
+                                : null,
+                            onTap: _isRecording
+                                ? () => setState(() {
+                                      _isRecording = !_isRecording;
+                                      _stopRecording();
+                                    })
+                                : null,
+                            child: _isNotRecording
+                                ? Image.asset(
+                                    "assets/images/main_btn_stop_pressed.png",
+                                    gaplessPlayback: true,
+                                  )
+                                : Image.asset(
+                                    "assets/images/main_btn_stop.png",
+                                    gaplessPlayback: true,
+                                  ),
+                          ))
+                    ],
                   ),
-                  showMiddleLine: false,
-                  extendWaveform: true,
                 ),
-                enableGesture: false,
-                size: Size(MediaQuery.of(context).size.width, 180.0),
-                recorderController: _recorderController,
-              ),
+              ],
             ),
-            Container(
-              alignment: Alignment.bottomRight,
-              margin: const EdgeInsets.fromLTRB(0, 0, 16, 16),
-              child: IconButton(
-                icon: Image.asset("assets/images/icon.png"),
-                onPressed: () => Navigator.pushNamed(context, TRAINING_PAGE),
-              )
-            )
-           ],
-        ),
-      ),
+          )),
     );
   }
 
@@ -311,25 +353,25 @@ class _MainPageState extends State<MainPage> {
 
   Future<String?> _stopRecording() async {
     // print("stop recording");
-      // 녹음 중지
-      _recordingSession.closeAudioSession();
-      await _recorderController.pause();
+    // 녹음 중지
+    _recordingSession.closeAudioSession();
+    await _recorderController.pause();
 
-      setState(() {
-        // 파일 리스트 갱신
-        _fl.fileList = _fl.loadFiles();
-        _setPathForRecord();
-        if (_fl.fileList.length == 1) {
-          _fl.selectedFile = _fl.fileList[0];
-        }
-      });
+    setState(() {
+      // 파일 리스트 갱신
+      _fl.fileList = _fl.loadFiles();
+      _setPathForRecord();
+      if (_fl.fileList.length == 1) {
+        _fl.selectedFile = _fl.fileList[0];
+      }
+    });
 
-      _timer.cancel();
+    _timer.cancel();
 
-      await _recordingSession.stopRecorder();
-      await _startCon();
-      await _sendData();
-      await _stopCon();
+    await _recordingSession.stopRecorder();
+    await _startCon();
+    await _sendData();
+    await _stopCon();
   }
 
   Future<void> _startPlaying() async {
@@ -354,7 +396,7 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _startCon() async {
     await _client.sendRequest();
-    setState((){
+    setState(() {
       _state = "Connected";
     });
     _client.clntSocket.listen((List<int> event) {
@@ -370,9 +412,10 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _sendData() async {
     try {
-      Uint8List data = await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
+      Uint8List data =
+          await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
       stopwatch = Stopwatch()..start();
-      _client.sendFile(1, data);  // 임시 - 타입 1
+      _client.sendFile(1, data); // 임시 - 타입 1
     } on FileSystemException {
       print("File not exists: ${_fl.selectedFile}");
     }
@@ -380,7 +423,7 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _stopCon() async {
     _client.stopClnt();
-    setState((){
+    setState(() {
       _state = "Disconnected";
     });
   }
