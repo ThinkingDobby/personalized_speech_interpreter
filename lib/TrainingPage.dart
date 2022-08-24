@@ -107,6 +107,19 @@ class _TrainingPageState extends State<TrainingPage> {
                                 child: Image.asset(
                                     "assets/images/training_iv_list_background.png")),
                             Container(
+                              margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              width: 316,
+                              height: 348,
+                              child: ListView.builder(
+                                // glow 제거
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemCount: _fl.fileList.length,
+                                itemBuilder: (context, i) => _setListItemBuilder(context, i),
+                              ),
+                            ),
+                            Container(
                                 margin: const EdgeInsets.fromLTRB(0, 348, 0, 0),
                                 width: 320,
                                 height: 98,
@@ -217,7 +230,7 @@ class _TrainingPageState extends State<TrainingPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 64),
+                      const SizedBox(height: 32),
                       Container(
                         child: Stack(
                           children: [
@@ -308,14 +321,22 @@ class _TrainingPageState extends State<TrainingPage> {
 
   _setPathForRecord() {
     _filePathForRecord =
-        '${_fl.storagePath}/temp${_fl.fileList.length + 1}.wav';
+        '${_fl.storagePath}/음성 샘플 ${_fl.fileList.length + 1}.wav';
   }
 
   RadioListTile _setListItemBuilder(BuildContext context, int i) {
     return RadioListTile(
-        title: Text(_fl.fileList[i]),
+        title: Row(
+          children: [
+            Text(_fl.fileList[i]),
+            const Expanded(child: SizedBox(width: 0,)),
+            IconButton(onPressed: () => _startPlaying(i), icon: Image.asset("assets/images/icon.png")),
+            IconButton(onPressed: () => _deleteFile(i), icon: Image.asset("assets/images/icon.png"))
+          ],
+        ),
         value: _fl.fileList[i],
         groupValue: _fl.selectedFile,
+        activeColor: const Color(0xffd55f52),
         onChanged: (val) {
           setState(() {
             _fl.selectedFile = _fl.fileList[i];
@@ -375,7 +396,10 @@ class _TrainingPageState extends State<TrainingPage> {
     await _recordingSession.stopRecorder();
   }
 
-  Future<void> _startPlaying() async {
+  Future<void> _startPlaying(i) async {
+    setState(() {
+      _fl.selectedFile = _fl.fileList[i];
+    });
     // 재생
     _audioPlayer.open(
       Audio.file('${_fl.storagePath}/${_fl.selectedFile}'),
@@ -439,6 +463,17 @@ class _TrainingPageState extends State<TrainingPage> {
     _client.stopClnt();
     setState(() {
       _state = "Disconnected";
+    });
+  }
+
+  void _deleteFile(i) {
+    setState(() {
+      _fl.selectedFile = _fl.fileList[i];
+    });
+    _fl.deleteFile("${_fl.storagePath}/${_fl.selectedFile}");
+    setState(() {
+      _fl.fileList = _fl.loadFiles();
+      _setPathForRecord();
     });
   }
 

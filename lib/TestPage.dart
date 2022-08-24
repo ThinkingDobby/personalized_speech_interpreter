@@ -298,8 +298,8 @@ class _TestPageState extends State<TestPage> {
             child: Expanded(
                 flex: 1,
                 child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
                   // glow 제거
+                  physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemCount: _fl.fileList.length,

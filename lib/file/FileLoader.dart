@@ -44,6 +44,10 @@ class FileLoader {
     return filePath.substring(idx);
   }
 
+  deleteFile(String filePath) {
+    File(filePath).delete();
+  }
+
   deleteFiles() {
     var dir = Directory(storagePath).listSync();
     for (var file in dir) {
