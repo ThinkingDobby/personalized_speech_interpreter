@@ -17,7 +17,6 @@ import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClien
 
 import 'file/FileLoader.dart';
 
-
 class TrainingPage extends StatefulWidget {
   @override
   State createState() => _TrainingPageState();
@@ -30,6 +29,9 @@ class _TrainingPageState extends State<TrainingPage> {
   bool _isRecording = false;
   bool _isNotRecording = true;
   bool _isPlaying = false;
+
+  bool _isControlActivated = false;
+  bool _cancelBtnPressed = false;
 
   String _state = "Unconnected";
   final String FIN_CODE = "Transfer Finished";
@@ -116,7 +118,8 @@ class _TrainingPageState extends State<TrainingPage> {
                                 scrollDirection: Axis.vertical,
                                 shrinkWrap: true,
                                 itemCount: _fl.fileList.length,
-                                itemBuilder: (context, i) => _setListItemBuilder(context, i),
+                                itemBuilder: (context, i) =>
+                                    _setListItemBuilder(context, i),
                               ),
                             ),
                             Container(
@@ -134,14 +137,20 @@ class _TrainingPageState extends State<TrainingPage> {
                                 waveStyle: WaveStyle(
                                   gradient: ui.Gradient.linear(
                                     const Offset(70, 50),
-                                    Offset(MediaQuery.of(context).size.width / 2, 0),
-                                    [const Color(0xffdc8379), const Color(0xfff5b6ae)],
+                                    Offset(
+                                        MediaQuery.of(context).size.width / 2,
+                                        0),
+                                    [
+                                      const Color(0xffdc8379),
+                                      const Color(0xfff5b6ae)
+                                    ],
                                   ),
                                   showMiddleLine: false,
                                   extendWaveform: true,
                                 ),
                                 enableGesture: false,
-                                size: Size(MediaQuery.of(context).size.width, 40.0),
+                                size: Size(
+                                    MediaQuery.of(context).size.width, 40.0),
                                 recorderController: _recorderController,
                               ),
                             ),
@@ -218,86 +227,155 @@ class _TrainingPageState extends State<TrainingPage> {
                                                 ),
                                         )),
                                     Container(
-                                      margin:
-                                          const EdgeInsets.fromLTRB(2, 0, 0, 0),
-                                      width: 52,
-                                      height: 52,
-                                      child: Image.asset(
-                                          "assets/images/training_btn_stop.png"),
-                                    ),
+                                        margin: const EdgeInsets.fromLTRB(
+                                            2, 0, 0, 0),
+                                        width: 52,
+                                        height: 52,
+                                        child: GestureDetector(
+                                          onTapDown: (_) => setState(() {
+                                            _cancelBtnPressed = true;
+                                          }),
+                                          onTapCancel: () => setState(() {
+                                            _cancelBtnPressed = false;
+                                          }),
+                                          onTap: () => setState(() {
+                                            _cancelBtnPressed = false;
+                                            _isControlActivated = false;
+                                            // 패널 비활성화
+                                          }),
+                                          child: _cancelBtnPressed
+                                              ? Image.asset(
+                                                  "assets/images/training_btn_cancel_pressed.png",
+                                                  gaplessPlayback: true,
+                                                )
+                                              : Image.asset(
+                                                  "assets/images/training_btn_cancel.png",
+                                                  gaplessPlayback: true,
+                                                ),
+                                        )),
                                   ],
                                 )),
+                            Container(
+                                margin: const EdgeInsets.fromLTRB(0, 348, 0, 0),
+                                width: 320,
+                                height: 98,
+                                child: Visibility(
+                                  visible: !_isControlActivated,
+                                  child: Image.asset(
+                                      "assets/images/training_iv_panel.png"),
+                                )),
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(148, 381, 0, 0),
+                              width: 320,
+                              height: 98,
+                              child: Visibility(
+                                  visible: !_isControlActivated,
+                                  child: const Text(
+                                    "음성샘플 추가",
+                                    style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 16,
+                                      color: Color(0xffDB8278),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  )),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(246, 366, 0, 0),
+                              width: 52,
+                              height: 52,
+                              child: Visibility(
+                                  visible: !_isControlActivated,
+                                  child: GestureDetector(
+                                    onTapDown: (_) => setState(() {
+                                      _cancelBtnPressed = true;
+                                    }),
+                                    onTapCancel: () => setState(() {
+                                      _cancelBtnPressed = false;
+                                    }),
+                                    onTap: () => setState(() {
+                                      _cancelBtnPressed = false;
+                                      _isControlActivated = true;
+                                      // 패널 활성화
+                                    }),
+                                    child: _cancelBtnPressed
+                                        ? Image.asset(
+                                            "assets/images/training_btn_add_pressed.png",
+                                            gaplessPlayback: true,
+                                          )
+                                        : Image.asset(
+                                            "assets/images/training_btn_add.png",
+                                            gaplessPlayback: true,
+                                          ),
+                                  )),
+                            ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 32),
                       Container(
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 332,
-                              height: 66,
-                              child: GestureDetector(
-                                onTapDown: _isSending
-                                    ? null
-                                    : (_) => setState(() {
-                                  _isSendBtnClicked = !_isSendBtnClicked;
-                                }),
-                                onTapCancel: _isSending
-                                    ? null
-                                    : () => setState(() {
-                                  _isSendBtnClicked = !_isSendBtnClicked;
-                                }),
-                                onTap: _isSending ? null : () => _startSend(),
-                                child: _isSendBtnClicked
-                                    ? Image.asset(
-                                  "assets/images/test_btn_send_clicked.png",
-                                  gaplessPlayback: true,
-                                )
-                                    : Image.asset(
-                                  "assets/images/test_btn_send.png",
-                                  gaplessPlayback: true,
+                          child: Stack(
+                        children: [
+                          Container(
+                            width: 332,
+                            height: 66,
+                            child: GestureDetector(
+                              onTapDown: _isSending
+                                  ? null
+                                  : (_) => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTapCancel: _isSending
+                                  ? null
+                                  : () => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTap: _isSending ? null : () => _startSend(),
+                              child: _isSendBtnClicked
+                                  ? Image.asset(
+                                      "assets/images/test_btn_send_clicked.png",
+                                      gaplessPlayback: true,
+                                    )
+                                  : Image.asset(
+                                      "assets/images/test_btn_send.png",
+                                      gaplessPlayback: true,
+                                    ),
+                            ),
+                          ),
+                          Container(
+                            width: 332,
+                            height: 62,
+                            alignment: Alignment.center,
+                            child: GestureDetector(
+                              onTapDown: _isSending
+                                  ? null
+                                  : (_) => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTapCancel: _isSending
+                                  ? null
+                                  : () => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTap: _isSending ? null : () => _startSend(),
+                              child: Text(
+                                '입력한 음성으로 학습',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 16,
+                                  color: _isSendBtnClicked
+                                      ? const Color(0xfffecdc8)
+                                      : const Color(0xfffefefe),
+                                  fontWeight: FontWeight.w600,
                                 ),
+                                softWrap: false,
                               ),
                             ),
-                            Container(
-                              width: 332,
-                              height: 62,
-                              alignment: Alignment.center,
-                              child: GestureDetector(
-                                onTapDown: _isSending
-                                    ? null
-                                    : (_) => setState(() {
-                                  _isSendBtnClicked = !_isSendBtnClicked;
-                                }),
-                                onTapCancel: _isSending
-                                    ? null
-                                    : () => setState(() {
-                                  _isSendBtnClicked = !_isSendBtnClicked;
-                                }),
-                                onTap: _isSending ? null : () => _startSend(),
-                                child: Text(
-                                  '입력한 음성으로 학습',
-                                  style: TextStyle(
-                                    fontFamily: 'Pretendard',
-                                    fontSize: 16,
-                                    color: _isSendBtnClicked
-                                        ? const Color(0xfffecdc8)
-                                        : const Color(0xfffefefe),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  softWrap: false,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      ),
+                          ),
+                        ],
+                      )),
                       const SizedBox(height: 12),
-                    ])
-            )
-        )
-    );
+                    ]))));
   }
 
   void _initializer() async {
@@ -321,7 +399,7 @@ class _TrainingPageState extends State<TrainingPage> {
 
   _setPathForRecord() {
     _filePathForRecord =
-        '${_fl.storagePath}/음성 샘플 ${_fl.fileList.length + 1}.wav';
+        '${_fl.storagePath}/음성샘플 ${_fl.fileList.length + 1}.wav';
   }
 
   RadioListTile _setListItemBuilder(BuildContext context, int i) {
@@ -329,9 +407,16 @@ class _TrainingPageState extends State<TrainingPage> {
         title: Row(
           children: [
             Text(_fl.fileList[i]),
-            const Expanded(child: SizedBox(width: 0,)),
-            IconButton(onPressed: () => _startPlaying(i), icon: Image.asset("assets/images/training_iv_play.png")),
-            IconButton(onPressed: () => _deleteFile(i), icon: Image.asset("assets/images/training_iv_delete.png"))
+            const Expanded(
+                child: SizedBox(
+              width: 0,
+            )),
+            IconButton(
+                onPressed: () => _startPlaying(i),
+                icon: Image.asset("assets/images/training_iv_play.png")),
+            IconButton(
+                onPressed: () => _deleteFile(i),
+                icon: Image.asset("assets/images/training_iv_delete.png"))
           ],
         ),
         value: _fl.fileList[i],

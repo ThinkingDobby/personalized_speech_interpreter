@@ -161,7 +161,7 @@ class _TestPageState extends State<TestPage> {
                         Container(
                           margin: const EdgeInsets.fromLTRB(14, 0, 0, 0),
                           child: Text(
-                            'type3: FFT - 전송 - 파일에 저장',
+                            'type3: ',
                             style: TextStyle(
                               fontFamily: 'Pretendard',
                               fontSize: 16,
