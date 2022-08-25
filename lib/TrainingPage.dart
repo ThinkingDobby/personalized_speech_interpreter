@@ -6,13 +6,16 @@ import 'dart:ui' as ui;
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:personalized_speech_interpreter/data/TrainingLabel.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 
 import 'file/FileLoader.dart';
@@ -53,6 +56,12 @@ class _TrainingPageState extends State<TrainingPage> {
   final _fl = FileLoader();
 
   late FileTransferTestClient _client;
+
+  // 단어 리스트
+  List<String> words = TrainingLabel.words;
+  String? _selectedWord;
+
+  TextEditingController dropDownTextController = TextEditingController();
 
   @override
   void initState() {
@@ -95,8 +104,87 @@ class _TrainingPageState extends State<TrainingPage> {
                           softWrap: false,
                         ),
                       ),
-                      // 단어 선택창
-                      const SizedBox(height: 72),
+                      const SizedBox(height: 16),
+                      Stack(
+                        children: [
+                          Container(
+                            width: 296, height: 40,
+                            child: Image.asset("assets/images/main_iv_word.png"),
+                          ),
+                          DropdownButtonHideUnderline(
+                              child: DropdownButton2(
+                                buttonPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                                dropdownElevation: 1,
+                                isExpanded: true,
+                                hint: Text(
+                                  '단어 또는 문장을 선택해주세요.',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(context).hintColor,
+                                  ),
+                                ),
+                                items: words.map((item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )
+                                ).toList(),
+                                value: _selectedWord,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedWord = value as String;
+                                  });
+                                },
+                                offset: const Offset(4, -4),
+                                dropdownWidth: 284,
+                                buttonHeight: 40,
+                                buttonWidth: 296,
+                                itemHeight: 40,
+                                dropdownMaxHeight: 240,
+                                searchController: dropDownTextController,
+                                searchInnerWidget: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 8,
+                                    bottom: 4,
+                                    right: 8,
+                                    left: 8,
+                                  ),
+                                  child: TextFormField(
+                                    controller: dropDownTextController,
+                                    decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        hintText: '검색어를 입력해주세요.',
+                                        hintStyle: const TextStyle(fontSize: 16),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        focusedBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(color: Color(0xffDB8278), width: 2.0),
+                                        )
+                                    ),
+                                  ),
+                                ),
+                                searchMatchFn: (item, searchValue) {
+                                  return (item.value.toString().contains(searchValue));
+                                },
+                                //This to clear the search value when you close the menu
+                                onMenuStateChange: (isOpen) {
+                                  if (!isOpen) {
+                                    dropDownTextController.clear();
+                                  }
+                                },
+                              )),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
                       Container(
                         alignment: Alignment.topCenter,
                         width: 320,
@@ -270,12 +358,12 @@ class _TrainingPageState extends State<TrainingPage> {
                               height: 98,
                               child: Visibility(
                                   visible: !_isControlActivated,
-                                  child: const Text(
+                                  child: Text(
                                     "음성샘플 추가",
                                     style: TextStyle(
                                       fontFamily: 'Pretendard',
                                       fontSize: 16,
-                                      color: Color(0xffDB8278),
+                                      color: _selectedWord != null ? const Color(0xffDB8278) : const Color(0xff999999),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   )),
@@ -284,7 +372,7 @@ class _TrainingPageState extends State<TrainingPage> {
                               margin: const EdgeInsets.fromLTRB(246, 366, 0, 0),
                               width: 52,
                               height: 52,
-                              child: Visibility(
+                              child: _selectedWord != null ? Visibility(
                                   visible: !_isControlActivated,
                                   child: GestureDetector(
                                     onTapDown: (_) => setState(() {
@@ -307,7 +395,19 @@ class _TrainingPageState extends State<TrainingPage> {
                                             "assets/images/training_btn_add.png",
                                             gaplessPlayback: true,
                                           ),
-                                  )),
+                                  )) : GestureDetector(
+                                      onTapDown: (_) => setState(() {
+                                        Fluttertoast.showToast(
+                                            msg: "단어 또는 문장을 선택해주세요.",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.CENTER,
+                                            timeInSecForIosWeb: 1,
+                                            backgroundColor: Color(0xff999999),
+                                            textColor: Color(0xfffefefe),
+                                            fontSize: 16.0);
+                                      }),
+                                      child:Image.asset("assets/images/training_btn_add_disabled.png", gaplessPlayback: true),
+                                    )
                             ),
                           ],
                         ),
@@ -565,6 +665,7 @@ class _TrainingPageState extends State<TrainingPage> {
   @override
   void dispose() {
     _recorderController.dispose();
+    dropDownTextController.dispose();
     super.dispose();
   }
 }
