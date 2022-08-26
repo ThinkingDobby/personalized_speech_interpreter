@@ -51,6 +51,7 @@ class _TrainingPageState extends State<TrainingPage> {
   // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
   late String _filePathForRecord;
   late String _filePathForWaveVisualize;
+  late Directory docsDir;
 
   // 파일 로드, 삭제 위한 객체
   final _fl = FileLoader();
@@ -139,6 +140,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                 onChanged: (value) {
                                   setState(() {
                                     _selectedWord = value as String;
+                                    _setStoragePathWithWord(value);
                                   });
                                 },
                                 offset: const Offset(4, -4),
@@ -199,7 +201,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                 child: Image.asset(
                                     "assets/images/training_iv_list_background.png")),
                             Container(
-                              margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                               width: 316,
                               height: 348,
                               child: ListView.builder(
@@ -483,7 +485,7 @@ class _TrainingPageState extends State<TrainingPage> {
   void _initializer() async {
     _recorderController = RecorderController();
     // 내부저장소 경로 로드
-    var docsDir = await getApplicationDocumentsDirectory();
+    docsDir = await getApplicationDocumentsDirectory();
     _fl.storagePath = '${docsDir.path}/recorded_files';
     setState(() {
       // 파일 리스트 초기화
@@ -497,6 +499,14 @@ class _TrainingPageState extends State<TrainingPage> {
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _setRecordingSession();
+  }
+
+  _setStoragePathWithWord(String word) {
+    _fl.storagePath = '${docsDir.path}/recorded_files/$word';
+    setState(() {
+      _fl.fileList = _fl.loadFiles();
+      _setPathForRecord();
+    });
   }
 
   _setPathForRecord() {
@@ -671,8 +681,8 @@ class _TrainingPageState extends State<TrainingPage> {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
-          backgroundColor: Color(0xff999999),
-          textColor: Color(0xfffefefe),
+          backgroundColor: const Color(0xff999999),
+          textColor: const Color(0xfffefefe),
           fontSize: 16.0);
       return false;
     } else {
