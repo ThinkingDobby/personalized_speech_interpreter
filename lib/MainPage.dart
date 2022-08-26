@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -96,7 +97,18 @@ class _MainPageState extends State<MainPage> {
                           builder: (context) {
                             return InkWell(
                                 onTap: () {
-                                  Navigator.pushNamed(context, TRAINING_PAGE);
+                                  if (!_isRecording) {
+                                    Navigator.pushNamed(context, TRAINING_PAGE);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Color(0xff999999),
+                                        textColor: Color(0xfffefefe),
+                                        fontSize: 16.0);
+                                  }
                                 },
                                 child: Image.asset("assets/images/icon.png"));
                           },
@@ -109,7 +121,18 @@ class _MainPageState extends State<MainPage> {
                           builder: (context) {
                             return InkWell(
                                 onDoubleTap: () {
-                                  Navigator.pushNamed(context, TEST_PAGE);
+                                  if (!_isRecording) {
+                                    Navigator.pushNamed(context, TEST_PAGE);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Color(0xff999999),
+                                        textColor: Color(0xfffefefe),
+                                        fontSize: 16.0);
+                                  }
                                 },
                                 child: Image.asset("assets/images/icon.png"));
                           },

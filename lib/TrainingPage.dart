@@ -72,7 +72,9 @@ class _TrainingPageState extends State<TrainingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(onWillPop: () {
+      return _onBack();
+    }, child:Scaffold(
         body: Container(
             margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
             width: MediaQuery.of(context).size.width,
@@ -475,7 +477,7 @@ class _TrainingPageState extends State<TrainingPage> {
                         ],
                       )),
                       const SizedBox(height: 12),
-                    ]))));
+                    ])))));
   }
 
   void _initializer() async {
@@ -660,6 +662,22 @@ class _TrainingPageState extends State<TrainingPage> {
       _fl.fileList = _fl.loadFiles();
       _setPathForRecord();
     });
+  }
+
+  Future<bool> _onBack() async {
+    if (_isRecording) {
+      Fluttertoast.showToast(
+          msg: "음성 입력 중에는 이동이 불가능합니다.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Color(0xff999999),
+          textColor: Color(0xfffefefe),
+          fontSize: 16.0);
+      return false;
+    } else {
+      return true;
+    }
   }
 
   @override
