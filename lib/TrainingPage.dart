@@ -595,6 +595,7 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Future<void> _startPlaying(i) async {
     setState(() {
+      _isPlaying = true;
       _fl.selectedFile = _fl.fileList[i];
     });
     // 재생
@@ -685,6 +686,17 @@ class _TrainingPageState extends State<TrainingPage> {
           textColor: const Color(0xfffefefe),
           fontSize: 16.0);
       return false;
+    } else if (_isPlaying) {
+      _stopPlaying();
+      Fluttertoast.showToast(
+          msg: "음성 재생이 중지되었습니다.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: const Color(0xff999999),
+          textColor: const Color(0xfffefefe),
+          fontSize: 16.0);
+      return true;
     } else {
       return true;
     }
