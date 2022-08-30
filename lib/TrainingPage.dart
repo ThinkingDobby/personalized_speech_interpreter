@@ -93,7 +93,6 @@ class _TrainingPageState extends State<TrainingPage> {
                     children: <Widget>[
                       const SizedBox(height: 64),
                       Container(
-                        margin: const EdgeInsets.fromLTRB(32, 0, 0, 0),
                         width: 296,
                         height: 40,
                         child: const Text(

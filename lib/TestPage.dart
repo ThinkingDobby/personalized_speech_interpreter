@@ -3,8 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:adobe_xd/pinned.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
@@ -43,285 +41,328 @@ class _TestPageState extends State<TestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            body: Container(
-                margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter)),
-                child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          const SizedBox(height: 64),
+        body: Container(
+            margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter)),
+            child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                scrollDirection: Axis.vertical,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      const SizedBox(height: 64),
+                      Container(
+                        width: 296,
+                        height: 40,
+                        child: const Text(
+                          '관리자 페이지',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 28,
+                            color: Color(0xff191919),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          softWrap: false,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: 314,
+                        height: 156,
+                        child: Column(
+                          children: <Widget>[
+                            GestureDetector(
+                                onTapDown: (_typ == 1)
+                                    ? null
+                                    : (_) => setState(() {
+                                          _typ = 1;
+                                        }),
+                                onTap: (_typ == 1)
+                                    ? null
+                                    : () => setState(() {
+                                          _typ = 1;
+                                        }),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                        width: 52,
+                                        height: 52,
+                                        child: (_typ == 1)
+                                            ? Image.asset(
+                                                "assets/images/test_iv_box_clicked.png",
+                                                gaplessPlayback: true,
+                                              )
+                                            : Image.asset(
+                                                "assets/images/test_iv_box.png",
+                                                gaplessPlayback: true)),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                          14, 0, 0, 0),
+                                      child: Text(
+                                        'type1: 전송 - 파일에 저장',
+                                        style: TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 16,
+                                          color: (_typ == 1)
+                                              ? const Color(0xff191919)
+                                              : const Color(0xff676767),
+                                          fontWeight: (_typ == 1)
+                                              ? FontWeight.w600
+                                              : null,
+                                        ),
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                            GestureDetector(
+                                onTapDown: (_typ == 2)
+                                    ? null
+                                    : (_) => setState(() {
+                                          _typ = 2;
+                                        }),
+                                onTap: (_typ == 2)
+                                    ? null
+                                    : () => setState(() {
+                                          _typ = 2;
+                                        }),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                        width: 52,
+                                        height: 52,
+                                        child: (_typ == 2)
+                                            ? Image.asset(
+                                                "assets/images/test_iv_box_clicked.png",
+                                                gaplessPlayback: true,
+                                              )
+                                            : Image.asset(
+                                                "assets/images/test_iv_box.png",
+                                                gaplessPlayback: true)),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                          14, 0, 0, 0),
+                                      child: Text(
+                                        'type2: 전송 - 메모리에만 저장',
+                                        style: TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 16,
+                                          color: (_typ == 2)
+                                              ? const Color(0xff191919)
+                                              : const Color(0xff676767),
+                                          fontWeight: (_typ == 2)
+                                              ? FontWeight.w600
+                                              : null,
+                                        ),
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                            GestureDetector(
+                                onTapDown: (_typ == 3)
+                                    ? null
+                                    : (_) => setState(() {
+                                          _typ = 3;
+                                        }),
+                                onTap: (_typ == 3)
+                                    ? null
+                                    : () => setState(() {
+                                          _typ = 3;
+                                        }),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                        width: 52,
+                                        height: 52,
+                                        child: (_typ == 3)
+                                            ? Image.asset(
+                                                "assets/images/test_iv_box_clicked.png",
+                                                gaplessPlayback: true,
+                                              )
+                                            : Image.asset(
+                                                "assets/images/test_iv_box.png",
+                                                gaplessPlayback: true)),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                          14, 0, 0, 0),
+                                      child: Text(
+                                        'type3: ',
+                                        style: TextStyle(
+                                          fontFamily: 'Pretendard',
+                                          fontSize: 16,
+                                          color: (_typ == 3)
+                                              ? const Color(0xff191919)
+                                              : const Color(0xff676767),
+                                          fontWeight: (_typ == 3)
+                                              ? FontWeight.w600
+                                              : null,
+                                        ),
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  ],
+                                ))
+                          ],
+                        ),
+                      ),
+                      Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          // 리스트 그림자
                           Container(
-                            margin: const EdgeInsets.fromLTRB(32, 0, 0, 0),
+                              width: 316,
+                              height: 294,
+                              child: Image.asset(
+                                  "assets/images/test_iv_list_background_shadow.png")),
+                          // 리스트
+                          Container(
+                              margin: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                              width: 296,
+                              height: 278,
+                              child: Image.asset(
+                                  "assets/images/test_iv_list_background.png")),
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(0, 6, 0, 0),
                             width: 296,
-                            height: 40,
-                            child: const Text(
-                              '관리자 페이지',
-                              style: TextStyle(
+                            height: 278,
+                            child: Expanded(
+                                flex: 1,
+                                child: ListView.builder(
+                                  // glow 제거
+                                  physics: const BouncingScrollPhysics(),
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemCount: _fl.fileList.length,
+                                  itemBuilder: (context, i) =>
+                                      _setListItemBuilder(context, i),
+                                )),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                      Container(
+                        width: 296,
+                        height: 21,
+                        child: const Text(
+                          '실행 시간',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            color: Color(0xff454545),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // 실행시간 그림자
+                          Container(
+                              width: 316,
+                              height: 66,
+                              child: Image.asset(
+                                  "assets/images/test_iv_result_shadow.png")),
+                          // 실행시간
+                          Container(
+                              margin: const EdgeInsets.fromLTRB(0, 0, 1, 3),
+                              width: 296,
+                              height: 50,
+                              child: Image.asset(
+                                  "assets/images/test_iv_result.png")),
+                          Container(
+                            width: 296,
+                            height: 22,
+                            margin: const EdgeInsets.fromLTRB(0, 0, 1, 5),
+                            alignment: Alignment.center,
+                            child: Text(
+                              textAlign: TextAlign.center,
+                              _elapsedTimeText,
+                              style: const TextStyle(
                                 fontFamily: 'Pretendard',
-                                fontSize: 28,
-                                color: Color(0xff191919),
-                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Color(0xff000000),
+                                fontWeight: FontWeight.w500,
                               ),
                               softWrap: false,
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
                           Container(
-                            width: 314,
-                            height: 156,
-                            child: Column(
-                              children: <Widget>[
-                                GestureDetector(
-                                    onTapDown: (_typ == 1)
-                                        ? null
-                                        : (_) => setState(() {
-                                              _typ = 1;
-                                            }),
-                                    onTap: (_typ == 1)
-                                        ? null
-                                        : () => setState(() {
-                                              _typ = 1;
-                                            }),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                            width: 52,
-                                            height: 52,
-                                            child: (_typ == 1)
-                                                ? Image.asset(
-                                                    "assets/images/test_iv_box_clicked.png",
-                                                    gaplessPlayback: true,
-                                                  )
-                                                : Image.asset("assets/images/test_iv_box.png",
-                                                    gaplessPlayback: true)),
-                                        Container(
-                                          margin: const EdgeInsets.fromLTRB(14, 0, 0, 0),
-                                          child: Text(
-                                            'type1: 전송 - 파일에 저장',
-                                            style: TextStyle(
-                                              fontFamily: 'Pretendard',
-                                              fontSize: 16,
-                                              color: (_typ == 1)
-                                                  ? const Color(0xff191919)
-                                                  : const Color(0xff676767),
-                                              fontWeight: (_typ == 1) ? FontWeight.w600 : null,
-                                            ),
-                                            softWrap: false,
-                                          ),
-                                        ),
-                                      ],
-                                    )),
-                                GestureDetector(
-                                    onTapDown: (_typ == 2)
-                                        ? null
-                                        : (_) => setState(() {
-                                              _typ = 2;
-                                            }),
-                                    onTap: (_typ == 2)
-                                        ? null
-                                        : () => setState(() {
-                                              _typ = 2;
-                                            }),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                            width: 52,
-                                            height: 52,
-                                            child: (_typ == 2)
-                                                ? Image.asset(
-                                                    "assets/images/test_iv_box_clicked.png",
-                                                    gaplessPlayback: true,
-                                                  )
-                                                : Image.asset("assets/images/test_iv_box.png",
-                                                    gaplessPlayback: true)),
-                                        Container(
-                                          margin: const EdgeInsets.fromLTRB(14, 0, 0, 0),
-                                          child: Text(
-                                            'type2: 전송 - 메모리에만 저장',
-                                            style: TextStyle(
-                                              fontFamily: 'Pretendard',
-                                              fontSize: 16,
-                                              color: (_typ == 2)
-                                                  ? const Color(0xff191919)
-                                                  : const Color(0xff676767),
-                                              fontWeight: (_typ == 2) ? FontWeight.w600 : null,
-                                            ),
-                                            softWrap: false,
-                                          ),
-                                        ),
-                                      ],
-                                    )),
-                                GestureDetector(
-                                    onTapDown: (_typ == 3)
-                                        ? null
-                                        : (_) => setState(() {
-                                              _typ = 3;
-                                            }),
-                                    onTap: (_typ == 3)
-                                        ? null
-                                        : () => setState(() {
-                                              _typ = 3;
-                                            }),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                            width: 52,
-                                            height: 52,
-                                            child: (_typ == 3)
-                                                ? Image.asset(
-                                                    "assets/images/test_iv_box_clicked.png",
-                                                    gaplessPlayback: true,
-                                                  )
-                                                : Image.asset("assets/images/test_iv_box.png",
-                                                    gaplessPlayback: true)),
-                                        Container(
-                                          margin: const EdgeInsets.fromLTRB(14, 0, 0, 0),
-                                          child: Text(
-                                            'type3: ',
-                                            style: TextStyle(
-                                              fontFamily: 'Pretendard',
-                                              fontSize: 16,
-                                              color: (_typ == 3)
-                                                  ? const Color(0xff191919)
-                                                  : const Color(0xff676767),
-                                              fontWeight: (_typ == 3) ? FontWeight.w600 : null,
-                                            ),
-                                            softWrap: false,
-                                          ),
-                                        ),
-                                      ],
-                                    ))
-                              ],
+                            width: 332,
+                            height: 66,
+                            child: GestureDetector(
+                              onTapDown: _isSending
+                                  ? null
+                                  : (_) => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTapCancel: _isSending
+                                  ? null
+                                  : () => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTap: _isSending ? null : () => _startSend(),
+                              child: _isSendBtnClicked
+                                  ? Image.asset(
+                                      "assets/images/test_btn_send_clicked.png",
+                                      gaplessPlayback: true,
+                                    )
+                                  : Image.asset(
+                                      "assets/images/test_btn_send.png",
+                                      gaplessPlayback: true,
+                                    ),
                             ),
                           ),
-                        ]))));
+                          Container(
+                            width: 114,
+                            height: 22,
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                            alignment: Alignment.center,
+                            child: GestureDetector(
+                              onTapDown: _isSending
+                                  ? null
+                                  : (_) => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTapCancel: _isSending
+                                  ? null
+                                  : () => setState(() {
+                                        _isSendBtnClicked = !_isSendBtnClicked;
+                                      }),
+                              onTap: _isSending ? null : () => _startSend(),
+                              child: Text(
+                                '선택한 파일 전송',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 16,
+                                  color: _isSendBtnClicked
+                                      ? const Color(0xfffecdc8)
+                                      : const Color(0xfffefefe),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                    ]))));
 
-    //   child: Stack(
-    //     children: <Widget>[
     //
-    //
-    //       // 실행시간 그림자
-    //       Pinned.fromPins(
-    //           Pin(size: 316.0, middle: 0.5), Pin(size: 66.0, end: 77.0),
-    //           child: Image.asset("assets/images/test_iv_result_shadow.png")),
-    //       // 실행시간
-    //       Pinned.fromPins(
-    //           Pin(size: 296, middle: 0.5), Pin(size: 50.0, end: 88.0),
-    //           child: Image.asset("assets/images/test_iv_result.png")),
-    //       Pinned.fromPins(
-    //         Pin(size: 332.0, middle: 0.5),
-    //         Pin(size: 66.0, end: 12.0),
-    //         child: GestureDetector(
-    //           onTapDown: _isSending
-    //               ? null
-    //               : (_) => setState(() {
-    //                     _isSendBtnClicked = !_isSendBtnClicked;
-    //                   }),
-    //           onTapCancel: _isSending
-    //               ? null
-    //               : () => setState(() {
-    //                     _isSendBtnClicked = !_isSendBtnClicked;
-    //                   }),
-    //           onTap: _isSending ? null : () => _startSend(),
-    //           child: _isSendBtnClicked
-    //               ? Image.asset(
-    //                   "assets/images/test_btn_send_clicked.png",
-    //                   gaplessPlayback: true,
-    //                 )
-    //               : Image.asset(
-    //                   "assets/images/test_btn_send.png",
-    //                   gaplessPlayback: true,
-    //                 ),
-    //         ),
-    //       ),
-    //       Pinned.fromPins(
-    //         Pin(size: 114.0, middle: 0.5),
-    //         Pin(size: 21.0, end: 35.0),
-    //         child: GestureDetector(
-    //           onTapDown: _isSending
-    //               ? null
-    //               : (_) => setState(() {
-    //                     _isSendBtnClicked = !_isSendBtnClicked;
-    //                   }),
-    //           onTapCancel: _isSending
-    //               ? null
-    //               : () => setState(() {
-    //                     _isSendBtnClicked = !_isSendBtnClicked;
-    //                   }),
-    //           onTap: _isSending ? null : () => _startSend(),
-    //           child: Text(
-    //             '선택한 파일 전송',
-    //             style: TextStyle(
-    //               fontFamily: 'Pretendard',
-    //               fontSize: 16,
-    //               color: _isSendBtnClicked
-    //                   ? const Color(0xfffecdc8)
-    //                   : const Color(0xfffefefe),
-    //               fontWeight: FontWeight.w600,
-    //             ),
-    //             softWrap: false,
-    //           ),
-    //         ),
-    //       ),
-    //       Pinned.fromPins(
-    //         Pin(size: 296.0, middle: 0.5),
-    //         Pin(size: 21.0, end: 144.0),
-    //         child: const Text(
-    //           '실행 시간',
-    //           style: TextStyle(
-    //             fontFamily: 'Pretendard',
-    //             fontSize: 14,
-    //             color: Color(0xff454545),
-    //           ),
-    //           softWrap: false,
-    //         ),
-    //       ),
-    //       Pinned.fromPins(
-    //         Pin(size: 296.0, middle: 0.5),
-    //         Pin(size: 21.0, end: 102.0),
-    //         child: Text(
-    //           textAlign: TextAlign.center,
-    //           _elapsedTimeText,
-    //           style: const TextStyle(
-    //             fontFamily: 'Pretendard',
-    //             fontSize: 16,
-    //             color: Color(0xff000000),
-    //             fontWeight: FontWeight.w500,
-    //           ),
-    //           softWrap: false,
-    //         ),
-    //       ),
-    //       // 리스트 그림자
-    //       Pinned.fromPins(
-    //           Pin(size: 316.0, middle: 0.5), Pin(size: 294.0, middle: 0.5939),
-    //           child: Image.asset(
-    //               "assets/images/test_iv_list_background_shadow.png")),
-    //       // 리스트
-    //       Pinned.fromPins(
-    //           Pin(size: 296.0, middle: 0.5), Pin(size: 278.0, middle: 0.59),
-    //           child: Image.asset("assets/images/test_iv_list_background.png")),
-    //       Pinned.fromPins(
-    //         Pin(size: 296.0, middle: 0.5),
-    //         Pin(size: 278.0, middle: 0.59),
-    //         child: Expanded(
-    //             flex: 1,
-    //             child: ListView.builder(
-    //               // glow 제거
-    //               physics: const BouncingScrollPhysics(),
-    //               scrollDirection: Axis.vertical,
-    //               shrinkWrap: true,
-    //               itemCount: _fl.fileList.length,
-    //               itemBuilder: (context, i) => _setListItemBuilder(context, i),
-    //             )),
-    //       ),
+
     //     ],
     //   ),
     // ));
