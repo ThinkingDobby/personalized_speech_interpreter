@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
@@ -6,11 +8,11 @@ import 'TestPage.dart';
 import 'TrainingPage.dart';
 
 
-void main() {
+void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(PSI());
-  FlutterNativeSplash.remove();
+  Timer.periodic(const Duration(milliseconds: 1000), (timer) { FlutterNativeSplash.remove(); });
 }
 
 const String ROOT_PAGE = '/';
