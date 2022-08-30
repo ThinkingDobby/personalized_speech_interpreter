@@ -357,20 +357,29 @@ class _TrainingPageState extends State<TrainingPage> {
                                       "assets/images/training_iv_panel.png"),
                                 )),
                             Container(
-                              margin: const EdgeInsets.fromLTRB(148, 381, 0, 0),
-                              width: 320,
-                              height: 98,
-                              child: Visibility(
-                                  visible: !_isControlActivated,
-                                  child: Text(
-                                    "음성샘플 추가",
-                                    style: TextStyle(
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 16,
-                                      color: _selectedWord != null ? const Color(0xffDB8278) : const Color(0xff999999),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  )),
+                              margin: const EdgeInsets.fromLTRB(138, 366, 0, 0),
+                              width: 157,
+                              height: 52,
+                              child:
+                                  Container(
+                                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 3),
+                                    width: 100,
+                                    height: 52,
+                                    alignment: Alignment.centerLeft,
+                                    child: Visibility(
+                                        visible: !_isControlActivated,
+                                        child: Text(
+                                          "음성샘플 추가",
+                                          style: TextStyle(
+                                            fontFamily: 'Pretendard',
+                                            fontSize: 16,
+                                            color: _selectedWord != null ? const Color(0xffDB8278) : const Color(0xff999999),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        )),
+                                  ),
+
+
                             ),
                             Container(
                               margin: const EdgeInsets.fromLTRB(246, 366, 0, 0),
