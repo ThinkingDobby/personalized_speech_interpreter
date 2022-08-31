@@ -361,13 +361,18 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _startRecording() async {
+    await _startCon();
+
+    var type = 3;
+    _client.clntSocket.add(Uint8List.fromList([type]));
+    // await _sendData();
+
     // print("start recording");
     // print("filePathForRecording: ${_filePathForRecord}");
-    var sink = await createFile();
     var recordingDataController = StreamController<Food>();
     _mRecordingDataSubscription = recordingDataController.stream.listen((buffer) {
       if (buffer is FoodData) {
-        sink.add(buffer.data!);
+        _client.clntSocket.add(buffer.data!);
       }
     });
 
@@ -393,7 +398,6 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<String?> _stopRecording() async {
-    // print("stop recording");
     // 녹음 중지
     _recordingSession.closeAudioSession();
     await _recorderController.pause();
@@ -415,9 +419,12 @@ class _MainPageState extends State<MainPage> {
 
     await _recordingSession.stopRecorder();
 
+    var finCode = ";;";
+    _client.clntSocket.write(finCode);
+    print("stop recording");
+
     // await _startCon();
     // await _sendData();
-    // await _stopCon();
   }
 
   Future<void> _startPlaying() async {
@@ -449,8 +456,9 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         _state = utf8.decode(event);
         if (_state == FIN_CODE) {
+          _message = _state;
           _client.clntSocket.done;
-          print("time elapsed: ${stopwatch.elapsed}");
+          // print("time elapsed: ${stopwatch.elapsed}");
         }
       });
     });
@@ -460,7 +468,7 @@ class _MainPageState extends State<MainPage> {
     try {
       Uint8List data =
           await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
-      stopwatch = Stopwatch()..start();
+      // stopwatch = Stopwatch()..start();
       _client.sendFile(1, data); // 임시 - 타입 1
     } on FileSystemException {
       print("File not exists: ${_fl.selectedFile}");
