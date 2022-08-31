@@ -43,6 +43,8 @@ class _MainPageState extends State<MainPage> {
   // 음성 신호 시각화 위한 객체 저장
   late RecorderController _recorderController;
 
+  StreamSubscription? _mRecordingDataSubscription;
+
   // 재생 위한 객체 저장
   final _audioPlayer = AssetsAudioPlayer();
 
@@ -313,7 +315,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   _setPathForRecord() {
-    _filePathForRecord = '${_fl.storagePath}/input.wav'; // 파일 고정
+    _filePathForRecord = '${_fl.storagePath}/input.pcm'; // 파일 고정
   }
 
   RadioListTile _setListItemBuilder(BuildContext context, int i) {
@@ -346,18 +348,34 @@ class _MainPageState extends State<MainPage> {
     await Permission.manageExternalStorage.request();
   }
 
-  Future<void> _startRecording() async {
-    // print("start recording");
-    // print("filePathForRecording: ${_filePathForRecord}");
+  // 전송 구문으로 변경 필요
+  Future<IOSink> createFile() async {
     Directory directory = Directory(dirname(_filePathForRecord));
     if (!directory.existsSync()) {
       directory.createSync();
     }
+
+    var outputFile = File(_filePathForRecord);
+
+    return outputFile.openWrite();
+  }
+
+  Future<void> _startRecording() async {
+    // print("start recording");
+    // print("filePathForRecording: ${_filePathForRecord}");
+    var sink = await createFile();
+    var recordingDataController = StreamController<Food>();
+    _mRecordingDataSubscription = recordingDataController.stream.listen((buffer) {
+      if (buffer is FoodData) {
+        sink.add(buffer.data!);
+      }
+    });
+
     _recordingSession.openAudioSession();
     // 녹음 시작
     await _recordingSession.startRecorder(
-      toFile: _filePathForRecord,
-      codec: Codec.pcm16WAV,
+      toStream: recordingDataController.sink,
+      codec: Codec.pcm16,
     );
 
     await _recorderController.record(); // 경로 임시 제거 - 기본 경로: git log 참고
@@ -390,11 +408,16 @@ class _MainPageState extends State<MainPage> {
     });
 
     _timer.cancel();
+    if (_mRecordingDataSubscription != null) {
+      await _mRecordingDataSubscription!.cancel();
+      _mRecordingDataSubscription = null;
+    }
 
     await _recordingSession.stopRecorder();
-    await _startCon();
-    await _sendData();
-    await _stopCon();
+
+    // await _startCon();
+    // await _sendData();
+    // await _stopCon();
   }
 
   Future<void> _startPlaying() async {
