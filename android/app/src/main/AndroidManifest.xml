@@ -8,9 +8,9 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
    <application
-        android:label="personalized_speech_interpreter"
+        android:label="음성번역기"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
