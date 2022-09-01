@@ -71,225 +71,242 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter)),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                        width: 32,
-                        height: 32,
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: Builder(
-                          builder: (context) {
-                            return InkWell(
-                                onTap: () {
-                                  if (!_isRecording) {
-                                    Navigator.pushNamed(context, TRAINING_PAGE);
-                                  } else {
-                                    Fluttertoast.showToast(
-                                        msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.CENTER,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Color(0xff999999),
-                                        textColor: Color(0xfffefefe),
-                                        fontSize: 16.0);
-                                  }
-                                },
-                                child: Image.asset("assets/images/icon.png"));
-                          },
-                        )),
-                    Container(
-                        width: 32,
-                        height: 32,
-                        margin: const EdgeInsets.fromLTRB(32, 0, 0, 0),
-                        child: Builder(
-                          builder: (context) {
-                            return InkWell(
-                                onDoubleTap: () {
-                                  if (!_isRecording) {
-                                    Navigator.pushNamed(context, TEST_PAGE);
-                                  } else {
-                                    Fluttertoast.showToast(
-                                        msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.CENTER,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Color(0xff999999),
-                                        textColor: Color(0xfffefefe),
-                                        fontSize: 16.0);
-                                  }
-                                },
-                                child: Image.asset("assets/images/icon.png"));
-                          },
-                        )),
-                  ],
-                ),
-                const SizedBox(height: 32),
+        margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
                 Container(
-                  alignment: Alignment.center,
-                  width: 296.0,
-                  height: 68.0,
-                  child: Text(
-                    _timeText,
-                    style: const TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 52,
-                      color: Color(0xff676767),
-                      fontWeight: FontWeight.w300,
-                    ),
-                    softWrap: false,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Stack(
-                  children: [
-                    SizedBox(
-                        width: 296,
-                        height: 180,
-                        child: Image.asset("assets/images/main_iv_signal.png")),
-                    SizedBox(
-                      width: 296,
-                      height: 180,
-                      child: AudioWaveforms(
-                        waveStyle: WaveStyle(
-                          gradient: ui.Gradient.linear(
-                            const Offset(70, 50),
-                            Offset(MediaQuery.of(context).size.width / 2, 0),
-                            [const Color(0xffdc8379), const Color(0xfff5b6ae)],
-                          ),
-                          showMiddleLine: false,
-                          extendWaveform: true,
-                        ),
-                        enableGesture: false,
-                        size: Size(MediaQuery.of(context).size.width, 180.0),
-                        recorderController: _recorderController,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Stack(
-                  alignment: Alignment.topCenter,
-                  children: [
-                    Container(
-                        width: 316,
-                        height: 112,
-                        child: Image.asset(
-                            "assets/images/main_iv_result_shadow.png")),
-                    Container(
-                        margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                        width: 296,
-                        height: 96,
-                        child: Image.asset("assets/images/main_iv_result.png")),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                      alignment: Alignment.center,
-                      width: 296,
-                      height: 96,
-                      child: Text(
-                        _message,
-                        style: const TextStyle(
+                    width: 32,
+                    height: 32,
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: Builder(
+                      builder: (context) {
+                        return InkWell(
+                            onDoubleTap: () {
+                              if (!_isRecording) {
+                                Navigator.pushNamed(context, TEST_PAGE);
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Color(0xff999999),
+                                    textColor: Color(0xfffefefe),
+                                    fontSize: 16.0);
+                              }
+                            },
+                            child: Image.asset("assets/images/icon.png"));
+                      },
+                    )),
+                const Spacer(),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                          width: 32,
+                          height: 32,
+                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                          child: Builder(
+                            builder: (context) {
+                              return InkWell(
+                                  onTap: () {
+                                    if (!_isRecording) {
+                                      Navigator.pushNamed(context, TRAINING_PAGE);
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Color(0xff999999),
+                                          textColor: Color(0xfffefefe),
+                                          fontSize: 16.0);
+                                    }
+                                  },
+                                  child: Image.asset("assets/images/main_book_icon.png"));
+                            },
+                          )),
+                      const Text(
+                        "문장학습",
+                        style: TextStyle(
                           fontFamily: 'Pretendard',
-                          fontSize: 18,
-                          color: Color(0xff000000),
+                          fontSize: 14,
+                          color: Color(0xff191919),
+                          fontWeight: FontWeight.w400,
                         ),
                         softWrap: false,
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: 252,
-                  height: 200,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Image.asset("assets/images/main_iv_record_frame.png"),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                        child: GestureDetector(
-                          onTapDown: _isNotRecording
-                              ? (_) => setState(() {
-                                    _isRecording = !_isRecording;
-                                  })
-                              : null,
-                          onTapCancel: _isNotRecording
-                              ? () => setState(() {
-                                    _isRecording = !_isRecording;
-                                  })
-                              : null,
-                          onTap: _isNotRecording
-                              ? () => setState(() {
-                                    _isNotRecording = !_isNotRecording;
-                                    _startRecording();
-                                  })
-                              : null,
-                          child: _isRecording
-                              ? Image.asset(
-                                  "assets/images/main_btn_record_pressed.png",
-                                  gaplessPlayback: true,
-                                )
-                              : Image.asset(
-                                  "assets/images/main_btn_record.png",
-                                  gaplessPlayback: true,
-                                ),
-                        ),
-                      ),
-                      Container(
-                          width: 42,
-                          height: 42,
-                          margin: const EdgeInsets.fromLTRB(162, 0, 0, 0),
-                          child: GestureDetector(
-                            onTapDown: _isRecording
-                                ? (_) => setState(() {
-                                      _isNotRecording = !_isNotRecording;
-                                    })
-                                : null,
-                            onTapCancel: _isRecording
-                                ? () => setState(() {
-                                      _isNotRecording = !_isNotRecording;
-                                    })
-                                : null,
-                            onTap: _isRecording
-                                ? () => setState(() {
-                                      _isRecording = !_isRecording;
-                                      _stopRecording();
-                                    })
-                                : null,
-                            child: _isNotRecording
-                                ? Image.asset(
-                                    "assets/images/main_btn_stop_pressed.png",
-                                    gaplessPlayback: true,
-                                  )
-                                : Image.asset(
-                                    "assets/images/main_btn_stop.png",
-                                    gaplessPlayback: true,
-                                  ),
-                          ))
                     ],
+                  )
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Container(
+              alignment: Alignment.center,
+              width: 296.0,
+              height: 45.0,
+              child: Text(
+                _timeText,
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 32,
+                  color: Color(0xff676767),
+                  fontWeight: FontWeight.w300,
+                ),
+                softWrap: false,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Stack(
+              children: [
+                SizedBox(
+                    width: 296,
+                    height: 110,
+                    child: Image.asset("assets/images/main_iv_signal.png")),
+                SizedBox(
+                  width: 296,
+                  height: 110,
+                  child: AudioWaveforms(
+                    waveStyle: WaveStyle(
+                      gradient: ui.Gradient.linear(
+                        const Offset(70, 50),
+                        Offset(MediaQuery.of(context).size.width / 2, 0),
+                        [const Color(0xffdc8379), const Color(0xfff5b6ae)],
+                      ),
+                      showMiddleLine: false,
+                      extendWaveform: true,
+                    ),
+                    enableGesture: false,
+                    size: Size(MediaQuery.of(context).size.width, 180.0),
+                    recorderController: _recorderController,
                   ),
                 ),
               ],
             ),
-          )),
+            const SizedBox(height: 22),
+            Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Container(
+                    width: 316,
+                    height: 112,
+                    child:
+                        Image.asset("assets/images/main_iv_result_shadow.png")),
+                Container(
+                    margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                    width: 296,
+                    height: 96,
+                    child: Image.asset("assets/images/main_iv_result.png")),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                  alignment: Alignment.center,
+                  width: 296,
+                  height: 96,
+                  child: Text(
+                    _message,
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 18,
+                      color: Color(0xff000000),
+                    ),
+                    softWrap: false,
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            SizedBox(
+              width: 252,
+              height: 200,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset("assets/images/main_iv_record_frame.png"),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                    child: GestureDetector(
+                      onTapDown: _isNotRecording
+                          ? (_) => setState(() {
+                                _isRecording = !_isRecording;
+                              })
+                          : null,
+                      onTapCancel: _isNotRecording
+                          ? () => setState(() {
+                                _isRecording = !_isRecording;
+                              })
+                          : null,
+                      onTap: _isNotRecording
+                          ? () => setState(() {
+                                _isNotRecording = !_isNotRecording;
+                                _startRecording();
+                              })
+                          : null,
+                      child: _isRecording
+                          ? Image.asset(
+                              "assets/images/main_btn_record_pressed.png",
+                              gaplessPlayback: true,
+                            )
+                          : Image.asset(
+                              "assets/images/main_btn_record.png",
+                              gaplessPlayback: true,
+                            ),
+                    ),
+                  ),
+                  Container(
+                      width: 42,
+                      height: 42,
+                      margin: const EdgeInsets.fromLTRB(162, 0, 0, 0),
+                      child: GestureDetector(
+                        onTapDown: _isRecording
+                            ? (_) => setState(() {
+                                  _isNotRecording = !_isNotRecording;
+                                })
+                            : null,
+                        onTapCancel: _isRecording
+                            ? () => setState(() {
+                                  _isNotRecording = !_isNotRecording;
+                                })
+                            : null,
+                        onTap: _isRecording
+                            ? () => setState(() {
+                                  _isRecording = !_isRecording;
+                                  _stopRecording();
+                                })
+                            : null,
+                        child: _isNotRecording
+                            ? Image.asset(
+                                "assets/images/main_btn_stop_pressed.png",
+                                gaplessPlayback: true,
+                              )
+                            : Image.asset(
+                                "assets/images/main_btn_stop.png",
+                                gaplessPlayback: true,
+                              ),
+                      ))
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
