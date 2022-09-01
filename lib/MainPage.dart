@@ -82,80 +82,145 @@ class _MainPageState extends State<MainPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Stack(
               children: [
-                Container(
-                    width: 32,
-                    height: 32,
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    child: Builder(
-                      builder: (context) {
-                        return InkWell(
-                            onDoubleTap: () {
-                              if (!_isRecording) {
-                                Navigator.pushNamed(context, TEST_PAGE);
-                              } else {
-                                Fluttertoast.showToast(
-                                    msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Color(0xff999999),
-                                    textColor: Color(0xfffefefe),
-                                    fontSize: 16.0);
-                              }
-                            },
-                            child: Image.asset("assets/images/icon.png"));
-                      },
-                    )),
-                const Spacer(),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                          width: 32,
-                          height: 32,
-                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          child: Builder(
-                            builder: (context) {
-                              return InkWell(
-                                  onTap: () {
-                                    if (!_isRecording) {
-                                      Navigator.pushNamed(context, TRAINING_PAGE);
-                                    } else {
-                                      Fluttertoast.showToast(
-                                          msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Color(0xff999999),
-                                          textColor: Color(0xfffefefe),
-                                          fontSize: 16.0);
-                                    }
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                        width: 32,
+                        height: 32,
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        child: Builder(
+                          builder: (context) {
+                            return InkWell(
+                                onDoubleTap: () {
+                                  if (!_isRecording) {
+                                    Navigator.pushNamed(context, TEST_PAGE);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Color(0xff999999),
+                                        textColor: Color(0xfffefefe),
+                                        fontSize: 16.0);
+                                  }
+                                },
+                                child: Image.asset("assets/images/icon.png"));
+                          },
+                        )),
+                    const Spacer(),
+                    Container(
+                        margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                width: 32,
+                                height: 32,
+                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                child: Builder(
+                                  builder: (context) {
+                                    return InkWell(
+                                        onTap: () {
+                                          if (!_isRecording) {
+                                            Navigator.pushNamed(context, TRAINING_PAGE);
+                                          } else {
+                                            Fluttertoast.showToast(
+                                                msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.CENTER,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: Color(0xff999999),
+                                                textColor: Color(0xfffefefe),
+                                                fontSize: 16.0);
+                                          }
+                                        },
+                                        child: Image.asset("assets/images/main_book_icon.png"));
                                   },
-                                  child: Image.asset("assets/images/main_book_icon.png"));
-                            },
-                          )),
+                                )),
+                            const Text(
+                              "문장학습",
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 14,
+                                color: Color(0xff191919),
+                                fontWeight: FontWeight.w400,
+                              ),
+                              softWrap: false,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        )
+                    ),
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(32, 0, 32, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 48),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            "이치호",
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 32,
+                              color: Color(0xff191919),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            softWrap: false,
+                            textAlign: TextAlign.center,
+                          ),
+                          const Text(
+                            "님,",
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 28,
+                              color: Color(0xff191919),
+                              fontWeight: FontWeight.w400,
+                            ),
+                            softWrap: false,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
                       const Text(
-                        "문장학습",
+                        "환영합니다.",
                         style: TextStyle(
                           fontFamily: 'Pretendard',
-                          fontSize: 14,
+                          fontSize: 34,
                           color: Color(0xff191919),
                           fontWeight: FontWeight.w400,
                         ),
                         softWrap: false,
                         textAlign: TextAlign.center,
                       ),
+                      const SizedBox(height:16),
+                      const Text(
+                        "하단의 마이크 버튼을 터치 후, 번역할 문장을 말씀해주세요.",
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 15,
+                          color: Color(0xff676767),
+                          fontWeight: FontWeight.w400,
+                        ),
+                        softWrap: true,
+                        textAlign: TextAlign.start,
+                      ),
                     ],
-                  )
-                ),
+                  ),
+                )
               ],
             ),
-            const SizedBox(height: 32),
+            const Spacer(),
             Container(
               alignment: Alignment.center,
               width: 296.0,
@@ -193,7 +258,7 @@ class _MainPageState extends State<MainPage> {
                       extendWaveform: true,
                     ),
                     enableGesture: false,
-                    size: Size(MediaQuery.of(context).size.width, 180.0),
+                    size: Size(MediaQuery.of(context).size.width, 110.0),
                     recorderController: _recorderController,
                   ),
                 ),
@@ -230,7 +295,6 @@ class _MainPageState extends State<MainPage> {
                 ),
               ],
             ),
-            const Spacer(),
             SizedBox(
               width: 252,
               height: 200,
