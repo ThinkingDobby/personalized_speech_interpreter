@@ -103,8 +103,8 @@ class _MainPageState extends State<MainPage> {
                                         toastLength: Toast.LENGTH_SHORT,
                                         gravity: ToastGravity.CENTER,
                                         timeInSecForIosWeb: 1,
-                                        backgroundColor: Color(0xff999999),
-                                        textColor: Color(0xfffefefe),
+                                        backgroundColor: const Color(0xff999999),
+                                        textColor: const Color(0xfffefefe),
                                         fontSize: 16.0);
                                   }
                                 },
@@ -297,7 +297,7 @@ class _MainPageState extends State<MainPage> {
             ),
             SizedBox(
               width: 252,
-              height: 200,
+              height: 162,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -305,7 +305,6 @@ class _MainPageState extends State<MainPage> {
                   Container(
                     width: 100,
                     height: 100,
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                     child: GestureDetector(
                       onTapDown: _isNotRecording
                           ? (_) => setState(() {
@@ -337,7 +336,7 @@ class _MainPageState extends State<MainPage> {
                   Container(
                       width: 42,
                       height: 42,
-                      margin: const EdgeInsets.fromLTRB(162, 0, 0, 0),
+                      margin: const EdgeInsets.fromLTRB(162, 16, 0, 0),
                       child: GestureDetector(
                         onTapDown: _isRecording
                             ? (_) => setState(() {

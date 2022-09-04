@@ -96,7 +96,7 @@ class _TrainingPageState extends State<TrainingPage> {
                         width: 296,
                         height: 40,
                         child: const Text(
-                          '단어 학습',
+                          '문장학습',
                           style: TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 28,
