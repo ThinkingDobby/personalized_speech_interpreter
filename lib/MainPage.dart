@@ -103,7 +103,8 @@ class _MainPageState extends State<MainPage> {
                                         toastLength: Toast.LENGTH_SHORT,
                                         gravity: ToastGravity.CENTER,
                                         timeInSecForIosWeb: 1,
-                                        backgroundColor: const Color(0xff999999),
+                                        backgroundColor:
+                                            const Color(0xff999999),
                                         textColor: const Color(0xfffefefe),
                                         fontSize: 16.0);
                                   }
@@ -113,47 +114,49 @@ class _MainPageState extends State<MainPage> {
                         )),
                     const Spacer(),
                     Container(
-                        margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                                width: 32,
-                                height: 32,
-                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                child: Builder(
-                                  builder: (context) {
-                                    return InkWell(
-                                        onTap: () {
-                                          if (!_isRecording) {
-                                            Navigator.pushNamed(context, TRAINING_PAGE);
-                                          } else {
-                                            Fluttertoast.showToast(
-                                                msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                                toastLength: Toast.LENGTH_SHORT,
-                                                gravity: ToastGravity.CENTER,
-                                                timeInSecForIosWeb: 1,
-                                                backgroundColor: Color(0xff999999),
-                                                textColor: Color(0xfffefefe),
-                                                fontSize: 16.0);
-                                          }
-                                        },
-                                        child: Image.asset("assets/images/main_book_icon.png"));
-                                  },
-                                )),
-                            const Text(
-                              "문장학습",
-                              style: TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 14,
-                                color: Color(0xff191919),
-                                fontWeight: FontWeight.w400,
-                              ),
-                              softWrap: false,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        )
+                      margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        child: InkWell(
+                            onTap: () {
+                              if (!_isRecording) {
+                                Navigator.pushNamed(context, TRAINING_PAGE);
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Color(0xff999999),
+                                    textColor: Color(0xfffefefe),
+                                    fontSize: 16.0);
+                              }
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  child: Image.asset(
+                                      "assets/images/main_book_icon.png"),
+                                ),
+                                const Text(
+                                  "문장학습",
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontSize: 14,
+                                    color: Color(0xff191919),
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  softWrap: false,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            )),
+                      ),
                     ),
                   ],
                 ),
@@ -203,7 +206,7 @@ class _MainPageState extends State<MainPage> {
                         softWrap: false,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height:16),
+                      const SizedBox(height: 16),
                       const Text(
                         "하단의 마이크 버튼을 터치 후, 번역할 문장을 말씀해주세요.",
                         style: TextStyle(

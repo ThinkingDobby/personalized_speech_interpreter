@@ -56,22 +56,33 @@ class _TestPageState extends State<TestPage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      const SizedBox(height: 64),
+                      const SizedBox(height: 48),
                       Container(
-                        width: 296,
-                        height: 40,
-                        child: const Text(
-                          '관리자 페이지',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 28,
-                            color: Color(0xff191919),
-                            fontWeight: FontWeight.w600,
-                          ),
-                          softWrap: false,
-                        ),
+                          width: 326,
+                          height: 40,
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                    return Navigator.pop(context);
+                                },
+                                child: Image.asset("assets/images/training_btn_back.png"),
+                              ),
+                              const SizedBox(width: 6),
+                              const Text(
+                                '관리자 페이지',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 28,
+                                  color: Color(0xff191919),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                softWrap: false,
+                              ),
+                            ],
+                          )
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 32),
                       Container(
                         width: 314,
                         height: 156,

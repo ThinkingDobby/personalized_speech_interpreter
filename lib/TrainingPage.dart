@@ -91,22 +91,41 @@ class _TrainingPageState extends State<TrainingPage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      const SizedBox(height: 64),
+                      const SizedBox(height: 48),
                       Container(
-                        width: 296,
-                        height: 40,
-                        child: const Text(
-                          '문장학습',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 28,
-                            color: Color(0xff191919),
-                            fontWeight: FontWeight.w600,
-                          ),
-                          softWrap: false,
-                        ),
+                          width: 326,
+                          height: 40,
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  if (_isRecording) {
+                                    _displayMsg("녹음 중에는 이동이 불가능합니다.");
+                                  } else if (_isPlaying) {
+                                    _stopPlaying();
+                                    _displayMsg("음성 재생이 중지되었습니다.");
+                                    return Navigator.pop(context);
+                                  } else {
+                                    return Navigator.pop(context);
+                                  }
+                                },
+                                child: Image.asset("assets/images/training_btn_back.png"),
+                              ),
+                              const SizedBox(width: 6),
+                              const Text(
+                                '문장학습',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 28,
+                                  color: Color(0xff191919),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                softWrap: false,
+                              ),
+                            ],
+                          )
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 32),
                       Stack(
                         children: [
                           Container(
@@ -572,10 +591,22 @@ class _TrainingPageState extends State<TrainingPage> {
               width: 0,
             )),
             IconButton(
-                onPressed: () => _startPlaying(i),
+                onPressed: () {
+                  if (_isRecording) {
+                    _displayMsg("녹음 중에는 재생이 불가능합니다.");
+                  } else {
+                    _startPlaying(i);
+                  }
+                },
                 icon: Image.asset("assets/images/training_iv_play.png")),
             IconButton(
-                onPressed: () => _deleteFile(i),
+                onPressed: () {
+                  if (_isRecording) {
+                    _displayMsg("녹음 중에는 삭제가 불가능합니다.");
+                  } else {
+                    _deleteFile(i);
+                  }
+                },
                 icon: Image.asset("assets/images/training_iv_delete.png"))
           ],
         ),
@@ -725,29 +756,26 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Future<bool> _onBack() async {
     if (_isRecording) {
-      Fluttertoast.showToast(
-          msg: "음성 입력 중에는 이동이 불가능합니다.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: const Color(0xff999999),
-          textColor: const Color(0xfffefefe),
-          fontSize: 16.0);
+      _displayMsg("녹음 중에는 이동이 불가능합니다.");
       return false;
     } else if (_isPlaying) {
       _stopPlaying();
-      Fluttertoast.showToast(
-          msg: "음성 재생이 중지되었습니다.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: const Color(0xff999999),
-          textColor: const Color(0xfffefefe),
-          fontSize: 16.0);
+      _displayMsg("음성 재생이 중지되었습니다.");
       return true;
     } else {
       return true;
     }
+  }
+
+  void _displayMsg(text) {
+    Fluttertoast.showToast(
+        msg: text,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: const Color(0xff999999),
+        textColor: const Color(0xfffefefe),
+        fontSize: 16.0);
   }
 
   @override
