@@ -121,6 +121,8 @@ class _TrainingPageState extends State<TrainingPage> {
                                 hint: Text(
                                   '단어 또는 문장을 선택해주세요.',
                                   style: TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w400,
                                     fontSize: 16,
                                     color: Theme.of(context).hintColor,
                                   ),
@@ -130,6 +132,9 @@ class _TrainingPageState extends State<TrainingPage> {
                                   child: Text(
                                     item,
                                     style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      color: Color(0xff191919),
+                                      fontWeight: FontWeight.w400,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -140,6 +145,8 @@ class _TrainingPageState extends State<TrainingPage> {
                                   setState(() {
                                     _selectedWord = value as String;
                                     _setStoragePathWithWord(value);
+                                    _cancelBtnPressed = false;
+                                    _isControlActivated = false;
                                   });
                                 },
                                 offset: const Offset(4, -4),
@@ -165,7 +172,11 @@ class _TrainingPageState extends State<TrainingPage> {
                                           vertical: 10,
                                         ),
                                         hintText: '검색어를 입력해주세요.',
-                                        hintStyle: const TextStyle(fontSize: 16),
+                                        hintStyle: const TextStyle(
+                                            fontFamily: 'Pretendard',
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 16
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(8),
                                         ),
@@ -322,28 +333,57 @@ class _TrainingPageState extends State<TrainingPage> {
                                             2, 0, 0, 0),
                                         width: 52,
                                         height: 52,
-                                        child: GestureDetector(
-                                          onTapDown: (_) => setState(() {
-                                            _cancelBtnPressed = true;
-                                          }),
-                                          onTapCancel: () => setState(() {
-                                            _cancelBtnPressed = false;
-                                          }),
-                                          onTap: () => setState(() {
-                                            _cancelBtnPressed = false;
-                                            _isControlActivated = false;
-                                            // 패널 비활성화
-                                          }),
-                                          child: _cancelBtnPressed
-                                              ? Image.asset(
-                                                  "assets/images/training_btn_cancel_pressed.png",
-                                                  gaplessPlayback: true,
-                                                )
-                                              : Image.asset(
-                                                  "assets/images/training_btn_cancel.png",
-                                                  gaplessPlayback: true,
+                                        alignment: Alignment.centerRight,
+                                        child: Container(
+                                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                '${_fl.fileList.length}',
+                                                style: TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 16,
+                                                  color: _fl.fileList.length == 10 ? const Color(0xffDB8278) : const Color(0xff999999),
+                                                  fontWeight: FontWeight.w400,
                                                 ),
-                                        )),
+                                              ),
+                                              const Text(
+                                                '/10',
+                                                style: TextStyle(
+                                                  fontFamily: 'Pretendard',
+                                                  fontSize: 16,
+                                                  color: Color(0xff191919),
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8)
+                                            ],
+                                          ),
+                                        )
+                                        // GestureDetector(
+                                        //   onTapDown: (_) => setState(() {
+                                        //     _cancelBtnPressed = true;
+                                        //   }),
+                                        //   onTapCancel: () => setState(() {
+                                        //     _cancelBtnPressed = false;
+                                        //   }),
+                                        //   onTap: () => setState(() {
+                                        //     _cancelBtnPressed = false;
+                                        //     _isControlActivated = false;
+                                        //     // 패널 비활성화
+                                        //   }),
+                                        //   child: _cancelBtnPressed
+                                        //       ? Image.asset(
+                                        //           "assets/images/training_btn_cancel_pressed.png",
+                                        //           gaplessPlayback: true,
+                                        //         )
+                                        //       : Image.asset(
+                                        //           "assets/images/training_btn_cancel.png",
+                                        //           gaplessPlayback: true,
+                                        //         ),
+                                        // )
+                                    ),
                                   ],
                                 )),
                             Container(

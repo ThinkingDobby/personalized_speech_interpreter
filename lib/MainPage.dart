@@ -193,7 +193,7 @@ class _MainPageState extends State<MainPage> {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        "환영합니다.",
+                        "안녕하세요.",
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 34,
