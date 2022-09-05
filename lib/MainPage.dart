@@ -69,311 +69,331 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Stack(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                        width: 32,
-                        height: 32,
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: Builder(
-                          builder: (context) {
-                            return InkWell(
-                                onDoubleTap: () {
-                                  if (!_isRecording) {
-                                    Navigator.pushNamed(context, TEST_PAGE);
-                                  } else {
-                                    Fluttertoast.showToast(
-                                        msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.CENTER,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor:
-                                            const Color(0xff999999),
-                                        textColor: const Color(0xfffefefe),
-                                        fontSize: 16.0);
-                                  }
-                                },
-                                child: Image.asset("assets/images/icon.png"));
+    Widget buildMainComponents() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Stack(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                      width: 32,
+                      height: 32,
+                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      child: Builder(
+                        builder: (context) {
+                          return InkWell(
+                              onDoubleTap: () {
+                                if (!_isRecording) {
+                                  Navigator.pushNamed(context, TEST_PAGE);
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: const Color(0xff999999),
+                                      textColor: const Color(0xfffefefe),
+                                      fontSize: 16.0);
+                                }
+                              },
+                              child: Image.asset("assets/images/icon.png"));
+                        },
+                      )),
+                  if (MediaQuery.of(context).size.height >= 670) const Spacer(),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      child: InkWell(
+                          onTap: () {
+                            if (!_isRecording) {
+                              Navigator.pushNamed(context, TRAINING_PAGE);
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: "음성 입력 중에는 이동이 불가능합니다.",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Color(0xff999999),
+                                  textColor: Color(0xfffefefe),
+                                  fontSize: 16.0);
+                            }
                           },
-                        )),
-                    const Spacer(),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: InkWell(
-                            onTap: () {
-                              if (!_isRecording) {
-                                Navigator.pushNamed(context, TRAINING_PAGE);
-                              } else {
-                                Fluttertoast.showToast(
-                                    msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Color(0xff999999),
-                                    textColor: Color(0xfffefefe),
-                                    fontSize: 16.0);
-                              }
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  child: Image.asset(
-                                      "assets/images/main_book_icon.png"),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                child: Image.asset(
+                                    "assets/images/main_book_icon.png"),
+                              ),
+                              const Text(
+                                "문장학습",
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 14,
+                                  color: Color(0xff191919),
+                                  fontWeight: FontWeight.w400,
                                 ),
-                                const Text(
-                                  "문장학습",
-                                  style: TextStyle(
-                                    fontFamily: 'Pretendard',
-                                    fontSize: 14,
-                                    color: Color(0xff191919),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  softWrap: false,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            )),
+                                softWrap: false,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          )),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(32, 0, 32, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 48),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          "이치호",
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 32,
+                            color: Color(0xff191919),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          softWrap: false,
+                          textAlign: TextAlign.center,
+                        ),
+                        const Text(
+                          "님,",
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 28,
+                            color: Color(0xff191919),
+                            fontWeight: FontWeight.w400,
+                          ),
+                          softWrap: false,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      "안녕하세요.",
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 34,
+                        color: Color(0xff191919),
+                        fontWeight: FontWeight.w400,
                       ),
+                      softWrap: false,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "하단의 마이크 버튼을 터치 후, 번역할 문장을 말씀해주세요.",
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 15,
+                        color: Color(0xff676767),
+                        fontWeight: FontWeight.w400,
+                      ),
+                      softWrap: true,
+                      textAlign: TextAlign.start,
                     ),
                   ],
                 ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(32, 0, 32, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 48),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            "이치호",
-                            style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 32,
-                              color: Color(0xff191919),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            softWrap: false,
-                            textAlign: TextAlign.center,
-                          ),
-                          const Text(
-                            "님,",
-                            style: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 28,
-                              color: Color(0xff191919),
-                              fontWeight: FontWeight.w400,
-                            ),
-                            softWrap: false,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      const Text(
-                        "안녕하세요.",
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 34,
-                          color: Color(0xff191919),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        softWrap: false,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "하단의 마이크 버튼을 터치 후, 번역할 문장을 말씀해주세요.",
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 15,
-                          color: Color(0xff676767),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        softWrap: true,
-                        textAlign: TextAlign.start,
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            const Spacer(),
-            Container(
-              alignment: Alignment.center,
-              width: 296.0,
-              height: 45.0,
-              child: Text(
-                _timeText,
-                style: const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontSize: 32,
-                  color: Color(0xff676767),
-                  fontWeight: FontWeight.w300,
-                ),
-                softWrap: false,
-                textAlign: TextAlign.center,
+              )
+            ],
+          ),
+          if (MediaQuery.of(context).size.height >= 670) const Spacer() else const SizedBox(height: 16),
+          Container(
+            alignment: Alignment.center,
+            width: 296.0,
+            height: 45.0,
+            child: Text(
+              _timeText,
+              style: const TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: 32,
+                color: Color(0xff676767),
+                fontWeight: FontWeight.w300,
               ),
+              softWrap: false,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
-            Stack(
-              children: [
-                SizedBox(
-                    width: 296,
-                    height: 110,
-                    child: Image.asset("assets/images/main_iv_signal.png")),
-                SizedBox(
+          ),
+          const SizedBox(height: 12),
+          Stack(
+            children: [
+              SizedBox(
                   width: 296,
                   height: 110,
-                  child: AudioWaveforms(
-                    waveStyle: WaveStyle(
-                      gradient: ui.Gradient.linear(
-                        const Offset(70, 50),
-                        Offset(MediaQuery.of(context).size.width / 2, 0),
-                        [const Color(0xffdc8379), const Color(0xfff5b6ae)],
-                      ),
-                      showMiddleLine: false,
-                      extendWaveform: true,
+                  child: Image.asset("assets/images/main_iv_signal.png")),
+              SizedBox(
+                width: 296,
+                height: 110,
+                child: AudioWaveforms(
+                  waveStyle: WaveStyle(
+                    gradient: ui.Gradient.linear(
+                      const Offset(70, 50),
+                      Offset(MediaQuery.of(context).size.width / 2, 0),
+                      [const Color(0xffdc8379), const Color(0xfff5b6ae)],
                     ),
-                    enableGesture: false,
-                    size: Size(MediaQuery.of(context).size.width, 110.0),
-                    recorderController: _recorderController,
+                    showMiddleLine: false,
+                    extendWaveform: true,
                   ),
+                  enableGesture: false,
+                  size: Size(MediaQuery.of(context).size.width, 110.0),
+                  recorderController: _recorderController,
                 ),
-              ],
-            ),
-            const SizedBox(height: 22),
-            Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                Container(
-                    width: 316,
-                    height: 112,
-                    child:
-                        Image.asset("assets/images/main_iv_result_shadow.png")),
-                Container(
-                    margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                    width: 296,
-                    height: 96,
-                    child: Image.asset("assets/images/main_iv_result.png")),
-                Container(
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Container(
+                  width: 316,
+                  height: 112,
+                  child:
+                      Image.asset("assets/images/main_iv_result_shadow.png")),
+              Container(
                   margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                  alignment: Alignment.center,
                   width: 296,
                   height: 96,
-                  child: Text(
-                    _message,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 18,
-                      color: Color(0xff000000),
-                    ),
-                    softWrap: false,
+                  child: Image.asset("assets/images/main_iv_result.png")),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                alignment: Alignment.center,
+                width: 296,
+                height: 96,
+                child: Text(
+                  _message,
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 18,
+                    color: Color(0xff000000),
+                  ),
+                  softWrap: false,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            width: 252,
+            height: 162,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.asset("assets/images/main_iv_record_frame.png"),
+                Container(
+                  width: 100,
+                  height: 100,
+                  child: GestureDetector(
+                    onTapDown: _isNotRecording
+                        ? (_) => setState(() {
+                              _isRecording = !_isRecording;
+                            })
+                        : null,
+                    onTapCancel: _isNotRecording
+                        ? () => setState(() {
+                              _isRecording = !_isRecording;
+                            })
+                        : null,
+                    onTap: _isNotRecording
+                        ? () => setState(() {
+                              _isNotRecording = !_isNotRecording;
+                              _startRecording();
+                            })
+                        : null,
+                    child: _isRecording
+                        ? Image.asset(
+                            "assets/images/main_btn_record_pressed.png",
+                            gaplessPlayback: true,
+                          )
+                        : Image.asset(
+                            "assets/images/main_btn_record.png",
+                            gaplessPlayback: true,
+                          ),
                   ),
                 ),
-              ],
-            ),
-            SizedBox(
-              width: 252,
-              height: 162,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset("assets/images/main_iv_record_frame.png"),
-                  Container(
-                    width: 100,
-                    height: 100,
+                Container(
+                    width: 42,
+                    height: 42,
+                    margin: const EdgeInsets.fromLTRB(162, 16, 0, 0),
                     child: GestureDetector(
-                      onTapDown: _isNotRecording
+                      onTapDown: _isRecording
                           ? (_) => setState(() {
-                                _isRecording = !_isRecording;
+                                _isNotRecording = !_isNotRecording;
                               })
                           : null,
-                      onTapCancel: _isNotRecording
-                          ? () => setState(() {
-                                _isRecording = !_isRecording;
-                              })
-                          : null,
-                      onTap: _isNotRecording
+                      onTapCancel: _isRecording
                           ? () => setState(() {
                                 _isNotRecording = !_isNotRecording;
-                                _startRecording();
                               })
                           : null,
-                      child: _isRecording
+                      onTap: _isRecording
+                          ? () => setState(() {
+                                _isRecording = !_isRecording;
+                                _stopRecording();
+                              })
+                          : null,
+                      child: _isNotRecording
                           ? Image.asset(
-                              "assets/images/main_btn_record_pressed.png",
+                              "assets/images/main_btn_stop_pressed.png",
                               gaplessPlayback: true,
                             )
                           : Image.asset(
-                              "assets/images/main_btn_record.png",
+                              "assets/images/main_btn_stop.png",
                               gaplessPlayback: true,
                             ),
-                    ),
-                  ),
-                  Container(
-                      width: 42,
-                      height: 42,
-                      margin: const EdgeInsets.fromLTRB(162, 16, 0, 0),
-                      child: GestureDetector(
-                        onTapDown: _isRecording
-                            ? (_) => setState(() {
-                                  _isNotRecording = !_isNotRecording;
-                                })
-                            : null,
-                        onTapCancel: _isRecording
-                            ? () => setState(() {
-                                  _isNotRecording = !_isNotRecording;
-                                })
-                            : null,
-                        onTap: _isRecording
-                            ? () => setState(() {
-                                  _isRecording = !_isRecording;
-                                  _stopRecording();
-                                })
-                            : null,
-                        child: _isNotRecording
-                            ? Image.asset(
-                                "assets/images/main_btn_stop_pressed.png",
-                                gaplessPlayback: true,
-                              )
-                            : Image.asset(
-                                "assets/images/main_btn_stop.png",
-                                gaplessPlayback: true,
-                              ),
-                      ))
-                ],
-              ),
+                    ))
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ],
+      );
+    }
+
+    // 화면 크기에 따라 스크롤뷰 적용 여부 결정
+    if (MediaQuery.of(context).size.height < 670) {
+      return Scaffold(
+          body: Container(
+          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter)),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            child: buildMainComponents(),
+          )));
+    } else {
+      return Scaffold(
+          body: Container(
+          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter)),
+          child: buildMainComponents()));
+    }
   }
 
   void _initializer() async {
