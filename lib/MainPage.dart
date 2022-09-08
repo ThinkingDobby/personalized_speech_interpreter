@@ -69,7 +69,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget buildMainComponents() {
+    Widget _buildMainComponents() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
@@ -364,36 +364,55 @@ class _MainPageState extends State<MainPage> {
       );
     }
 
-    // 화면 크기에 따라 스크롤뷰 적용 여부 결정
-    if (MediaQuery.of(context).size.height < 670) {
-      return Scaffold(
-          body: Container(
-          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter)),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            child: buildMainComponents(),
-          )));
-    } else {
-      return Scaffold(
-          body: Container(
-          margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xffffffff), Color(0xfff2f2f2)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter)),
-          child: buildMainComponents()));
+    Widget _buildWholeComponents() {
+      // 화면 크기에 따라 스크롤뷰 적용 여부 결정
+      if (MediaQuery
+          .of(context)
+          .size
+          .height < 670) {
+        return Scaffold(
+            body: Container(
+                margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height,
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter)),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  child: _buildMainComponents(),
+                )));
+      } else {
+        return Scaffold(
+            body: Container(
+                margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height,
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [Color(0xffffffff), Color(0xfff2f2f2)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter)),
+                child: _buildMainComponents()));
+      }
     }
+
+    return _buildWholeComponents();
   }
 
   void _initializer() async {
