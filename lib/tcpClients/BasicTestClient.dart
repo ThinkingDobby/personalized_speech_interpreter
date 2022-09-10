@@ -28,4 +28,7 @@ class BasicTestClient {
     clntSocket.close();
     // print("Disconnected");
   }
+
+  String get host => _host;
+  int get port => _port;
 }

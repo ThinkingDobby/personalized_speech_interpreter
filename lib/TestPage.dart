@@ -20,6 +20,9 @@ class _TestPageState extends State<TestPage> {
 
   late FileTransferTestClient _client;
 
+  late TextEditingController _servIPAddrController;
+  late TextEditingController _servPortController;
+
   int _typ = 1;
 
   // 파일 로드, 삭제 위한 객체
@@ -30,6 +33,7 @@ class _TestPageState extends State<TestPage> {
   // 실행 시간 측정 위한 객체
   late Stopwatch stopwatch;
   String _elapsedTimeText = "파일을 선택 후 전송해주세요.";
+  String _returnedValue = "반환된 결과가 없습니다.";
 
   @override
   void initState() {
@@ -57,16 +61,17 @@ class _TestPageState extends State<TestPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       const SizedBox(height: 48),
-                      Container(
+                      SizedBox(
                           width: 326,
                           height: 40,
                           child: Row(
                             children: [
                               InkWell(
                                 onTap: () {
-                                    return Navigator.pop(context);
+                                  return Navigator.pop(context);
                                 },
-                                child: Image.asset("assets/images/training_btn_back.png"),
+                                child: Image.asset(
+                                    "assets/images/training_btn_back.png"),
                               ),
                               const SizedBox(width: 6),
                               const Text(
@@ -80,10 +85,93 @@ class _TestPageState extends State<TestPage> {
                                 softWrap: false,
                               ),
                             ],
-                          )
+                          )),
+                      const SizedBox(height: 32),
+                      const SizedBox(
+                        width: 296,
+                        height: 21,
+                        child: Text(
+                          '서버 IP주소',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            color: Color(0xff454545),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        width: 296,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: AssetImage("assets/images/test_iv_input_background.png")
+                            )
+                        ),
+                        child: TextFormField(
+                          decoration: const InputDecoration.collapsed(
+                            hintText: '서버 IP주소를 입력하세요.',
+                            hintStyle: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          controller: _servIPAddrController,
+                          style: const TextStyle(
+                            color: Color(0xff191919),
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const SizedBox(
+                        width: 296,
+                        height: 21,
+                        child: Text(
+                          '포트번호',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            color: Color(0xff454545),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        width: 296,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: AssetImage("assets/images/test_iv_input_background.png")
+                            )
+                        ),
+                        child: TextFormField(
+                          decoration: const InputDecoration.collapsed(
+                            hintText: '포트번호를 입력하세요.',
+                            hintStyle: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          controller: _servPortController,
+                          style: const TextStyle(
+                            color: Color(0xff191919),
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 32),
-                      Container(
+                      SizedBox(
                         width: 314,
                         height: 156,
                         child: Column(
@@ -116,7 +204,7 @@ class _TestPageState extends State<TestPage> {
                                       margin: const EdgeInsets.fromLTRB(
                                           14, 0, 0, 0),
                                       child: Text(
-                                        'type1: 전송 - 파일에 저장',
+                                        'type1: wav파일 전송',
                                         style: TextStyle(
                                           fontFamily: 'Pretendard',
                                           fontSize: 16,
@@ -160,7 +248,7 @@ class _TestPageState extends State<TestPage> {
                                       margin: const EdgeInsets.fromLTRB(
                                           14, 0, 0, 0),
                                       child: Text(
-                                        'type2: 전송 - 메모리에만 저장',
+                                        'type2: pcm파일 실시간 전송',
                                         style: TextStyle(
                                           fontFamily: 'Pretendard',
                                           fontSize: 16,
@@ -204,7 +292,7 @@ class _TestPageState extends State<TestPage> {
                                       margin: const EdgeInsets.fromLTRB(
                                           14, 0, 0, 0),
                                       child: Text(
-                                        'type3: ',
+                                        'type3: 식별정보(이름) 전송',
                                         style: TextStyle(
                                           fontFamily: 'Pretendard',
                                           fontSize: 16,
@@ -223,6 +311,7 @@ class _TestPageState extends State<TestPage> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 32),
                       Stack(
                         alignment: Alignment.topCenter,
                         children: [
@@ -245,7 +334,7 @@ class _TestPageState extends State<TestPage> {
                             height: 278,
                             child: Expanded(
                                 flex: 1,
-                                child: ListView.builder(
+                                child: MediaQuery.removePadding(context: context, removeTop: true, child: ListView.builder(
                                   // glow 제거
                                   physics: const BouncingScrollPhysics(),
                                   scrollDirection: Axis.vertical,
@@ -254,14 +343,14 @@ class _TestPageState extends State<TestPage> {
                                   itemBuilder: (context, i) =>
                                       _setListItemBuilder(context, i),
                                 )),
-                          ),
+                          )),
                         ],
                       ),
                       const SizedBox(height: 32),
-                      Container(
+                      const SizedBox(
                         width: 296,
                         height: 21,
-                        child: const Text(
+                        child: Text(
                           '실행 시간',
                           style: TextStyle(
                             fontFamily: 'Pretendard',
@@ -270,7 +359,6 @@ class _TestPageState extends State<TestPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
                       Stack(
                         alignment: Alignment.center,
                         children: [
@@ -307,6 +395,54 @@ class _TestPageState extends State<TestPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
+                      const SizedBox(
+                        width: 296,
+                        height: 21,
+                        child: Text(
+                          '반환 결과',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 16,
+                            color: Color(0xff454545),
+                          ),
+                        ),
+                      ),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // 실행시간 그림자
+                          Container(
+                              width: 316,
+                              height: 66,
+                              child: Image.asset(
+                                  "assets/images/test_iv_result_shadow.png")),
+                          // 실행시간
+                          Container(
+                              margin: const EdgeInsets.fromLTRB(0, 0, 1, 3),
+                              width: 296,
+                              height: 50,
+                              child: Image.asset(
+                                  "assets/images/test_iv_result.png")),
+                          Container(
+                            width: 296,
+                            height: 22,
+                            margin: const EdgeInsets.fromLTRB(0, 1, 1, 5),
+                            alignment: Alignment.center,
+                            child: Text(
+                              textAlign: TextAlign.center,
+                              _returnedValue,
+                              style: const TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 16,
+                                color: Color(0xff000000),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              softWrap: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
                       Stack(
                         alignment: Alignment.center,
                         children: [
@@ -371,18 +507,12 @@ class _TestPageState extends State<TestPage> {
                       ),
                       const SizedBox(height: 12),
                     ]))));
-
-    //
-
-    //     ],
-    //   ),
-    // ));
   }
 
   void _initializer() async {
     // 내부저장소 경로 로드
     var docsDir = await getApplicationDocumentsDirectory();
-    _fl.storagePath = '${docsDir.path}/recorded_files';
+    _fl.storagePath = '${docsDir.path}/recorded_files/거실 불 켜';
     setState(() {
       // 파일 리스트 초기화
       _fl.fileList = _fl.loadFiles();
@@ -390,12 +520,17 @@ class _TestPageState extends State<TestPage> {
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
     }
+
+    _servIPAddrController = TextEditingController(text: _client.host);
+    _servPortController = TextEditingController(text: _client.port.toString());
   }
 
   Future<void> _startSend() async {
     setState(() {
       _isSending = true;
     });
+    
+    _client.setServAddr(_servIPAddrController.text, int.parse(_servPortController.text));
 
     await _startCon();
     await _sendData();
@@ -413,6 +548,8 @@ class _TestPageState extends State<TestPage> {
     } on SocketException {
       setState(() {
         _elapsedTimeText = "서버 오류";
+        _isSending = false;
+        _isSendBtnClicked = false;
       });
       print("Connection refused");
     }
@@ -422,11 +559,9 @@ class _TestPageState extends State<TestPage> {
     _client.clntSocket.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
-        if (_state == FIN_CODE) {
-          _client.clntSocket.done;
-          print("time elapsed: ${stopwatch.elapsed}");
-          _elapsedTimeText = "${stopwatch.elapsed}";
-        }
+        print("time elapsed: ${stopwatch.elapsed}");
+        _elapsedTimeText = "${stopwatch.elapsed}";
+        _returnedValue = _state;
       });
     });
   }

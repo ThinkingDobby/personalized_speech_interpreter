@@ -24,11 +24,11 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  UserInfo _user = UserInfo();
-  await _user.setPrefs();
-  bool _userReady = _user.loadUserInfo();
+  UserInfo user = UserInfo();
+  await user.setPrefs();
+  bool userReady = user.loadUserInfo();
 
-  runApp(PSI(_userReady));
+  runApp(PSI(userReady));
   Timer.periodic(const Duration(milliseconds: 1000), (timer) {
     FlutterNativeSplash.remove();
   });
