@@ -290,7 +290,7 @@ class _TestPageState extends State<TestPage> {
                           Container(
                             width: 296,
                             height: 22,
-                            margin: const EdgeInsets.fromLTRB(0, 0, 1, 5),
+                            margin: const EdgeInsets.fromLTRB(0, 1, 1, 5),
                             alignment: Alignment.center,
                             child: Text(
                               textAlign: TextAlign.center,

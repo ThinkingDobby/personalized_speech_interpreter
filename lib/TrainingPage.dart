@@ -28,6 +28,7 @@ class TrainingPage extends StatefulWidget {
 class _TrainingPageState extends State<TrainingPage> {
   bool _isSending = false;
   bool _isSendBtnClicked = false;
+  bool _isSendAvailable = false;
 
   bool _isRecording = false;
   bool _isNotRecording = true;
@@ -35,6 +36,8 @@ class _TrainingPageState extends State<TrainingPage> {
 
   bool _isControlActivated = false;
   bool _cancelBtnPressed = false;
+
+  String _message = "단어 또는 문장을 선택하세요.";
 
   String _state = "Unconnected";
   final String FIN_CODE = "Transfer Finished";
@@ -125,7 +128,7 @@ class _TrainingPageState extends State<TrainingPage> {
                             ],
                           )
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 48),
                       Stack(
                         children: [
                           Container(
@@ -138,7 +141,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                 dropdownElevation: 1,
                                 isExpanded: true,
                                 hint: Text(
-                                  '단어 또는 문장을 선택해주세요.',
+                                  '단어 또는 문장을 선택하세요.',
                                   style: TextStyle(
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w400,
@@ -166,6 +169,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                     _setStoragePathWithWord(value);
                                     _cancelBtnPressed = false;
                                     _isControlActivated = false;
+                                    _message = "아직 학습되지 않은 단어입니다.";
                                   });
                                 },
                                 offset: const Offset(4, -4),
@@ -224,16 +228,23 @@ class _TrainingPageState extends State<TrainingPage> {
                         height: 446,
                         child: Stack(
                           children: [
-                            SizedBox(
+                            Container(
+                            width: 316,
+                            height: 90,
+                            child: Image.asset(
+                                "assets/images/training_iv_message_background.png")),
+                            Container(
+                                margin: const EdgeInsets.fromLTRB(0, 90, 0, 0),
                                 width: 316,
-                                height: 400,
+                                height: 310,
                                 child: Image.asset(
                                     "assets/images/training_iv_list_background.png")),
                             Container(
-                              margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              margin: const EdgeInsets.fromLTRB(0, 110, 0, 0),
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                               width: 316,
-                              height: 348,
-                              child: ListView.builder(
+                              height: 278,
+                              child: MediaQuery.removePadding(context: context, removeTop: true, child: ListView.builder(
                                 // glow 제거
                                 physics: const BouncingScrollPhysics(),
                                 scrollDirection: Axis.vertical,
@@ -242,6 +253,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                 itemBuilder: (context, i) =>
                                     _setListItemBuilder(context, i),
                               ),
+                      )
                             ),
                             Container(
                                 margin: const EdgeInsets.fromLTRB(0, 348, 0, 0),
@@ -455,6 +467,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                     onTap: () => setState(() {
                                       _cancelBtnPressed = false;
                                       _isControlActivated = true;
+                                      _checkSendAvailable();
                                       // 패널 활성화
                                     }),
                                     child: _cancelBtnPressed
@@ -469,7 +482,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                   )) : GestureDetector(
                                       onTapDown: (_) => setState(() {
                                         Fluttertoast.showToast(
-                                            msg: "단어 또는 문장을 선택해주세요.",
+                                            msg: '단어 또는 문장이 선택되지 않았습니다.',
                                             toastLength: Toast.LENGTH_SHORT,
                                             gravity: ToastGravity.CENTER,
                                             timeInSecForIosWeb: 1,
@@ -480,17 +493,33 @@ class _TrainingPageState extends State<TrainingPage> {
                                       child:Image.asset("assets/images/training_btn_add_disabled.png", gaplessPlayback: true),
                                     )
                             ),
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(10, 28, 0, 0),
+                              alignment: Alignment.center,
+                              width: 296,
+                              height: 32,
+                              child: Text(
+                                _message,
+                                style: const TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 16,
+                                  color: Color(0xff191919),
+                                  fontWeight: FontWeight.w500
+                                ),
+                                softWrap: false,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 22),
                       Container(
                           child: Stack(
                         children: [
                           Container(
                             width: 332,
                             height: 66,
-                            child: GestureDetector(
+                            child: _isSendAvailable ? GestureDetector(
                               onTapDown: _isSending
                                   ? null
                                   : (_) => setState(() {
@@ -511,13 +540,36 @@ class _TrainingPageState extends State<TrainingPage> {
                                       "assets/images/test_btn_send.png",
                                       gaplessPlayback: true,
                                     ),
-                            ),
+                            ) : GestureDetector(
+                              onTapDown: (_) => setState(() {
+                                if (_selectedWord != null) {
+                                  Fluttertoast.showToast(
+                                      msg: '단어 또는 문장이 선택되지 않았습니다.',
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: const Color(0xff999999),
+                                      textColor: const Color(0xfffefefe),
+                                      fontSize: 16.0);
+                                } else if (!_isSendAvailable) {
+                                  Fluttertoast.showToast(
+                                      msg: '음성샘플의 개수가 10개여야 합니다.',
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: const Color(0xff999999),
+                                      textColor: const Color(0xfffefefe),
+                                      fontSize: 16.0);
+                                }
+                              }),
+                              child: Image.asset("assets/images/training_btn_send_disabled.png", gaplessPlayback: true),
+                            )
                           ),
                           Container(
                             width: 332,
                             height: 62,
                             alignment: Alignment.center,
-                            child: GestureDetector(
+                            child: _isSendAvailable ? GestureDetector(
                               onTapDown: _isSending
                                   ? null
                                   : (_) => setState(() {
@@ -541,6 +593,15 @@ class _TrainingPageState extends State<TrainingPage> {
                                 ),
                                 softWrap: false,
                               ),
+                            ) : const Text(
+                              '입력한 음성으로 학습',
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 16,
+                                color: Color(0xffE7E7E7),
+                                fontWeight: FontWeight.w600,
+                              ),
+                              softWrap: false,
                             ),
                           ),
                         ],
@@ -572,6 +633,7 @@ class _TrainingPageState extends State<TrainingPage> {
     _fl.storagePath = '${docsDir.path}/recorded_files/$word';
     setState(() {
       _fl.fileList = _fl.loadFiles();
+      _checkSendAvailable();
       _setPathForRecord();
     });
   }
@@ -579,6 +641,20 @@ class _TrainingPageState extends State<TrainingPage> {
   _setPathForRecord() {
     _filePathForRecord =
         '${_fl.storagePath}/음성샘플 ${_fl.fileList.length + 1}.wav';
+  }
+
+  void _checkSendAvailable() {
+    _fl.fileList = _fl.loadFiles();
+    if (_fl.fileList.length == 10) {
+      _isSendAvailable = true;
+      _message = "학습이 가능합니다.";
+    } else if (_fl.fileList.length < 10) {
+      _isSendAvailable = false;
+      _message = "음성샘플이 부족합니다.";
+    } else {
+      _isSendAvailable = false;
+      _message = "음성샘플이 너무 많습니다.";
+    }
   }
 
   RadioListTile _setListItemBuilder(BuildContext context, int i) {
@@ -663,6 +739,7 @@ class _TrainingPageState extends State<TrainingPage> {
     setState(() {
       // 파일 리스트 갱신
       _fl.fileList = _fl.loadFiles();
+      _checkSendAvailable();
       _setPathForRecord();
       if (_fl.fileList.length == 1) {
         _fl.selectedFile = _fl.fileList[0];
@@ -750,6 +827,7 @@ class _TrainingPageState extends State<TrainingPage> {
     _fl.deleteFile("${_fl.storagePath}/${_fl.selectedFile}");
     setState(() {
       _fl.fileList = _fl.loadFiles();
+      _checkSendAvailable();
       _setPathForRecord();
     });
   }

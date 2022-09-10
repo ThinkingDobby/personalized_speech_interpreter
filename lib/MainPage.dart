@@ -279,7 +279,7 @@ class _MainPageState extends State<MainPage> {
                   height: 96,
                   child: Image.asset("assets/images/main_iv_result.png")),
               Container(
-                margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                margin: const EdgeInsets.fromLTRB(0, 4, 0, 0),
                 alignment: Alignment.center,
                 width: 296,
                 height: 96,
@@ -288,7 +288,8 @@ class _MainPageState extends State<MainPage> {
                   style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontSize: 18,
-                    color: Color(0xff000000),
+                    color: Color(0xff191919),
+                    fontWeight: FontWeight.w500
                   ),
                   softWrap: false,
                 ),
