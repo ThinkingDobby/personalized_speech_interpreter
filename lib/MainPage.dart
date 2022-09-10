@@ -11,6 +11,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
 import 'package:sprintf/sprintf.dart';
 
 import 'package:flutter_sound/flutter_sound.dart';
@@ -18,6 +19,7 @@ import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 
 import 'file/FileLoader.dart';
+import 'package:personalized_speech_interpreter/user/UserInfo.dart';
 import 'main.dart';
 
 class MainPage extends StatefulWidget {
@@ -41,7 +43,7 @@ class _MainPageState extends State<MainPage> {
   late FlutterSoundRecorder _recordingSession;
 
   // 음성 신호 시각화 위한 객체 저장
-  late RecorderController _recorderController;
+  final RecorderController _recorderController = RecorderController();
 
   // 재생 위한 객체 저장
   final _audioPlayer = AssetsAudioPlayer();
@@ -60,6 +62,9 @@ class _MainPageState extends State<MainPage> {
   // 실행 시간 측정 위한 객체
   late Stopwatch stopwatch;
 
+  late UserInfo _user;
+  String _userName = '';
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +74,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    _setUser();
+
     Widget _buildMainComponents() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,8 +168,8 @@ class _MainPageState extends State<MainPage> {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          "이치호",
-                          style: TextStyle(
+                          _userName,
+                          style: const TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 32,
                             color: Color(0xff191919),
@@ -416,7 +423,13 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _initializer() async {
-    _recorderController = RecorderController();
+    // 권한 요청
+    await Permission.microphone.request();
+    await Permission.storage.request();
+    await Permission.manageExternalStorage.request();
+
+    await _setUser();
+
     // 내부저장소 경로 로드
     var docsDir = await getApplicationDocumentsDirectory();
     _fl.storagePath = docsDir.path;
@@ -432,6 +445,15 @@ class _MainPageState extends State<MainPage> {
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _setRecordingSession();
+  }
+
+  _setUser() async {
+    _user = UserInfo();
+    await _user.setPrefs();
+    _user.loadUserInfo();
+    setState(() {
+      _userName = _user.userName!;
+    });
   }
 
   _setPathForRecord() {
@@ -461,11 +483,6 @@ class _MainPageState extends State<MainPage> {
     await _recordingSession
         .setSubscriptionDuration(const Duration(milliseconds: 10));
     await initializeDateFormatting();
-
-    // 권한 요청
-    await Permission.microphone.request();
-    await Permission.storage.request();
-    await Permission.manageExternalStorage.request();
   }
 
   Future<void> _startRecording() async {

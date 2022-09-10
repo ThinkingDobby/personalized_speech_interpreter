@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:personalized_speech_interpreter/InitPage.dart';
+import 'package:personalized_speech_interpreter/user/UserInfo.dart';
 
 import 'MainPage.dart';
 import 'TestPage.dart';
 import 'TrainingPage.dart';
-import 'dialog/showNameInputDialog.dart';
 
 void main() async {
   // 상태바, 내비게이션바 색상 조정
@@ -23,28 +23,34 @@ void main() async {
 
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(PSI());
+
+  UserInfo _user = UserInfo();
+  await _user.setPrefs();
+  bool _userReady = _user.loadUserInfo();
+
+  runApp(PSI(_userReady));
   Timer.periodic(const Duration(milliseconds: 1000), (timer) {
     FlutterNativeSplash.remove();
   });
 }
 
-const String ROOT_PAGE = '/';
+const String MAIN_PAGE = '/main';
 const String INIT_PAGE = '/init';
 const String TEST_PAGE = '/test';
 const String TRAINING_PAGE = '/training';
 
 class PSI extends StatelessWidget {
+  final bool _userReady;
+  PSI(this._userReady);
+
   @override
   Widget build(BuildContext context) {
-    bool userReady = false;
-
     return MaterialApp(
         title: 'TCP Client Test',
         debugShowCheckedModeBanner: false,
-        initialRoute: userReady ? ROOT_PAGE : INIT_PAGE,
+        initialRoute: _userReady ? MAIN_PAGE : INIT_PAGE,
         routes: {
-          ROOT_PAGE: (context) => MainPage(),
+          MAIN_PAGE: (context) => MainPage(),
           INIT_PAGE: (context) => InitPage(),
           TEST_PAGE: (context) => TestPage(),
           TRAINING_PAGE: (context) => TrainingPage()
