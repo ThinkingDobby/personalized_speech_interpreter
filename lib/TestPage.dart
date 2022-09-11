@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/file/FileLoader.dart';
@@ -14,6 +17,8 @@ class TestPage extends StatefulWidget {
 }
 
 class _TestPageState extends State<TestPage> {
+  final BasicRecorder _br = BasicRecorder();
+
   String _state = "Unconnected";
   bool _isSending = false;
   bool _isSendBtnClicked = false;
@@ -22,6 +27,8 @@ class _TestPageState extends State<TestPage> {
 
   late TextEditingController _servIPAddrController;
   late TextEditingController _servPortController;
+
+  StreamSubscription? _mRecordingDataSubscription;
 
   int _typ = 1;
 
@@ -332,18 +339,15 @@ class _TestPageState extends State<TestPage> {
                             margin: const EdgeInsets.fromLTRB(0, 6, 0, 0),
                             width: 296,
                             height: 278,
-                            child: Expanded(
-                                flex: 1,
-                                child: MediaQuery.removePadding(context: context, removeTop: true, child: ListView.builder(
-                                  // glow 제거
-                                  physics: const BouncingScrollPhysics(),
-                                  scrollDirection: Axis.vertical,
-                                  shrinkWrap: true,
-                                  itemCount: _fl.fileList.length,
-                                  itemBuilder: (context, i) =>
-                                      _setListItemBuilder(context, i),
-                                )),
-                          )),
+                            child: MediaQuery.removePadding(context: context, removeTop: true, child: ListView.builder(
+                              // glow 제거
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: _fl.fileList.length,
+                              itemBuilder: (context, i) =>
+                                  _setListItemBuilder(context, i),
+                            ))),
                         ],
                       ),
                       const SizedBox(height: 32),
@@ -449,7 +453,7 @@ class _TestPageState extends State<TestPage> {
                           Container(
                             width: 332,
                             height: 66,
-                            child: GestureDetector(
+                            child: _typ != 2 ?GestureDetector(
                               onTapDown: _isSending
                                   ? null
                                   : (_) => setState(() {
@@ -470,14 +474,31 @@ class _TestPageState extends State<TestPage> {
                                       "assets/images/test_btn_send.png",
                                       gaplessPlayback: true,
                                     ),
+                            ) : GestureDetector(
+                              onTapDown: (_) => setState(() {
+                                _isSendBtnClicked = !_isSendBtnClicked;
+                              }),
+                              onTapCancel: () => setState(() {
+                                _isSendBtnClicked = !_isSendBtnClicked;
+                              }),
+                              onTap: _isSending ? () => _stopRealTimeSend() : () => _startRealTimeSend(),
+                              child: _isSendBtnClicked
+                                  ? Image.asset(
+                                "assets/images/test_btn_send_clicked.png",
+                                gaplessPlayback: true,
+                              )
+                                  : Image.asset(
+                                "assets/images/test_btn_send.png",
+                                gaplessPlayback: true,
+                              ),
                             ),
                           ),
                           Container(
-                            width: 114,
+                            width: 300,
                             height: 22,
                             margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
                             alignment: Alignment.center,
-                            child: GestureDetector(
+                            child: _typ != 2 ? GestureDetector(
                               onTapDown: _isSending
                                   ? null
                                   : (_) => setState(() {
@@ -490,7 +511,27 @@ class _TestPageState extends State<TestPage> {
                                       }),
                               onTap: _isSending ? null : () => _startSend(),
                               child: Text(
-                                '선택한 파일 전송',
+                                _typ == 1 ? '선택한 파일 전송' : '식별정보(이름) 전송',
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 16,
+                                  color: _isSendBtnClicked
+                                      ? const Color(0xfffecdc8)
+                                      : const Color(0xfffefefe),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                softWrap: false,
+                              ),
+                            ) : GestureDetector(
+                              onTapDown: (_) => setState(() {
+                                _isSendBtnClicked = !_isSendBtnClicked;
+                              }),
+                              onTapCancel: () => setState(() {
+                                _isSendBtnClicked = !_isSendBtnClicked;
+                              }),
+                              onTap: _isSending ? () => _stopRealTimeSend() : () => _startRealTimeSend(),
+                              child: Text(
+                                _isSending ? '실시간 전송 중단' : '실시간 전송 시작',
                                 style: TextStyle(
                                   fontFamily: 'Pretendard',
                                   fontSize: 16,
@@ -510,6 +551,8 @@ class _TestPageState extends State<TestPage> {
   }
 
   void _initializer() async {
+    await _br.init();
+
     // 내부저장소 경로 로드
     var docsDir = await getApplicationDocumentsDirectory();
     _fl.storagePath = '${docsDir.path}/recorded_files/거실 불 켜';
@@ -523,6 +566,8 @@ class _TestPageState extends State<TestPage> {
 
     _servIPAddrController = TextEditingController(text: _client.host);
     _servPortController = TextEditingController(text: _client.port.toString());
+
+    await _br.setRecordingSession();
   }
 
   Future<void> _startSend() async {
@@ -539,6 +584,65 @@ class _TestPageState extends State<TestPage> {
     setState(() {
       _isSending = false;
       _isSendBtnClicked = false;
+    });
+  }
+
+  Future<void> _startRealTimeSend() async {
+    setState(() {
+      _isSending = true;
+      _isSendBtnClicked = false;
+      _elapsedTimeText = "실시간 녹음 및 전송 중입니다.";
+    });
+    stopwatch = Stopwatch()..start();
+
+    _client.setServAddr(_servIPAddrController.text, int.parse(_servPortController.text));
+
+    await _startCon();
+
+    // 다른 타입의 sendFile 부분
+
+    var start = Uint8List.fromList(utf8.encode("["));
+    var typ = Uint8List.fromList([_typ]);
+    var msgSize = Uint8List.fromList([7]);
+    var ext = Uint8List.fromList(utf8.encode("pcm"));
+
+    var header = start + typ + msgSize + ext;
+
+    _client.clntSocket.add(header);
+
+    // 실시간 전송
+    var recordingDataController = StreamController<Food>();
+    _mRecordingDataSubscription = recordingDataController.stream.listen((buffer) {
+      if (buffer is FoodData) {
+        _client.clntSocket.add(buffer.data!);
+      }
+    });
+
+    _br.recordingSession.openAudioSession();
+    // 녹음 시작
+    await _br.recordingSession.startRecorder(
+      toStream: recordingDataController.sink,
+      codec: Codec.pcm16,
+    );
+  }
+
+  Future<void> _stopRealTimeSend() async {
+    _br.recordingSession.stopRecorder();
+
+    if (_mRecordingDataSubscription != null) {
+      await _mRecordingDataSubscription!.cancel();
+      _mRecordingDataSubscription = null;
+    }
+
+    var end = Uint8List.fromList(utf8.encode("]]"));  // 임시 지정
+    _client.clntSocket.add(end);
+
+    await _stopCon();
+
+    setState(() {
+      _isSending = false;
+      _isSendBtnClicked = false;
+      _elapsedTimeText = "실시간 전송이 중단되었습니다.";
     });
   }
 
@@ -559,8 +663,10 @@ class _TestPageState extends State<TestPage> {
     _client.clntSocket.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
-        print("time elapsed: ${stopwatch.elapsed}");
-        _elapsedTimeText = "${stopwatch.elapsed}";
+        if (_typ != 2) {
+          print("time elapsed: ${stopwatch.elapsed}");
+          _elapsedTimeText = "${stopwatch.elapsed}";
+        }
         _returnedValue = _state;
       });
     });
@@ -568,10 +674,18 @@ class _TestPageState extends State<TestPage> {
 
   Future<void> _sendData() async {
     try {
-      Uint8List data =
-          await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
       stopwatch = Stopwatch()..start();
-      _client.sendFile(_typ, data);
+
+      switch (_typ) {
+        case 3:
+          _client.sendID(_typ);
+          break;
+        default:
+          Uint8List data =
+          await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
+          _client.sendFile(_typ, data);
+          break;
+      }
     } on FileSystemException {
       setState(() {
         _elapsedTimeText = "파일 선택 오류";
