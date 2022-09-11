@@ -7,12 +7,12 @@ import 'dart:ui' as ui;
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/data/TrainingLabel.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicPlayer.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
+import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
 
 import 'file/FileLoader.dart';
 
@@ -22,8 +22,8 @@ class TrainingPage extends StatefulWidget {
 }
 
 class _TrainingPageState extends State<TrainingPage> {
-  BasicRecorder rc = BasicRecorder();
-  BasicPlayer pl = BasicPlayer();
+  final BasicRecorder _br = BasicRecorder();
+  final BasicPlayer _bp = BasicPlayer();
 
   bool _isSending = false;
   bool _isSendBtnClicked = false;
@@ -91,11 +91,13 @@ class _TrainingPageState extends State<TrainingPage> {
                                 children: [
                                   InkWell(
                                     onTap: () {
-                                      if (rc.isRecording) {
-                                        _displayMsg("녹음 중에는 이동이 불가능합니다.");
-                                      } else if (pl.isPlaying) {
-                                        pl.stopPlaying();
-                                        _displayMsg("음성 재생이 중지되었습니다.");
+                                      if (_br.isRecording) {
+                                        ToastGenerator.displayRegularMsg(
+                                            "녹음 중에는 이동이 불가능합니다.");
+                                      } else if (_bp.isPlaying) {
+                                        _bp.stopPlaying();
+                                        ToastGenerator.displayRegularMsg(
+                                            "음성 재생이 중지되었습니다.");
                                         return Navigator.pop(context);
                                       } else {
                                         return Navigator.pop(context);
@@ -290,7 +292,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                     size: Size(
                                         MediaQuery.of(context).size.width,
                                         40.0),
-                                    recorderController: rc.recorderController,
+                                    recorderController: _br.recorderController,
                                   ),
                                 ),
                                 Container(
@@ -302,27 +304,27 @@ class _TrainingPageState extends State<TrainingPage> {
                                           width: 52,
                                           height: 52,
                                           child: GestureDetector(
-                                            onTapDown: rc.isNotRecording
+                                            onTapDown: _br.isNotRecording
                                                 ? (_) => setState(() {
-                                                      rc.isRecording =
-                                                          !rc.isRecording;
+                                                      _br.isRecording =
+                                                          !_br.isRecording;
                                                     })
                                                 : null,
-                                            onTapCancel: rc.isNotRecording
+                                            onTapCancel: _br.isNotRecording
                                                 ? () => setState(() {
-                                                      rc.isRecording =
-                                                          !rc.isRecording;
+                                                      _br.isRecording =
+                                                          !_br.isRecording;
                                                     })
                                                 : null,
-                                            onTap: rc.isNotRecording
+                                            onTap: _br.isNotRecording
                                                 ? () => setState(() {
-                                                      rc.isNotRecording =
-                                                          !rc.isNotRecording;
-                                                      rc.startRecording(
+                                                      _br.isNotRecording =
+                                                          !_br.isNotRecording;
+                                                      _br.startRecording(
                                                           _filePathForRecord);
                                                     })
                                                 : null,
-                                            child: rc.isRecording
+                                            child: _br.isRecording
                                                 ? Image.asset(
                                                     "assets/images/training_btn_record_pressed.png",
                                                     gaplessPlayback: true,
@@ -339,23 +341,23 @@ class _TrainingPageState extends State<TrainingPage> {
                                             width: 52,
                                             height: 52,
                                             child: GestureDetector(
-                                              onTapDown: rc.isRecording
+                                              onTapDown: _br.isRecording
                                                   ? (_) => setState(() {
-                                                        rc.isNotRecording =
-                                                            !rc.isNotRecording;
+                                                        _br.isNotRecording =
+                                                            !_br.isNotRecording;
                                                       })
                                                   : null,
-                                              onTapCancel: rc.isRecording
+                                              onTapCancel: _br.isRecording
                                                   ? () => setState(() {
-                                                        rc.isNotRecording =
-                                                            !rc.isNotRecording;
+                                                        _br.isNotRecording =
+                                                            !_br.isNotRecording;
                                                       })
                                                   : null,
-                                              onTap: rc.isRecording
+                                              onTap: _br.isRecording
                                                   ? () => setState(() {
-                                                        rc.isRecording =
-                                                            !rc.isRecording;
-                                                        rc.stopRecording();
+                                                        _br.isRecording =
+                                                            !_br.isRecording;
+                                                        _br.stopRecording();
 
                                                         // 파일 리스트 갱신
                                                         _fl.fileList =
@@ -370,7 +372,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                                         }
                                                       })
                                                   : null,
-                                              child: rc.isNotRecording
+                                              child: _br.isNotRecording
                                                   ? Image.asset(
                                                       "assets/images/training_btn_stop_pressed.png",
                                                       gaplessPlayback: true,
@@ -517,16 +519,8 @@ class _TrainingPageState extends State<TrainingPage> {
                                             ))
                                         : GestureDetector(
                                             onTapDown: (_) => setState(() {
-                                              Fluttertoast.showToast(
-                                                  msg: '단어 또는 문장이 선택되지 않았습니다.',
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 1,
-                                                  backgroundColor:
-                                                      Color(0xff999999),
-                                                  textColor: Color(0xfffefefe),
-                                                  fontSize: 16.0);
+                                              ToastGenerator.displayRegularMsg(
+                                                  '단어 또는 문장이 선택되지 않았습니다.');
                                             }),
                                             child: Image.asset(
                                                 "assets/images/training_btn_add_disabled.png",
@@ -587,30 +581,12 @@ class _TrainingPageState extends State<TrainingPage> {
                                         )
                                       : GestureDetector(
                                           onTapDown: (_) => setState(() {
-                                            if (_selectedWord != null) {
-                                              Fluttertoast.showToast(
-                                                  msg: '단어 또는 문장이 선택되지 않았습니다.',
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 1,
-                                                  backgroundColor:
-                                                      const Color(0xff999999),
-                                                  textColor:
-                                                      const Color(0xfffefefe),
-                                                  fontSize: 16.0);
+                                            if (_selectedWord == null) {
+                                              ToastGenerator.displayRegularMsg(
+                                                  '단어 또는 문장이 선택되지 않았습니다.');
                                             } else if (!_isSendAvailable) {
-                                              Fluttertoast.showToast(
-                                                  msg: '음성샘플의 개수가 10개여야 합니다.',
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 1,
-                                                  backgroundColor:
-                                                      const Color(0xff999999),
-                                                  textColor:
-                                                      const Color(0xfffefefe),
-                                                  fontSize: 16.0);
+                                              ToastGenerator.displayRegularMsg(
+                                                  '음성샘플의 개수가 10개여야 합니다.');
                                             }
                                           }),
                                           child: Image.asset(
@@ -669,7 +645,7 @@ class _TrainingPageState extends State<TrainingPage> {
   }
 
   void _initializer() async {
-    await rc.init();
+    await _br.init();
 
     // 내부저장소 경로 로드
     docsDir = await getApplicationDocumentsDirectory();
@@ -685,7 +661,7 @@ class _TrainingPageState extends State<TrainingPage> {
     }
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
-    rc.setRecordingSession();
+    _br.setRecordingSession();
   }
 
   _setStoragePathWithWord(String word) {
@@ -727,21 +703,21 @@ class _TrainingPageState extends State<TrainingPage> {
             )),
             IconButton(
                 onPressed: () {
-                  if (rc.isRecording) {
-                    _displayMsg("녹음 중에는 재생이 불가능합니다.");
+                  if (_br.isRecording) {
+                    ToastGenerator.displayRegularMsg("녹음 중에는 재생이 불가능합니다.");
                   } else {
                     setState(() {
-                      pl.isPlaying = true;
+                      _bp.isPlaying = true;
                       _fl.selectedFile = _fl.fileList[i];
                     });
-                    pl.startPlaying("${_fl.storagePath}/${_fl.selectedFile}");
+                    _bp.startPlaying("${_fl.storagePath}/${_fl.selectedFile}");
                   }
                 },
                 icon: Image.asset("assets/images/training_iv_play.png")),
             IconButton(
                 onPressed: () {
-                  if (rc.isRecording) {
-                    _displayMsg("녹음 중에는 삭제가 불가능합니다.");
+                  if (_br.isRecording) {
+                    ToastGenerator.displayRegularMsg("녹음 중에는 삭제가 불가능합니다.");
                   } else {
                     _deleteFile(i);
                   }
@@ -819,32 +795,21 @@ class _TrainingPageState extends State<TrainingPage> {
   }
 
   Future<bool> _onBack() async {
-    if (rc.isRecording) {
-      _displayMsg("녹음 중에는 이동이 불가능합니다.");
+    if (_br.isRecording) {
+      ToastGenerator.displayRegularMsg("녹음 중에는 이동이 불가능합니다.");
       return false;
-    } else if (pl.isPlaying) {
-      pl.stopPlaying();
-      _displayMsg("음성 재생이 중지되었습니다.");
+    } else if (_bp.isPlaying) {
+      _bp.stopPlaying();
+      ToastGenerator.displayRegularMsg("음성 재생이 중지되었습니다.");
       return true;
     } else {
       return true;
     }
   }
 
-  void _displayMsg(text) {
-    Fluttertoast.showToast(
-        msg: text,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: const Color(0xff999999),
-        textColor: const Color(0xfffefefe),
-        fontSize: 16.0);
-  }
-
   @override
   void dispose() {
-    rc.recorderController.dispose();
+    _br.recorderController.dispose();
     dropDownTextController.dispose();
     super.dispose();
   }

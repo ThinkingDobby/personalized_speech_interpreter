@@ -6,11 +6,11 @@ import 'dart:ui' as ui;
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/user/UserInfo.dart';
+import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'file/FileLoader.dart';
@@ -22,7 +22,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  BasicRecorder rc = BasicRecorder();
+  final BasicRecorder _br = BasicRecorder();
 
   int _time = 0;
   String _timeText = "00:00";
@@ -33,6 +33,7 @@ class _MainPageState extends State<MainPage> {
 
   // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
   late String _filePathForRecord;
+
   // late String _filePathForWaveVisualize;
 
   // 파일 로드, 삭제 위한 객체
@@ -76,17 +77,11 @@ class _MainPageState extends State<MainPage> {
                         builder: (context) {
                           return InkWell(
                               onDoubleTap: () {
-                                if (!rc.isRecording) {
+                                if (!_br.isRecording) {
                                   Navigator.pushNamed(context, TEST_PAGE);
                                 } else {
-                                  Fluttertoast.showToast(
-                                      msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: const Color(0xff999999),
-                                      textColor: const Color(0xfffefefe),
-                                      fontSize: 16.0);
+                                  ToastGenerator.displayRegularMsg(
+                                      "음성 입력 중에는 이동이 불가능합니다.");
                                 }
                               },
                               child: Image.asset("assets/images/icon.png"));
@@ -101,17 +96,11 @@ class _MainPageState extends State<MainPage> {
                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: InkWell(
                           onTap: () {
-                            if (!rc.isRecording) {
+                            if (!_br.isRecording) {
                               Navigator.pushNamed(context, TRAINING_PAGE);
                             } else {
-                              Fluttertoast.showToast(
-                                  msg: "음성 입력 중에는 이동이 불가능합니다.",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Color(0xff999999),
-                                  textColor: Color(0xfffefefe),
-                                  fontSize: 16.0);
+                              ToastGenerator.displayRegularMsg(
+                                  "음성 입력 중에는 이동이 불가능합니다.");
                             }
                           },
                           child: Column(
@@ -245,7 +234,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   enableGesture: false,
                   size: Size(MediaQuery.of(context).size.width, 110.0),
-                  recorderController: rc.recorderController,
+                  recorderController: _br.recorderController,
                 ),
               ),
             ],
@@ -292,19 +281,19 @@ class _MainPageState extends State<MainPage> {
                   width: 100,
                   height: 100,
                   child: GestureDetector(
-                    onTapDown: rc.isNotRecording
+                    onTapDown: _br.isNotRecording
                         ? (_) => setState(() {
-                              rc.isRecording = !rc.isRecording;
+                              _br.isRecording = !_br.isRecording;
                             })
                         : null,
-                    onTapCancel: rc.isNotRecording
+                    onTapCancel: _br.isNotRecording
                         ? () => setState(() {
-                              rc.isRecording = !rc.isRecording;
+                              _br.isRecording = !_br.isRecording;
                             })
                         : null,
-                    onTap: rc.isNotRecording
+                    onTap: _br.isNotRecording
                         ? () => setState(() async {
-                              rc.isNotRecording = !rc.isNotRecording;
+                              _br.isNotRecording = !_br.isNotRecording;
 
                               _time = 0;
                               _timeText = "00:00";
@@ -315,10 +304,10 @@ class _MainPageState extends State<MainPage> {
                                 _timeText = sprintf(
                                     "%02d:%02d", [_time ~/ 60, _time % 60]);
                               });
-                              await rc.startRecording(_filePathForRecord);
+                              await _br.startRecording(_filePathForRecord);
                             })
                         : null,
-                    child: rc.isRecording
+                    child: _br.isRecording
                         ? Image.asset(
                             "assets/images/main_btn_record_pressed.png",
                             gaplessPlayback: true,
@@ -334,20 +323,20 @@ class _MainPageState extends State<MainPage> {
                     height: 42,
                     margin: const EdgeInsets.fromLTRB(162, 16, 0, 0),
                     child: GestureDetector(
-                      onTapDown: rc.isRecording
+                      onTapDown: _br.isRecording
                           ? (_) => setState(() {
-                                rc.isNotRecording = !rc.isNotRecording;
+                                _br.isNotRecording = !_br.isNotRecording;
                               })
                           : null,
-                      onTapCancel: rc.isRecording
+                      onTapCancel: _br.isRecording
                           ? () => setState(() {
-                                rc.isNotRecording = !rc.isNotRecording;
+                                _br.isNotRecording = !_br.isNotRecording;
                               })
                           : null,
-                      onTap: rc.isRecording
+                      onTap: _br.isRecording
                           ? () => setState(() async {
-                                rc.isRecording = !rc.isRecording;
-                                await rc.stopRecording();
+                                _br.isRecording = !_br.isRecording;
+                                await _br.stopRecording();
 
                                 // 파일 리스트 갱신
                                 _fl.fileList = _fl.loadFiles();
@@ -362,7 +351,7 @@ class _MainPageState extends State<MainPage> {
                                 await _stopCon();
                               })
                           : null,
-                      child: rc.isNotRecording
+                      child: _br.isNotRecording
                           ? Image.asset(
                               "assets/images/main_btn_stop_pressed.png",
                               gaplessPlayback: true,
@@ -416,7 +405,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _initializer() async {
-    await rc.init();
+    await _br.init();
     await _setUser();
 
     // 내부저장소 경로 로드
@@ -433,7 +422,7 @@ class _MainPageState extends State<MainPage> {
     }
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
-    rc.setRecordingSession();
+    _br.setRecordingSession();
   }
 
   _setUser() async {
@@ -485,7 +474,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    rc.recorderController.dispose();
+    _br.recorderController.dispose();
     super.dispose();
   }
 }
