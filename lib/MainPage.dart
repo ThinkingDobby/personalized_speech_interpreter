@@ -7,19 +7,13 @@ import 'dart:ui' as ui;
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:intl/date_symbol_data_local.dart';
-
+import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
+import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
+import 'package:personalized_speech_interpreter/user/UserInfo.dart';
 import 'package:sprintf/sprintf.dart';
 
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
-
 import 'file/FileLoader.dart';
-import 'package:personalized_speech_interpreter/user/UserInfo.dart';
 import 'main.dart';
 
 class MainPage extends StatefulWidget {
@@ -28,9 +22,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  bool _isRecording = false;
-  bool _isNotRecording = true;
-  bool _isPlaying = false;
+  BasicRecorder rc = BasicRecorder();
 
   int _time = 0;
   String _timeText = "00:00";
@@ -38,15 +30,6 @@ class _MainPageState extends State<MainPage> {
 
   String _state = "Unconnected";
   final String FIN_CODE = "Transfer Finished";
-
-  // 녹음 위한 객체 저장
-  late FlutterSoundRecorder _recordingSession;
-
-  // 음성 신호 시각화 위한 객체 저장
-  final RecorderController _recorderController = RecorderController();
-
-  // 재생 위한 객체 저장
-  final _audioPlayer = AssetsAudioPlayer();
 
   // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
   late String _filePathForRecord;
@@ -93,7 +76,7 @@ class _MainPageState extends State<MainPage> {
                         builder: (context) {
                           return InkWell(
                               onDoubleTap: () {
-                                if (!_isRecording) {
+                                if (!rc.isRecording) {
                                   Navigator.pushNamed(context, TEST_PAGE);
                                 } else {
                                   Fluttertoast.showToast(
@@ -118,7 +101,7 @@ class _MainPageState extends State<MainPage> {
                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: InkWell(
                           onTap: () {
-                            if (!_isRecording) {
+                            if (!rc.isRecording) {
                               Navigator.pushNamed(context, TRAINING_PAGE);
                             } else {
                               Fluttertoast.showToast(
@@ -220,7 +203,10 @@ class _MainPageState extends State<MainPage> {
               )
             ],
           ),
-          if (MediaQuery.of(context).size.height >= 670) const Spacer() else const SizedBox(height: 16),
+          if (MediaQuery.of(context).size.height >= 670)
+            const Spacer()
+          else
+            const SizedBox(height: 16),
           Container(
             alignment: Alignment.center,
             width: 296.0,
@@ -259,7 +245,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   enableGesture: false,
                   size: Size(MediaQuery.of(context).size.width, 110.0),
-                  recorderController: _recorderController,
+                  recorderController: rc.recorderController,
                 ),
               ),
             ],
@@ -286,11 +272,10 @@ class _MainPageState extends State<MainPage> {
                 child: Text(
                   _message,
                   style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 18,
-                    color: Color(0xff191919),
-                    fontWeight: FontWeight.w500
-                  ),
+                      fontFamily: 'Pretendard',
+                      fontSize: 18,
+                      color: Color(0xff191919),
+                      fontWeight: FontWeight.w500),
                   softWrap: false,
                 ),
               ),
@@ -307,23 +292,33 @@ class _MainPageState extends State<MainPage> {
                   width: 100,
                   height: 100,
                   child: GestureDetector(
-                    onTapDown: _isNotRecording
+                    onTapDown: rc.isNotRecording
                         ? (_) => setState(() {
-                              _isRecording = !_isRecording;
+                              rc.isRecording = !rc.isRecording;
                             })
                         : null,
-                    onTapCancel: _isNotRecording
+                    onTapCancel: rc.isNotRecording
                         ? () => setState(() {
-                              _isRecording = !_isRecording;
+                              rc.isRecording = !rc.isRecording;
                             })
                         : null,
-                    onTap: _isNotRecording
-                        ? () => setState(() {
-                              _isNotRecording = !_isNotRecording;
-                              _startRecording();
+                    onTap: rc.isNotRecording
+                        ? () => setState(() async {
+                              rc.isNotRecording = !rc.isNotRecording;
+
+                              _time = 0;
+                              _timeText = "00:00";
+
+                              _timer = Timer.periodic(
+                                  const Duration(seconds: 1), (timer) {
+                                _time += 1;
+                                _timeText = sprintf(
+                                    "%02d:%02d", [_time ~/ 60, _time % 60]);
+                              });
+                              await rc.startRecording(_filePathForRecord);
                             })
                         : null,
-                    child: _isRecording
+                    child: rc.isRecording
                         ? Image.asset(
                             "assets/images/main_btn_record_pressed.png",
                             gaplessPlayback: true,
@@ -339,23 +334,35 @@ class _MainPageState extends State<MainPage> {
                     height: 42,
                     margin: const EdgeInsets.fromLTRB(162, 16, 0, 0),
                     child: GestureDetector(
-                      onTapDown: _isRecording
+                      onTapDown: rc.isRecording
                           ? (_) => setState(() {
-                                _isNotRecording = !_isNotRecording;
+                                rc.isNotRecording = !rc.isNotRecording;
                               })
                           : null,
-                      onTapCancel: _isRecording
+                      onTapCancel: rc.isRecording
                           ? () => setState(() {
-                                _isNotRecording = !_isNotRecording;
+                                rc.isNotRecording = !rc.isNotRecording;
                               })
                           : null,
-                      onTap: _isRecording
-                          ? () => setState(() {
-                                _isRecording = !_isRecording;
-                                _stopRecording();
+                      onTap: rc.isRecording
+                          ? () => setState(() async {
+                                rc.isRecording = !rc.isRecording;
+                                await rc.stopRecording();
+
+                                // 파일 리스트 갱신
+                                _fl.fileList = _fl.loadFiles();
+                                _setPathForRecord();
+                                if (_fl.fileList.length == 1) {
+                                  _fl.selectedFile = _fl.fileList[0];
+                                }
+
+                                _timer.cancel();
+                                await _startCon();
+                                await _sendData();
+                                await _stopCon();
                               })
                           : null,
-                      child: _isNotRecording
+                      child: rc.isNotRecording
                           ? Image.asset(
                               "assets/images/main_btn_stop_pressed.png",
                               gaplessPlayback: true,
@@ -374,21 +381,12 @@ class _MainPageState extends State<MainPage> {
 
     Widget _buildWholeComponents() {
       // 화면 크기에 따라 스크롤뷰 적용 여부 결정
-      if (MediaQuery
-          .of(context)
-          .size
-          .height < 670) {
+      if (MediaQuery.of(context).size.height < 670) {
         return Scaffold(
             body: Container(
                 margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                         colors: [Color(0xffffffff), Color(0xfff2f2f2)],
@@ -403,14 +401,8 @@ class _MainPageState extends State<MainPage> {
         return Scaffold(
             body: Container(
                 margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                         colors: [Color(0xffffffff), Color(0xfff2f2f2)],
@@ -424,11 +416,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _initializer() async {
-    // 권한 요청
-    await Permission.microphone.request();
-    await Permission.storage.request();
-    await Permission.manageExternalStorage.request();
-
+    await rc.init();
     await _setUser();
 
     // 내부저장소 경로 로드
@@ -445,7 +433,7 @@ class _MainPageState extends State<MainPage> {
     }
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
-    _setRecordingSession();
+    rc.setRecordingSession();
   }
 
   _setUser() async {
@@ -459,102 +447,6 @@ class _MainPageState extends State<MainPage> {
 
   _setPathForRecord() {
     _filePathForRecord = '${_fl.storagePath}/input.wav'; // 파일 고정
-  }
-
-  RadioListTile _setListItemBuilder(BuildContext context, int i) {
-    return RadioListTile(
-        title: Text(_fl.fileList[i]),
-        value: _fl.fileList[i],
-        groupValue: _fl.selectedFile,
-        onChanged: (val) {
-          setState(() {
-            _fl.selectedFile = _fl.fileList[i];
-          });
-        });
-  }
-
-  _setRecordingSession() async {
-    // 객체 설정
-    _recordingSession = FlutterSoundRecorder();
-    await _recordingSession.openAudioSession(
-        focus: AudioFocus.requestFocusAndStopOthers,
-        category: SessionCategory.playAndRecord,
-        mode: SessionMode.modeDefault,
-        device: AudioDevice.speaker);
-    await _recordingSession
-        .setSubscriptionDuration(const Duration(milliseconds: 10));
-    await initializeDateFormatting();
-  }
-
-  Future<void> _startRecording() async {
-    // print("start recording");
-    // print("filePathForRecording: ${_filePathForRecord}");
-    Directory directory = Directory(dirname(_filePathForRecord));
-    if (!directory.existsSync()) {
-      directory.createSync();
-    }
-    _recordingSession.openAudioSession();
-    // 녹음 시작
-    await _recordingSession.startRecorder(
-      toFile: _filePathForRecord,
-      codec: Codec.pcm16WAV,
-    );
-
-    await _recorderController.record(); // 경로 임시 제거 - 기본 경로: git log 참고
-
-    setState(() {
-      _time = 0;
-      _timeText = "00:00";
-    });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _time += 1;
-        _timeText = sprintf("%02d:%02d", [_time ~/ 60, _time % 60]);
-      });
-    });
-  }
-
-  Future<String?> _stopRecording() async {
-    // print("stop recording");
-    // 녹음 중지
-    _recordingSession.closeAudioSession();
-    await _recorderController.pause();
-
-    setState(() {
-      // 파일 리스트 갱신
-      _fl.fileList = _fl.loadFiles();
-      _setPathForRecord();
-      if (_fl.fileList.length == 1) {
-        _fl.selectedFile = _fl.fileList[0];
-      }
-    });
-
-    _timer.cancel();
-
-    await _recordingSession.stopRecorder();
-    await _startCon();
-    await _sendData();
-    await _stopCon();
-  }
-
-  Future<void> _startPlaying() async {
-    // 재생
-    _audioPlayer.open(
-      Audio.file('${_fl.storagePath}/${_fl.selectedFile}'),
-      autoStart: true,
-      showNotification: true,
-    );
-    // print("filePathForPlaying ${_fl.storagePath}/${_fl.selectedFile}");
-    _audioPlayer.playlistAudioFinished.listen((event) {
-      setState(() {
-        _isPlaying = false;
-      });
-    });
-  }
-
-  Future<void> _stopPlaying() async {
-    // 재생 중지
-    _audioPlayer.stop();
   }
 
   Future<void> _startCon() async {
@@ -593,7 +485,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    _recorderController.dispose();
+    rc.recorderController.dispose();
     super.dispose();
   }
 }
