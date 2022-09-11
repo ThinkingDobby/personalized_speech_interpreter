@@ -4,13 +4,13 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/data/TrainingLabel.dart';
+import 'package:personalized_speech_interpreter/soundUtils/BasicPlayer.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 
@@ -23,12 +23,11 @@ class TrainingPage extends StatefulWidget {
 
 class _TrainingPageState extends State<TrainingPage> {
   BasicRecorder rc = BasicRecorder();
+  BasicPlayer pl = BasicPlayer();
 
   bool _isSending = false;
   bool _isSendBtnClicked = false;
   bool _isSendAvailable = false;
-
-  bool _isPlaying = false;
 
   bool _isControlActivated = false;
   bool _cancelBtnPressed = false;
@@ -38,12 +37,10 @@ class _TrainingPageState extends State<TrainingPage> {
   String _state = "Unconnected";
   final String FIN_CODE = "Transfer Finished";
 
-  // 재생 위한 객체 저장
-  final _audioPlayer = AssetsAudioPlayer();
-
   // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
   late String _filePathForRecord;
-  late String _filePathForWaveVisualize;
+
+  // late String _filePathForWaveVisualize;
   late Directory docsDir;
 
   // 파일 로드, 삭제 위한 객체
@@ -96,8 +93,8 @@ class _TrainingPageState extends State<TrainingPage> {
                                     onTap: () {
                                       if (rc.isRecording) {
                                         _displayMsg("녹음 중에는 이동이 불가능합니다.");
-                                      } else if (_isPlaying) {
-                                        _stopPlaying();
+                                      } else if (pl.isPlaying) {
+                                        pl.stopPlaying();
                                         _displayMsg("음성 재생이 중지되었습니다.");
                                         return Navigator.pop(context);
                                       } else {
@@ -321,7 +318,8 @@ class _TrainingPageState extends State<TrainingPage> {
                                                 ? () => setState(() {
                                                       rc.isNotRecording =
                                                           !rc.isNotRecording;
-                                                      rc.startRecording(_filePathForRecord);
+                                                      rc.startRecording(
+                                                          _filePathForRecord);
                                                     })
                                                 : null,
                                             child: rc.isRecording
@@ -681,7 +679,7 @@ class _TrainingPageState extends State<TrainingPage> {
       _fl.fileList = _fl.loadFiles();
       _setPathForRecord();
     });
-    _filePathForWaveVisualize = '${docsDir.path}/waveform.wav';
+    // _filePathForWaveVisualize = '${docsDir.path}/waveform.wav';
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
     }
@@ -732,7 +730,11 @@ class _TrainingPageState extends State<TrainingPage> {
                   if (rc.isRecording) {
                     _displayMsg("녹음 중에는 재생이 불가능합니다.");
                   } else {
-                    _startPlaying(i);
+                    setState(() {
+                      pl.isPlaying = true;
+                      _fl.selectedFile = _fl.fileList[i];
+                    });
+                    pl.startPlaying("${_fl.storagePath}/${_fl.selectedFile}");
                   }
                 },
                 icon: Image.asset("assets/images/training_iv_play.png")),
@@ -755,30 +757,6 @@ class _TrainingPageState extends State<TrainingPage> {
             _fl.selectedFile = _fl.fileList[i];
           });
         });
-  }
-
-  Future<void> _startPlaying(i) async {
-    setState(() {
-      _isPlaying = true;
-      _fl.selectedFile = _fl.fileList[i];
-    });
-    // 재생
-    _audioPlayer.open(
-      Audio.file('${_fl.storagePath}/${_fl.selectedFile}'),
-      autoStart: true,
-      showNotification: true,
-    );
-    // print("filePathForPlaying ${_fl.storagePath}/${_fl.selectedFile}");
-    _audioPlayer.playlistAudioFinished.listen((event) {
-      setState(() {
-        _isPlaying = false;
-      });
-    });
-  }
-
-  Future<void> _stopPlaying() async {
-    // 재생 중지
-    _audioPlayer.stop();
   }
 
   Future<void> _startSend() async {
@@ -844,8 +822,8 @@ class _TrainingPageState extends State<TrainingPage> {
     if (rc.isRecording) {
       _displayMsg("녹음 중에는 이동이 불가능합니다.");
       return false;
-    } else if (_isPlaying) {
-      _stopPlaying();
+    } else if (pl.isPlaying) {
+      pl.stopPlaying();
       _displayMsg("음성 재생이 중지되었습니다.");
       return true;
     } else {

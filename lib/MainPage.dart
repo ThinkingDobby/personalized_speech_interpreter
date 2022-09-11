@@ -33,7 +33,7 @@ class _MainPageState extends State<MainPage> {
 
   // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
   late String _filePathForRecord;
-  late String _filePathForWaveVisualize;
+  // late String _filePathForWaveVisualize;
 
   // 파일 로드, 삭제 위한 객체
   final _fl = FileLoader();
@@ -427,7 +427,7 @@ class _MainPageState extends State<MainPage> {
       _fl.fileList = _fl.loadFiles();
       _setPathForRecord();
     });
-    _filePathForWaveVisualize = '${_fl.storagePath}/waveform.wav';
+    // _filePathForWaveVisualize = '${_fl.storagePath}/waveform.wav';
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
     }
