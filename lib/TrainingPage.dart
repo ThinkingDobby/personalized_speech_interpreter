@@ -13,6 +13,7 @@ import 'package:personalized_speech_interpreter/soundUtils/BasicPlayer.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'file/FileLoader.dart';
 
@@ -51,6 +52,10 @@ class _TrainingPageState extends State<TrainingPage> {
   // 단어 리스트
   List<String> words = TrainingLabel.words;
   String? _selectedWord;
+  Map<String, bool> _wordTrained = {};
+  List<String> _trainedWords = [];
+
+  late SharedPreferences _wordPrefs;
 
   TextEditingController dropDownTextController = TextEditingController();
 
@@ -164,7 +169,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                     _setStoragePathWithWord(value);
                                     _cancelBtnPressed = false;
                                     _isControlActivated = false;
-                                    _message = "아직 학습되지 않은 단어입니다.";
+                                    _message = _wordTrained[_selectedWord!]! ? "학습된 단어입니다." : "아직 학습되지 않은 단어입니다.";
                                   });
                                 },
                                 offset: const Offset(4, -4),
@@ -662,6 +667,8 @@ class _TrainingPageState extends State<TrainingPage> {
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _br.setRecordingSession();
+
+    await _wordTrainedInit();
   }
 
   _setStoragePathWithWord(String word) {
@@ -678,11 +685,28 @@ class _TrainingPageState extends State<TrainingPage> {
         '${_fl.storagePath}/음성샘플 ${_fl.fileList.length + 1}.wav';
   }
 
+  _wordTrainedInit() async {
+    _wordPrefs = await SharedPreferences.getInstance();
+
+    for (var word in TrainingLabel.words) {
+      _wordTrained[word] = false;
+    }
+    _trainedWords = _wordPrefs.getStringList("trainedWords") ?? [];
+
+    for (var word in _trainedWords) {
+      _wordTrained[word] = true;
+    }
+  }
+
   void _checkSendAvailable() {
+    print("_wordTrained: $_wordTrained");
     _fl.fileList = _fl.loadFiles();
     if (_fl.fileList.length == 10) {
       _isSendAvailable = true;
-      _message = "학습이 가능합니다.";
+      _message = _wordTrained[_selectedWord!]! ? "학습된 단어이며 재학습이 가능합니다." : "학습이 가능합니다.";
+    } else if (_wordTrained[_selectedWord!]!) {
+      _isSendAvailable = false;
+      _message = "학습된 단어입니다.";
     } else if (_fl.fileList.length < 10) {
       _isSendAvailable = false;
       _message = "음성샘플이 부족합니다.";
@@ -741,6 +765,12 @@ class _TrainingPageState extends State<TrainingPage> {
     });
 
     // await _startCon();
+
+    _wordTrained[_selectedWord!] = true;
+    _trainedWords.add(_selectedWord!);
+    _wordPrefs.setStringList("trainedWords", _trainedWords);
+    _checkSendAvailable();
+
     // await _sendData();
     // await _stopCon();
 
