@@ -668,7 +668,7 @@ class _TrainingPageState extends State<TrainingPage> {
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _br.setRecordingSession();
 
-    await _wordTrainedInit();
+    await _initWordTrained();
   }
 
   _setStoragePathWithWord(String word) {
@@ -685,7 +685,7 @@ class _TrainingPageState extends State<TrainingPage> {
         '${_fl.storagePath}/음성샘플 ${_fl.fileList.length + 1}.wav';
   }
 
-  _wordTrainedInit() async {
+  _initWordTrained() async {
     _wordPrefs = await SharedPreferences.getInstance();
 
     for (var word in TrainingLabel.words) {

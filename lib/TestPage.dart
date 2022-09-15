@@ -7,9 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/file/FileLoader.dart';
+
 
 class TestPage extends StatefulWidget {
   @override
@@ -24,9 +26,10 @@ class _TestPageState extends State<TestPage> {
   bool _isSendBtnClicked = false;
 
   late FileTransferTestClient _client;
+  late SharedPreferences _servPrefs;
 
   TextEditingController? _servIPAddrController;
-  late TextEditingController _servPortController;
+  TextEditingController? _servPortController;
 
   StreamSubscription? _mRecordingDataSubscription;
 
@@ -75,7 +78,12 @@ class _TestPageState extends State<TestPage> {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  return Navigator.pop(context);
+                                  if (FocusManager.instance.primaryFocus! is FocusScopeNode) {
+                                    return Navigator.pop(context);
+                                  } else {  // 키보드에 포커스가 있는 경우
+                                    // 키보드 내리기
+                                    return FocusManager.instance.primaryFocus?.unfocus();
+                                  }
                                 },
                                 child: Image.asset(
                                     "assets/images/training_btn_back.png"),
@@ -563,11 +571,27 @@ class _TestPageState extends State<TestPage> {
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
     }
+    
+    List<String> servInfo = await _initServAddr();
 
-    _servIPAddrController = TextEditingController(text: _client.host);
-    _servPortController = TextEditingController(text: _client.port.toString());
+    _servIPAddrController = TextEditingController(text: servInfo[0]);
+    _servPortController = TextEditingController(text: servInfo[1]);
 
     await _br.setRecordingSession();
+  }
+
+  _initServAddr() async {
+    _servPrefs = await SharedPreferences.getInstance();
+
+    String servIPAddr = _servPrefs.getString("servIPAddr") ?? _client.host;
+    String servPort = _servPrefs.getString("servPort") ?? _client.port.toString();
+    print("servInfo: $servIPAddr, $servPort");
+
+    return [servIPAddr, servPort];
+  }
+  _updateServAddr(String servIpAddr, String servPort) {
+    _servPrefs.setString("servIPAddr", servIpAddr);
+    _servPrefs.setString("servPort", servPort);
   }
 
   Future<void> _startSend() async {
@@ -575,7 +599,8 @@ class _TestPageState extends State<TestPage> {
       _isSending = true;
     });
     
-    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController.text));
+    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController!.text));
+    _updateServAddr(_servIPAddrController!.text, _servPortController!.text);
 
     await _startCon();
     await _sendData();
@@ -595,7 +620,7 @@ class _TestPageState extends State<TestPage> {
     });
     stopwatch = Stopwatch()..start();
 
-    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController.text));
+    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController!.text));
 
     await _startCon();
 
@@ -656,6 +681,8 @@ class _TestPageState extends State<TestPage> {
         _isSendBtnClicked = false;
       });
       print("Connection refused");
+    } on Exception {
+      print("Unexpected exception");
     }
     setState(() {
       _state = "Connected";

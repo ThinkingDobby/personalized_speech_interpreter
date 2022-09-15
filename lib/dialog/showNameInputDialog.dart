@@ -96,6 +96,7 @@ void showNameInputDialog(parent, context) {
                       textColor: const Color(0xfffefefe),
                       fontSize: 16.0);
                 } else {
+                  // 키보드 내리기
                   FocusManager.instance.primaryFocus?.unfocus();
 
                   UserInfo _user = UserInfo();
