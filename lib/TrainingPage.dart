@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/data/TrainingLabel.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicPlayer.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
+import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -785,11 +786,11 @@ class _TrainingPageState extends State<TrainingPage> {
     setState(() {
       _state = "Connected";
     });
-    _client.clntSocket.listen((List<int> event) {
+    BasicTestClient.clntSocket.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
         if (_state == FIN_CODE) {
-          _client.clntSocket.done;
+          BasicTestClient.clntSocket.done;
         }
       });
     });

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:personalized_speech_interpreter/main.dart';
 
-import '../user/UserInfo.dart';
+import '../prefs/UserInfo.dart';
 
 void showNameInputDialog(parent, context) {
   var userNameController = TextEditingController();

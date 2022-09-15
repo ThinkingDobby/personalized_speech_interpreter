@@ -6,7 +6,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
+import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
@@ -26,7 +28,6 @@ class _TestPageState extends State<TestPage> {
   bool _isSendBtnClicked = false;
 
   late FileTransferTestClient _client;
-  late SharedPreferences _servPrefs;
 
   TextEditingController? _servIPAddrController;
   TextEditingController? _servPortController;
@@ -44,6 +45,8 @@ class _TestPageState extends State<TestPage> {
   late Stopwatch stopwatch;
   String _elapsedTimeText = "파일을 선택 후 전송해주세요.";
   String _returnedValue = "반환된 결과가 없습니다.";
+
+  late ServerInfo _serv;
 
   @override
   void initState() {
@@ -560,6 +563,7 @@ class _TestPageState extends State<TestPage> {
 
   void _initializer() async {
     await _br.init();
+    await _setServ();
 
     // 내부저장소 경로 로드
     var docsDir = await getApplicationDocumentsDirectory();
@@ -571,40 +575,31 @@ class _TestPageState extends State<TestPage> {
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
     }
-    
-    List<String> servInfo = await _initServAddr();
 
-    _servIPAddrController = TextEditingController(text: servInfo[0]);
-    _servPortController = TextEditingController(text: servInfo[1]);
+    _servIPAddrController = TextEditingController(text: _serv.servIPAddr);
+    _servPortController = TextEditingController(text: _serv.servPort);
 
     await _br.setRecordingSession();
   }
 
-  _initServAddr() async {
-    _servPrefs = await SharedPreferences.getInstance();
-
-    String servIPAddr = _servPrefs.getString("servIPAddr") ?? _client.host;
-    String servPort = _servPrefs.getString("servPort") ?? _client.port.toString();
-    print("servInfo: $servIPAddr, $servPort");
-
-    return [servIPAddr, servPort];
-  }
-  _updateServAddr(String servIpAddr, String servPort) {
-    _servPrefs.setString("servIPAddr", servIpAddr);
-    _servPrefs.setString("servPort", servPort);
+  _setServ() async {
+    _serv = ServerInfo();
+    await _serv.setPrefs();
+    _serv.loadServerInfo();
   }
 
   Future<void> _startSend() async {
     setState(() {
       _isSending = true;
     });
-    
-    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController!.text));
-    _updateServAddr(_servIPAddrController!.text, _servPortController!.text);
 
-    await _startCon();
+    // 별도 버튼으로 구현 필요
+    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController!.text));
+    _serv.setServerInfo(_servIPAddrController!.text, _servPortController!.text);
+
+    // await _startCon();
     await _sendData();
-    await _stopCon();
+    // await _stopCon();
 
     setState(() {
       _isSending = false;
@@ -622,7 +617,7 @@ class _TestPageState extends State<TestPage> {
 
     _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController!.text));
 
-    await _startCon();
+    // await _startCon();
 
     // 다른 타입의 sendFile 부분
 
@@ -633,13 +628,13 @@ class _TestPageState extends State<TestPage> {
 
     var header = start + typ + msgSize + ext;
 
-    _client.clntSocket.add(header);
+    BasicTestClient.clntSocket.add(header);
 
     // 실시간 전송
     var recordingDataController = StreamController<Food>();
     _mRecordingDataSubscription = recordingDataController.stream.listen((buffer) {
       if (buffer is FoodData) {
-        _client.clntSocket.add(buffer.data!);
+        BasicTestClient.clntSocket.add(buffer.data!);
       }
     });
 
@@ -660,7 +655,7 @@ class _TestPageState extends State<TestPage> {
     }
 
     var end = Uint8List.fromList(utf8.encode("]]"));  // 임시 지정
-    _client.clntSocket.add(end);
+    BasicTestClient.clntSocket.add(end);
 
     await _stopCon();
 
@@ -687,7 +682,7 @@ class _TestPageState extends State<TestPage> {
     setState(() {
       _state = "Connected";
     });
-    _client.clntSocket.listen((List<int> event) {
+    BasicTestClient.clntSocket.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
         if (_typ != 2) {

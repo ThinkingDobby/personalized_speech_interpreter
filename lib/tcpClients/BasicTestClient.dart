@@ -8,7 +8,7 @@ class BasicTestClient {
 
   int _port = 10001;
 
-  late Socket clntSocket;
+  static late Socket clntSocket;
 
   void setServAddr(String host, int port) {
     _host = host;

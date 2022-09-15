@@ -7,9 +7,11 @@ import 'dart:ui' as ui;
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
+import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
-import 'package:personalized_speech_interpreter/user/UserInfo.dart';
+import 'package:personalized_speech_interpreter/prefs/UserInfo.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -48,6 +50,8 @@ class _MainPageState extends State<MainPage> {
 
   late UserInfo _user;
   String _userName = '';
+
+  late ServerInfo _serv;
 
   @override
   void initState() {
@@ -346,9 +350,8 @@ class _MainPageState extends State<MainPage> {
                                 }
 
                                 _timer.cancel();
-                                await _startCon();
                                 await _sendData();
-                                await _stopCon();
+                                // await _stopCon();
                               })
                           : null,
                       child: _br.isNotRecording
@@ -407,6 +410,8 @@ class _MainPageState extends State<MainPage> {
   void _initializer() async {
     await _br.init();
     await _setUser();
+    await _setServ();
+    _client.setServAddr(_serv.servIPAddr!, int.parse(_serv.servPort!));
 
     // 내부저장소 경로 로드
     var docsDir = await getApplicationDocumentsDirectory();
@@ -423,6 +428,8 @@ class _MainPageState extends State<MainPage> {
 
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _br.setRecordingSession();
+
+    await _startCon();
   }
 
   _setUser() async {
@@ -434,20 +441,33 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+  _setServ() async {
+    _serv = ServerInfo();
+    await _serv.setPrefs();
+    _serv.loadServerInfo();
+  }
+
   _setPathForRecord() {
     _filePathForRecord = '${_fl.storagePath}/input.wav'; // 파일 고정
   }
 
   Future<void> _startCon() async {
-    await _client.sendRequest();
+    try {
+      await _client.sendRequest();
+    } on SocketException {
+      ToastGenerator.displayRegularMsg("서버 오류 - 관리자페이지에서 주소 재설정 필요");
+      print("Connection refused");
+    } on Exception {
+      print("Unexpected exception");
+    }
     setState(() {
       _state = "Connected";
     });
-    _client.clntSocket.listen((List<int> event) {
+    BasicTestClient.clntSocket.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
         if (_state == FIN_CODE) {
-          _client.clntSocket.done;
+          BasicTestClient.clntSocket.done;
           print("time elapsed: ${stopwatch.elapsed}");
         }
       });

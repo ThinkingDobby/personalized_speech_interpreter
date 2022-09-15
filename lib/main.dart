@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:personalized_speech_interpreter/InitPage.dart';
-import 'package:personalized_speech_interpreter/user/UserInfo.dart';
+import 'package:personalized_speech_interpreter/prefs/UserInfo.dart';
 
 import 'MainPage.dart';
 import 'TestPage.dart';

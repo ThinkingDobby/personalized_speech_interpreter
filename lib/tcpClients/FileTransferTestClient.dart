@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../user/UserInfo.dart';
+import '../prefs/UserInfo.dart';
 import '../utils/TypeConverter.dart';
 import 'BasicTestClient.dart';
 
@@ -19,9 +19,9 @@ class FileTransferTestClient extends BasicTestClient {
 
         var header = start + typ + msgSize + ext + fileSize + end;
 
-        clntSocket.add(header);
-        clntSocket.add(data);
-        stopClnt();
+        BasicTestClient.clntSocket.add(header);
+        BasicTestClient.clntSocket.add(data);
+        // stopClnt();
         break;
       case 2:
         break;
@@ -47,9 +47,9 @@ class FileTransferTestClient extends BasicTestClient {
 
         var header = start + typ + msgSize + nameSize;
 
-        clntSocket.add(header + name);
-        clntSocket.add(end);
-        stopClnt();
+        BasicTestClient.clntSocket.add(header + name);
+        BasicTestClient.clntSocket.add(end);
+        // stopClnt();
         break;
     }
   }
