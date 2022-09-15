@@ -17,10 +17,10 @@ class FileTransferTestClient extends BasicTestClient {
             TypeConverter.convertInt2Bytes(data.length, Endian.big, 4));
         var end = Uint8List.fromList(utf8.encode("]"));
 
-        var header = start + typ + msgSize + ext + fileSize;
+        var header = start + typ + msgSize + ext + fileSize + end;
 
-        clntSocket.add(header + data);
-        clntSocket.add(end);
+        clntSocket.add(header);
+        clntSocket.add(data);
         stopClnt();
         break;
       case 2:

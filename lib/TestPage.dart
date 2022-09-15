@@ -25,7 +25,7 @@ class _TestPageState extends State<TestPage> {
 
   late FileTransferTestClient _client;
 
-  late TextEditingController _servIPAddrController;
+  TextEditingController? _servIPAddrController;
   late TextEditingController _servPortController;
 
   StreamSubscription? _mRecordingDataSubscription;
@@ -575,7 +575,7 @@ class _TestPageState extends State<TestPage> {
       _isSending = true;
     });
     
-    _client.setServAddr(_servIPAddrController.text, int.parse(_servPortController.text));
+    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController.text));
 
     await _startCon();
     await _sendData();
@@ -595,7 +595,7 @@ class _TestPageState extends State<TestPage> {
     });
     stopwatch = Stopwatch()..start();
 
-    _client.setServAddr(_servIPAddrController.text, int.parse(_servPortController.text));
+    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController.text));
 
     await _startCon();
 
