@@ -25,7 +25,11 @@ class BasicTestClient {
   }
 
   void stopClnt() {
-    clntSocket!.close();
+    if (clntSocket != null) {
+      clntSocket!.close();
+    } else {
+      print("Socket not exists");
+    }
     // print("Disconnected");
   }
 

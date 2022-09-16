@@ -768,7 +768,7 @@ class _TestPageState extends State<TestPage> {
 
     if (BasicTestClient.clntSocket == null) {
       ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
-      print("Connection refused");
+      print("Connection failed");
     }
   }
 

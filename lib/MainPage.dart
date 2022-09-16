@@ -23,7 +23,7 @@ class MainPage extends StatefulWidget {
   State createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   final BasicRecorder _br = BasicRecorder();
 
   int _time = 0;
@@ -56,8 +56,31 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _client = FileTransferTestClient();
     _initializer();
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _setServ();
+        _startCon();
+        print("App Lifecycle State: resumed");
+        break;
+      case AppLifecycleState.inactive:
+        _stopCon();
+        print("App Lifecycle State: inactive");
+        break;
+      case AppLifecycleState.paused:
+        print("App Lifecycle State: paused");
+        break;
+      case AppLifecycleState.detached:
+        print("App Lifecycle State: detached");
+        break;
+    }
   }
 
   @override
@@ -461,15 +484,17 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _state = "Connected";
     });
-    BasicTestClient.clntSocket!.listen((List<int> event) {
-      setState(() {
-        _state = utf8.decode(event);
-        if (_state == FIN_CODE) {
-          BasicTestClient.clntSocket!.done;
-          print("time elapsed: ${stopwatch.elapsed}");
-        }
+    if (BasicTestClient.clntSocket != null) {
+      BasicTestClient.clntSocket!.listen((List<int> event) {
+        setState(() {
+          _state = utf8.decode(event);
+          if (_state == FIN_CODE) {
+            BasicTestClient.clntSocket!.done;
+            print("time elapsed: ${stopwatch.elapsed}");
+          }
+        });
       });
-    });
+    }
   }
 
   Future<void> _sendData() async {

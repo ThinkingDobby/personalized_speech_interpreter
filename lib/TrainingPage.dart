@@ -700,7 +700,7 @@ class _TrainingPageState extends State<TrainingPage> {
   }
 
   void _checkSendAvailable() {
-    print("_wordTrained: $_wordTrained");
+    // print("_wordTrained: $_wordTrained");
     _fl.fileList = _fl.loadFiles();
     if (_fl.fileList.length == 10) {
       _isSendAvailable = true;
