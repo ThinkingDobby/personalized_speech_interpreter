@@ -9,11 +9,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
+import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/file/FileLoader.dart';
-
 
 class TestPage extends StatefulWidget {
   @override
@@ -22,6 +22,8 @@ class TestPage extends StatefulWidget {
 
 class _TestPageState extends State<TestPage> {
   final BasicRecorder _br = BasicRecorder();
+
+  bool _isResetBtnClicked = false;
 
   String _state = "Unconnected";
   bool _isSending = false;
@@ -81,11 +83,14 @@ class _TestPageState extends State<TestPage> {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  if (FocusManager.instance.primaryFocus! is FocusScopeNode) {
+                                  if (FocusManager.instance.primaryFocus!
+                                      is FocusScopeNode) {
                                     return Navigator.pop(context);
-                                  } else {  // 키보드에 포커스가 있는 경우
+                                  } else {
+                                    // 키보드에 포커스가 있는 경우
                                     // 키보드 내리기
-                                    return FocusManager.instance.primaryFocus?.unfocus();
+                                    return FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                   }
                                 },
                                 child: Image.asset(
@@ -117,6 +122,7 @@ class _TestPageState extends State<TestPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 5),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         width: 296,
@@ -125,9 +131,8 @@ class _TestPageState extends State<TestPage> {
                         decoration: const BoxDecoration(
                             image: DecorationImage(
                                 fit: BoxFit.cover,
-                                image: AssetImage("assets/images/test_iv_input_background.png")
-                            )
-                        ),
+                                image: AssetImage(
+                                    "assets/images/test_iv_input_background.png"))),
                         child: TextFormField(
                           decoration: const InputDecoration.collapsed(
                             hintText: '서버 IP주소를 입력하세요.',
@@ -159,6 +164,7 @@ class _TestPageState extends State<TestPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 5),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         width: 296,
@@ -167,9 +173,8 @@ class _TestPageState extends State<TestPage> {
                         decoration: const BoxDecoration(
                             image: DecorationImage(
                                 fit: BoxFit.cover,
-                                image: AssetImage("assets/images/test_iv_input_background.png")
-                            )
-                        ),
+                                image: AssetImage(
+                                    "assets/images/test_iv_input_background.png"))),
                         child: TextFormField(
                           decoration: const InputDecoration.collapsed(
                             hintText: '포트번호를 입력하세요.',
@@ -188,7 +193,37 @@ class _TestPageState extends State<TestPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 316,
+                        height: 52,
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() { _isResetBtnClicked = !_isResetBtnClicked; });
+                            _resetServAddr();
+                          },
+                          onTapDown: (_) => setState(() { _isResetBtnClicked = !_isResetBtnClicked; }),
+                          onTapCancel: () => setState(() { _isResetBtnClicked = !_isResetBtnClicked; }),
+                          child: Stack(
+                            children: [
+                              _isResetBtnClicked ? Image.asset("assets/images/test_btn_reset_clicked.png", gaplessPlayback: true) : Image.asset("assets/images/test_btn_reset.png", gaplessPlayback: true),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(30, 16, 0, 0),
+                                  child: Text(
+                                "주소 설정",
+                                style: TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 14,
+                                  color: _isResetBtnClicked ? const Color(0xffaaaaaa) :const Color(0xff191919),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ))
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: 314,
                         height: 156,
@@ -347,18 +382,21 @@ class _TestPageState extends State<TestPage> {
                               child: Image.asset(
                                   "assets/images/test_iv_list_background.png")),
                           Container(
-                            margin: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                            width: 296,
-                            height: 278,
-                            child: MediaQuery.removePadding(context: context, removeTop: true, child: ListView.builder(
-                              // glow 제거
-                              physics: const BouncingScrollPhysics(),
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: _fl.fileList.length,
-                              itemBuilder: (context, i) =>
-                                  _setListItemBuilder(context, i),
-                            ))),
+                              margin: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                              width: 296,
+                              height: 278,
+                              child: MediaQuery.removePadding(
+                                  context: context,
+                                  removeTop: true,
+                                  child: ListView.builder(
+                                    // glow 제거
+                                    physics: const BouncingScrollPhysics(),
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: _fl.fileList.length,
+                                    itemBuilder: (context, i) =>
+                                        _setListItemBuilder(context, i),
+                                  ))),
                         ],
                       ),
                       const SizedBox(height: 32),
@@ -464,96 +502,110 @@ class _TestPageState extends State<TestPage> {
                           Container(
                             width: 332,
                             height: 66,
-                            child: _typ != 2 ?GestureDetector(
-                              onTapDown: _isSending
-                                  ? null
-                                  : (_) => setState(() {
-                                        _isSendBtnClicked = !_isSendBtnClicked;
-                                      }),
-                              onTapCancel: _isSending
-                                  ? null
-                                  : () => setState(() {
-                                        _isSendBtnClicked = !_isSendBtnClicked;
-                                      }),
-                              onTap: _isSending ? null : () => _startSend(),
-                              child: _isSendBtnClicked
-                                  ? Image.asset(
-                                      "assets/images/test_btn_send_clicked.png",
-                                      gaplessPlayback: true,
-                                    )
-                                  : Image.asset(
-                                      "assets/images/test_btn_send.png",
-                                      gaplessPlayback: true,
-                                    ),
-                            ) : GestureDetector(
-                              onTapDown: (_) => setState(() {
-                                _isSendBtnClicked = !_isSendBtnClicked;
-                              }),
-                              onTapCancel: () => setState(() {
-                                _isSendBtnClicked = !_isSendBtnClicked;
-                              }),
-                              onTap: _isSending ? () => _stopRealTimeSend() : () => _startRealTimeSend(),
-                              child: _isSendBtnClicked
-                                  ? Image.asset(
-                                "assets/images/test_btn_send_clicked.png",
-                                gaplessPlayback: true,
-                              )
-                                  : Image.asset(
-                                "assets/images/test_btn_send.png",
-                                gaplessPlayback: true,
-                              ),
-                            ),
+                            child: _typ != 2
+                                ? GestureDetector(
+                                    onTapDown: _isSending
+                                        ? null
+                                        : (_) => setState(() {
+                                              _isSendBtnClicked =
+                                                  !_isSendBtnClicked;
+                                            }),
+                                    onTapCancel: _isSending
+                                        ? null
+                                        : () => setState(() {
+                                              _isSendBtnClicked =
+                                                  !_isSendBtnClicked;
+                                            }),
+                                    onTap:
+                                        _isSending ? null : () => _startSend(),
+                                    child: _isSendBtnClicked
+                                        ? Image.asset(
+                                            "assets/images/test_btn_send_clicked.png",
+                                            gaplessPlayback: true,
+                                          )
+                                        : Image.asset(
+                                            "assets/images/test_btn_send.png",
+                                            gaplessPlayback: true,
+                                          ),
+                                  )
+                                : GestureDetector(
+                                    onTapDown: (_) => setState(() {
+                                      _isSendBtnClicked = !_isSendBtnClicked;
+                                    }),
+                                    onTapCancel: () => setState(() {
+                                      _isSendBtnClicked = !_isSendBtnClicked;
+                                    }),
+                                    onTap: _isSending
+                                        ? () => _stopRealTimeSend()
+                                        : () => _startRealTimeSend(),
+                                    child: _isSendBtnClicked
+                                        ? Image.asset(
+                                            "assets/images/test_btn_send_clicked.png",
+                                            gaplessPlayback: true,
+                                          )
+                                        : Image.asset(
+                                            "assets/images/test_btn_send.png",
+                                            gaplessPlayback: true,
+                                          ),
+                                  ),
                           ),
                           Container(
                             width: 300,
                             height: 22,
                             margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
                             alignment: Alignment.center,
-                            child: _typ != 2 ? GestureDetector(
-                              onTapDown: _isSending
-                                  ? null
-                                  : (_) => setState(() {
-                                        _isSendBtnClicked = !_isSendBtnClicked;
-                                      }),
-                              onTapCancel: _isSending
-                                  ? null
-                                  : () => setState(() {
-                                        _isSendBtnClicked = !_isSendBtnClicked;
-                                      }),
-                              onTap: _isSending ? null : () => _startSend(),
-                              child: Text(
-                                _typ == 1 ? '선택한 파일 전송' : '식별정보(이름) 전송',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontSize: 16,
-                                  color: _isSendBtnClicked
-                                      ? const Color(0xfffecdc8)
-                                      : const Color(0xfffefefe),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                softWrap: false,
-                              ),
-                            ) : GestureDetector(
-                              onTapDown: (_) => setState(() {
-                                _isSendBtnClicked = !_isSendBtnClicked;
-                              }),
-                              onTapCancel: () => setState(() {
-                                _isSendBtnClicked = !_isSendBtnClicked;
-                              }),
-                              onTap: _isSending ? () => _stopRealTimeSend() : () => _startRealTimeSend(),
-                              child: Text(
-                                _isSending ? '실시간 전송 중단' : '실시간 전송 시작',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontSize: 16,
-                                  color: _isSendBtnClicked
-                                      ? const Color(0xfffecdc8)
-                                      : const Color(0xfffefefe),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                softWrap: false,
-                              ),
-                            ),
+                            child: _typ != 2
+                                ? GestureDetector(
+                                    onTapDown: _isSending
+                                        ? null
+                                        : (_) => setState(() {
+                                              _isSendBtnClicked =
+                                                  !_isSendBtnClicked;
+                                            }),
+                                    onTapCancel: _isSending
+                                        ? null
+                                        : () => setState(() {
+                                              _isSendBtnClicked =
+                                                  !_isSendBtnClicked;
+                                            }),
+                                    onTap:
+                                        _isSending ? null : () => _startSend(),
+                                    child: Text(
+                                      _typ == 1 ? '선택한 파일 전송' : '식별정보(이름) 전송',
+                                      style: TextStyle(
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 16,
+                                        color: _isSendBtnClicked
+                                            ? const Color(0xfffecdc8)
+                                            : const Color(0xfffefefe),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      softWrap: false,
+                                    ),
+                                  )
+                                : GestureDetector(
+                                    onTapDown: (_) => setState(() {
+                                      _isSendBtnClicked = !_isSendBtnClicked;
+                                    }),
+                                    onTapCancel: () => setState(() {
+                                      _isSendBtnClicked = !_isSendBtnClicked;
+                                    }),
+                                    onTap: _isSending
+                                        ? () => _stopRealTimeSend()
+                                        : () => _startRealTimeSend(),
+                                    child: Text(
+                                      _isSending ? '실시간 전송 중단' : '실시간 전송 시작',
+                                      style: TextStyle(
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 16,
+                                        color: _isSendBtnClicked
+                                            ? const Color(0xfffecdc8)
+                                            : const Color(0xfffefefe),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      softWrap: false,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
@@ -593,13 +645,7 @@ class _TestPageState extends State<TestPage> {
       _isSending = true;
     });
 
-    // 별도 버튼으로 구현 필요
-    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController!.text));
-    _serv.setServerInfo(_servIPAddrController!.text, _servPortController!.text);
-
-    // await _startCon();
     await _sendData();
-    // await _stopCon();
 
     setState(() {
       _isSending = false;
@@ -615,12 +661,10 @@ class _TestPageState extends State<TestPage> {
     });
     stopwatch = Stopwatch()..start();
 
-    _client.setServAddr(_servIPAddrController!.text, int.parse(_servPortController!.text));
-
-    // await _startCon();
+    _client.setServAddr(
+        _servIPAddrController!.text, int.parse(_servPortController!.text));
 
     // 다른 타입의 sendFile 부분
-
     var start = Uint8List.fromList(utf8.encode("["));
     var typ = Uint8List.fromList([_typ]);
     var msgSize = Uint8List.fromList([7]);
@@ -628,13 +672,14 @@ class _TestPageState extends State<TestPage> {
 
     var header = start + typ + msgSize + ext;
 
-    BasicTestClient.clntSocket.add(header);
+    BasicTestClient.clntSocket!.add(header);
 
-    // 실시간 전송
+    // 실시간 전송 - 보류
     var recordingDataController = StreamController<Food>();
-    _mRecordingDataSubscription = recordingDataController.stream.listen((buffer) {
+    _mRecordingDataSubscription =
+        recordingDataController.stream.listen((buffer) {
       if (buffer is FoodData) {
-        BasicTestClient.clntSocket.add(buffer.data!);
+        BasicTestClient.clntSocket!.add(buffer.data!);
       }
     });
 
@@ -654,8 +699,8 @@ class _TestPageState extends State<TestPage> {
       _mRecordingDataSubscription = null;
     }
 
-    var end = Uint8List.fromList(utf8.encode("]]"));  // 임시 지정
-    BasicTestClient.clntSocket.add(end);
+    var end = Uint8List.fromList(utf8.encode("]]")); // 임시 지정
+    BasicTestClient.clntSocket!.add(end);
 
     await _stopCon();
 
@@ -666,7 +711,7 @@ class _TestPageState extends State<TestPage> {
     });
   }
 
-  Future<void> _startCon() async {
+  Future<bool> _startCon() async {
     try {
       await _client.sendRequest();
     } on SocketException {
@@ -676,13 +721,17 @@ class _TestPageState extends State<TestPage> {
         _isSendBtnClicked = false;
       });
       print("Connection refused");
+
+      return false;
     } on Exception {
       print("Unexpected exception");
+
+      return false;
     }
     setState(() {
       _state = "Connected";
     });
-    BasicTestClient.clntSocket.listen((List<int> event) {
+    BasicTestClient.clntSocket!.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
         if (_typ != 2) {
@@ -692,6 +741,8 @@ class _TestPageState extends State<TestPage> {
         _returnedValue = _state;
       });
     });
+
+    return true;
   }
 
   Future<void> _sendData() async {
@@ -704,7 +755,7 @@ class _TestPageState extends State<TestPage> {
           break;
         default:
           Uint8List data =
-          await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
+              await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
           _client.sendFile(_typ, data);
           break;
       }
@@ -714,6 +765,11 @@ class _TestPageState extends State<TestPage> {
       });
       print("File not exists: ${_fl.selectedFile}");
     }
+
+    if (BasicTestClient.clntSocket == null) {
+      ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+      print("Connection refused");
+    }
   }
 
   Future<void> _stopCon() async {
@@ -721,6 +777,18 @@ class _TestPageState extends State<TestPage> {
     setState(() {
       _state = "Disconnected";
     });
+  }
+
+  _resetServAddr() async {
+    _client.setServAddr(
+        _servIPAddrController!.text, int.parse(_servPortController!.text));
+    _serv.setServerInfo(_servIPAddrController!.text, _servPortController!.text);
+
+    if (BasicTestClient.clntSocket != null) {
+      await _stopCon();
+    }
+    bool chk = await _startCon();
+    ToastGenerator.displayRegularMsg(chk ? "연결이 다시 설정되었습니다." : "연결에 실패했습니다.");
   }
 
   RadioListTile _setListItemBuilder(BuildContext context, int i) {

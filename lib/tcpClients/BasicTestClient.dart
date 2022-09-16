@@ -8,7 +8,7 @@ class BasicTestClient {
 
   int _port = 10001;
 
-  static late Socket clntSocket;
+  static Socket? clntSocket;
 
   void setServAddr(String host, int port) {
     _host = host;
@@ -21,11 +21,11 @@ class BasicTestClient {
   }
 
   void sendMessage(String data) async{
-    clntSocket.add(utf8.encode(data));
+    clntSocket!.add(utf8.encode(data));
   }
 
   void stopClnt() {
-    clntSocket.close();
+    clntSocket!.close();
     // print("Disconnected");
   }
 

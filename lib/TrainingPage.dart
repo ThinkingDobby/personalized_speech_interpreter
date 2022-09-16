@@ -765,15 +765,12 @@ class _TrainingPageState extends State<TrainingPage> {
       _isSending = true;
     });
 
-    // await _startCon();
-
     _wordTrained[_selectedWord!] = true;
     _trainedWords.add(_selectedWord!);
     _wordPrefs.setStringList("trainedWords", _trainedWords);
     _checkSendAvailable();
 
-    // await _sendData();
-    // await _stopCon();
+    // await _sendData(); // 한 단어에 해당되는 파일들을 레이블과 함께 전송해야
 
     setState(() {
       _isSending = false;
@@ -786,11 +783,11 @@ class _TrainingPageState extends State<TrainingPage> {
     setState(() {
       _state = "Connected";
     });
-    BasicTestClient.clntSocket.listen((List<int> event) {
+    BasicTestClient.clntSocket!.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
         if (_state == FIN_CODE) {
-          BasicTestClient.clntSocket.done;
+          BasicTestClient.clntSocket!.done;
         }
       });
     });
@@ -803,6 +800,11 @@ class _TrainingPageState extends State<TrainingPage> {
       _client.sendFile(1, data); // 임시 - 타입 1
     } on FileSystemException {
       print("File not exists: ${_fl.selectedFile}");
+    }
+
+    if (BasicTestClient.clntSocket == null) {
+      ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+      print("Connection refused");
     }
   }
 

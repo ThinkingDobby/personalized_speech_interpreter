@@ -19,8 +19,8 @@ class FileTransferTestClient extends BasicTestClient {
 
         var header = start + typ + msgSize + ext + fileSize + end;
 
-        BasicTestClient.clntSocket.add(header);
-        BasicTestClient.clntSocket.add(data);
+        BasicTestClient.clntSocket!.add(header);
+        BasicTestClient.clntSocket!.add(data);
         // stopClnt();
         break;
       case 2:
@@ -45,10 +45,9 @@ class FileTransferTestClient extends BasicTestClient {
             TypeConverter.convertInt2Bytes(name.length, Endian.big, 4));
         var end = Uint8List.fromList(utf8.encode("]"));
 
-        var header = start + typ + msgSize + nameSize;
+        var msg = start + typ + msgSize + nameSize + name + end;
 
-        BasicTestClient.clntSocket.add(header + name);
-        BasicTestClient.clntSocket.add(end);
+        BasicTestClient.clntSocket!.add(msg);
         // stopClnt();
         break;
     }

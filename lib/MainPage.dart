@@ -74,7 +74,7 @@ class _MainPageState extends State<MainPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
-                      width: 32,
+                      width: 52,
                       height: 32,
                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: Builder(
@@ -455,19 +455,17 @@ class _MainPageState extends State<MainPage> {
     try {
       await _client.sendRequest();
     } on SocketException {
-      ToastGenerator.displayRegularMsg("서버 오류 - 관리자페이지에서 주소 재설정 필요");
+      ToastGenerator.displayRegularMsg("연결에 실패했습니다. - 관리자페이지에서 주소 재설정 필요");
       print("Connection refused");
-    } on Exception {
-      print("Unexpected exception");
     }
     setState(() {
       _state = "Connected";
     });
-    BasicTestClient.clntSocket.listen((List<int> event) {
+    BasicTestClient.clntSocket!.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
         if (_state == FIN_CODE) {
-          BasicTestClient.clntSocket.done;
+          BasicTestClient.clntSocket!.done;
           print("time elapsed: ${stopwatch.elapsed}");
         }
       });
@@ -482,6 +480,11 @@ class _MainPageState extends State<MainPage> {
       _client.sendFile(1, data); // 임시 - 타입 1
     } on FileSystemException {
       print("File not exists: ${_fl.selectedFile}");
+    }
+
+    if (BasicTestClient.clntSocket == null) {
+      ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+      print("Connection refused");
     }
   }
 
