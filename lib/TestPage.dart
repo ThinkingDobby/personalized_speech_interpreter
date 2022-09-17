@@ -10,7 +10,6 @@ import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/file/FileLoader.dart';
@@ -86,8 +85,7 @@ class _TestPageState extends State<TestPage> {
                                   if (FocusManager.instance.primaryFocus!
                                       is FocusScopeNode) {
                                     return Navigator.pop(context);
-                                  } else {
-                                    // 키보드에 포커스가 있는 경우
+                                  } else {  // 키보드에 포커스가 있는 경우
                                     // 키보드 내리기
                                     return FocusManager.instance.primaryFocus
                                         ?.unfocus();
@@ -107,8 +105,18 @@ class _TestPageState extends State<TestPage> {
                                 ),
                                 softWrap: false,
                               ),
+                              const Spacer(),
+                              if (BasicTestClient.clntSocket == null) Container(
+                                  margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    child: Image.asset("assets/images/main_icon_sync_dis.png"),
+                                  )
+                              ),
                             ],
-                          )),
+                          )
+                      ),
                       const SizedBox(height: 32),
                       const SizedBox(
                         width: 296,
@@ -716,6 +724,7 @@ class _TestPageState extends State<TestPage> {
       await _client.sendRequest();
     } on SocketException {
       setState(() {
+        BasicTestClient.clntSocket = null;
         _elapsedTimeText = "서버 오류";
         _isSending = false;
         _isSendBtnClicked = false;
@@ -731,16 +740,18 @@ class _TestPageState extends State<TestPage> {
     setState(() {
       _state = "Connected";
     });
-    BasicTestClient.clntSocket!.listen((List<int> event) {
-      setState(() {
-        _state = utf8.decode(event);
-        if (_typ != 2) {
-          print("time elapsed: ${stopwatch.elapsed}");
-          _elapsedTimeText = "${stopwatch.elapsed}";
-        }
-        _returnedValue = _state;
+    if (BasicTestClient.clntSocket != null) {
+      BasicTestClient.clntSocket!.listen((List<int> event) {
+        setState(() {
+          _state = utf8.decode(event);
+          if (_typ != 2) {
+            print("time elapsed: ${stopwatch.elapsed}");
+            _elapsedTimeText = "${stopwatch.elapsed}";
+          }
+          _returnedValue = _state;
+        });
       });
-    });
+    }
 
     return true;
   }

@@ -123,6 +123,17 @@ class _TrainingPageState extends State<TrainingPage> {
                                     ),
                                     softWrap: false,
                                   ),
+                                  const Spacer(),
+                                  if (BasicTestClient.clntSocket == null)
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            0, 0, 16, 0),
+                                        child: Container(
+                                          width: 32,
+                                          height: 32,
+                                          child: Image.asset(
+                                              "assets/images/main_icon_sync_dis.png"),
+                                        )),
                                 ],
                               )),
                           const SizedBox(height: 48),
@@ -170,7 +181,9 @@ class _TrainingPageState extends State<TrainingPage> {
                                     _setStoragePathWithWord(value);
                                     _cancelBtnPressed = false;
                                     _isControlActivated = false;
-                                    _message = _wordTrained[_selectedWord!]! ? "학습된 단어입니다." : "아직 학습되지 않은 단어입니다.";
+                                    _message = _wordTrained[_selectedWord!]!
+                                        ? "학습된 단어입니다."
+                                        : "아직 학습되지 않은 단어입니다.";
                                   });
                                 },
                                 offset: const Offset(4, -4),
@@ -574,7 +587,21 @@ class _TrainingPageState extends State<TrainingPage> {
                                                   }),
                                           onTap: _isSending
                                               ? null
-                                              : () => _startSend(),
+                                              : () {
+                                                  if (BasicTestClient
+                                                          .clntSocket !=
+                                                      null) {
+                                                    _startSend();
+                                                  } else {
+                                                    setState(() {
+                                                      _isSending = false;
+                                                      _isSendBtnClicked = false;
+                                                    });
+                                                    ToastGenerator
+                                                        .displayRegularMsg(
+                                                            "연결에 실패했습니다.");
+                                                  }
+                                                },
                                           child: _isSendBtnClicked
                                               ? Image.asset(
                                                   "assets/images/test_btn_send_clicked.png",
@@ -619,7 +646,21 @@ class _TrainingPageState extends State<TrainingPage> {
                                                 }),
                                         onTap: _isSending
                                             ? null
-                                            : () => _startSend(),
+                                            : () {
+                                                if (BasicTestClient
+                                                        .clntSocket !=
+                                                    null) {
+                                                  _startSend();
+                                                } else {
+                                                  setState(() {
+                                                    _isSending = false;
+                                                    _isSendBtnClicked = false;
+                                                  });
+                                                  ToastGenerator
+                                                      .displayRegularMsg(
+                                                          "연결에 실패했습니다.");
+                                                }
+                                              },
                                         child: Text(
                                           '입력한 음성으로 학습',
                                           style: TextStyle(
@@ -704,7 +745,8 @@ class _TrainingPageState extends State<TrainingPage> {
     _fl.fileList = _fl.loadFiles();
     if (_fl.fileList.length == 10) {
       _isSendAvailable = true;
-      _message = _wordTrained[_selectedWord!]! ? "학습된 단어이며 재학습이 가능합니다." : "학습이 가능합니다.";
+      _message =
+          _wordTrained[_selectedWord!]! ? "학습된 단어이며 재학습이 가능합니다." : "학습이 가능합니다.";
     } else if (_wordTrained[_selectedWord!]!) {
       _isSendAvailable = false;
       _message = "학습된 단어입니다.";
@@ -787,7 +829,6 @@ class _TrainingPageState extends State<TrainingPage> {
       setState(() {
         _state = utf8.decode(event);
         if (_state == FIN_CODE) {
-          BasicTestClient.clntSocket!.done;
         }
       });
     });

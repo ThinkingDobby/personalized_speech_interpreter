@@ -8,10 +8,10 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
+import 'package:personalized_speech_interpreter/prefs/UserInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
-import 'package:personalized_speech_interpreter/prefs/UserInfo.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -60,7 +60,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     _client = FileTransferTestClient();
     _initializer();
   }
-
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -115,12 +114,20 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                         },
                       )),
                   if (MediaQuery.of(context).size.height >= 670) const Spacer(),
+                  if (BasicTestClient.clntSocket == null)
+                    Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          child: Image.asset(
+                              "assets/images/main_icon_sync_dis.png"),
+                        )),
                   Container(
                     margin: const EdgeInsets.fromLTRB(0, 16, 16, 0),
                     child: Container(
                       width: 50,
                       height: 50,
-                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: InkWell(
                           onTap: () {
                             if (!_br.isRecording) {
@@ -320,18 +327,25 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                         : null,
                     onTap: _br.isNotRecording
                         ? () => setState(() async {
-                              _br.isNotRecording = !_br.isNotRecording;
+                              if (BasicTestClient.clntSocket == null) {
+                                ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+                                print("Connection refused");
+                                _br.isNotRecording = true;
+                                _br.isRecording = false;
+                              } else {
+                                _br.isNotRecording = !_br.isNotRecording;
 
-                              _time = 0;
-                              _timeText = "00:00";
+                                _time = 0;
+                                _timeText = "00:00";
 
-                              _timer = Timer.periodic(
-                                  const Duration(seconds: 1), (timer) {
-                                _time += 1;
-                                _timeText = sprintf(
-                                    "%02d:%02d", [_time ~/ 60, _time % 60]);
-                              });
-                              await _br.startRecording(_filePathForRecord);
+                                _timer = Timer.periodic(
+                                    const Duration(seconds: 1), (timer) {
+                                  _time += 1;
+                                  _timeText = sprintf(
+                                      "%02d:%02d", [_time ~/ 60, _time % 60]);
+                                });
+                                await _br.startRecording(_filePathForRecord);
+                              }
                             })
                         : null,
                     child: _br.isRecording
@@ -434,6 +448,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     await _br.init();
     await _setUser();
     await _setServ();
+
     _client.setServAddr(_serv.servIPAddr!, int.parse(_serv.servPort!));
 
     // 내부저장소 경로 로드
@@ -479,6 +494,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       await _client.sendRequest();
     } on SocketException {
       ToastGenerator.displayRegularMsg("연결에 실패했습니다. - 관리자페이지에서 주소 재설정 필요");
+      setState(() {
+        BasicTestClient.clntSocket = null;
+      });
       print("Connection refused");
     }
     setState(() {
@@ -489,9 +507,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         setState(() {
           _state = utf8.decode(event);
           if (_state == FIN_CODE) {
-            BasicTestClient.clntSocket!.done;
             print("time elapsed: ${stopwatch.elapsed}");
           }
+          _message = _state;
         });
       });
     }
@@ -505,11 +523,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       _client.sendFile(1, data); // 임시 - 타입 1
     } on FileSystemException {
       print("File not exists: ${_fl.selectedFile}");
-    }
-
-    if (BasicTestClient.clntSocket == null) {
-      ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
-      print("Connection refused");
     }
   }
 
