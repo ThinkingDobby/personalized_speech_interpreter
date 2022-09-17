@@ -19,7 +19,7 @@ class TestPage extends StatefulWidget {
   State createState() => _TestPageState();
 }
 
-class _TestPageState extends State<TestPage> {
+class _TestPageState extends State<TestPage> with WidgetsBindingObserver{
   final BasicRecorder _br = BasicRecorder();
 
   bool _isResetBtnClicked = false;
@@ -49,11 +49,34 @@ class _TestPageState extends State<TestPage> {
 
   late ServerInfo _serv;
 
+  bool _isSocketExists = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _client = FileTransferTestClient();
     _initializer();
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        Timer(const Duration(seconds: 1), () {
+          setState(() {
+            _isSocketExists = BasicTestClient.clntSocket != null;
+          });
+        });
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.paused:
+        break;
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 
   @override
@@ -106,7 +129,7 @@ class _TestPageState extends State<TestPage> {
                                 softWrap: false,
                               ),
                               const Spacer(),
-                              if (BasicTestClient.clntSocket == null) Container(
+                              if (!_isSocketExists) Container(
                                   margin: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                                   child: Container(
                                     width: 32,
@@ -625,12 +648,18 @@ class _TestPageState extends State<TestPage> {
     await _br.init();
     await _setServ();
 
+    _isSocketExists = BasicTestClient.clntSocket != null;
+
     // 내부저장소 경로 로드
     var docsDir = await getApplicationDocumentsDirectory();
     _fl.storagePath = '${docsDir.path}/recorded_files/거실 불 켜';
     setState(() {
       // 파일 리스트 초기화
-      _fl.fileList = _fl.loadFiles();
+      try {
+        _fl.fileList = _fl.loadFiles();
+      } on FileSystemException {
+        print("Not initialized");
+      }
     });
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
@@ -725,6 +754,8 @@ class _TestPageState extends State<TestPage> {
     } on SocketException {
       setState(() {
         BasicTestClient.clntSocket = null;
+        _isSocketExists = BasicTestClient.clntSocket != null;
+
         _elapsedTimeText = "서버 오류";
         _isSending = false;
         _isSendBtnClicked = false;
@@ -752,6 +783,8 @@ class _TestPageState extends State<TestPage> {
         });
       });
     }
+
+    _isSocketExists = BasicTestClient.clntSocket != null;
 
     return true;
   }
@@ -814,5 +847,11 @@ class _TestPageState extends State<TestPage> {
             _fl.selectedFile = _fl.fileList[i];
           });
         });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 }

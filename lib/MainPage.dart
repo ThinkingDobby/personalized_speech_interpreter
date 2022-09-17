@@ -28,7 +28,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
 
   int _time = 0;
   String _timeText = "00:00";
-  String _message = "거실 불 켜";
+  String _message = "";
 
   String _state = "Unconnected";
   final String FIN_CODE = "Transfer Finished";
@@ -289,6 +289,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                   child: Image.asset("assets/images/main_iv_result.png")),
               Container(
                 margin: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 alignment: Alignment.center,
                 width: 296,
                 height: 96,
@@ -299,7 +300,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       fontSize: 18,
                       color: Color(0xff191919),
                       fontWeight: FontWeight.w500),
-                  softWrap: false,
                 ),
               ),
             ],
@@ -535,6 +535,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _br.recorderController.dispose();
     super.dispose();
   }

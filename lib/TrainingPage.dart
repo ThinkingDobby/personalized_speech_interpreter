@@ -23,7 +23,7 @@ class TrainingPage extends StatefulWidget {
   State createState() => _TrainingPageState();
 }
 
-class _TrainingPageState extends State<TrainingPage> {
+class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver {
   final BasicRecorder _br = BasicRecorder();
   final BasicPlayer _bp = BasicPlayer();
 
@@ -60,11 +60,33 @@ class _TrainingPageState extends State<TrainingPage> {
 
   TextEditingController dropDownTextController = TextEditingController();
 
+  bool _isSocketExists = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _client = FileTransferTestClient();
     _initializer();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        Timer(const Duration(seconds: 1), () {
+          setState(() {
+            _isSocketExists = BasicTestClient.clntSocket != null;
+          });
+        });
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.paused:
+        break;
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 
   @override
@@ -124,7 +146,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                     softWrap: false,
                                   ),
                                   const Spacer(),
-                                  if (BasicTestClient.clntSocket == null)
+                                  if (!_isSocketExists)
                                     Container(
                                         margin: const EdgeInsets.fromLTRB(
                                             0, 0, 16, 0),
@@ -694,6 +716,8 @@ class _TrainingPageState extends State<TrainingPage> {
   void _initializer() async {
     await _br.init();
 
+    _isSocketExists = BasicTestClient.clntSocket != null;
+
     // 내부저장소 경로 로드
     docsDir = await getApplicationDocumentsDirectory();
     _fl.storagePath = '${docsDir.path}/recorded_files';
@@ -883,6 +907,7 @@ class _TrainingPageState extends State<TrainingPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _br.recorderController.dispose();
     dropDownTextController.dispose();
     super.dispose();
