@@ -53,7 +53,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
   // 단어 리스트
   List<String> words = TrainingLabel.words;
   String? _selectedWord;
-  Map<String, bool> _wordTrained = {};
+  final Map<String, bool> _wordTrained = {};
   List<String> _trainedWords = [];
 
   late SharedPreferences _wordPrefs;
@@ -297,7 +297,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
                                         shrinkWrap: true,
                                         itemCount: _fl.fileList.length,
                                         itemBuilder: (context, i) =>
-                                            _setListItemBuilder(context, i),
+                                            _setListItemBuilder(context, i)
                                       ),
                                     )),
                                 Container(
@@ -401,8 +401,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
                                                         _br.stopRecording();
 
                                                         // 파일 리스트 갱신
-                                                        _fl.fileList =
-                                                            _fl.loadFiles();
+                                                        _fl.fileList = _fl.loadFiles();
                                                         _checkSendAvailable();
                                                         _setPathForRecord();
                                                         if (_fl.fileList
@@ -748,7 +747,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
 
   _setPathForRecord() {
     _filePathForRecord =
-        '${_fl.storagePath}/음성샘플 ${_fl.fileList.length + 1}.wav';
+        '${_fl.storagePath}/음성샘플 ${_fl.lastNum + 1}.wav';
   }
 
   _initWordTrained() async {
