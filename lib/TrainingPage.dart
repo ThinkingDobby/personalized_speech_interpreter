@@ -9,6 +9,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/data/TrainingLabel.dart';
+import 'package:personalized_speech_interpreter/main.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicPlayer.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
@@ -23,7 +24,8 @@ class TrainingPage extends StatefulWidget {
   State createState() => _TrainingPageState();
 }
 
-class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver {
+class _TrainingPageState extends State<TrainingPage>
+    with WidgetsBindingObserver {
   final BasicRecorder _br = BasicRecorder();
   final BasicPlayer _bp = BasicPlayer();
 
@@ -74,6 +76,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
+        _startCon();
         Timer(const Duration(seconds: 1), () {
           setState(() {
             _isSocketExists = BasicTestClient.clntSocket != null;
@@ -81,6 +84,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
         });
         break;
       case AppLifecycleState.inactive:
+        _stopCon();
         break;
       case AppLifecycleState.paused:
         break;
@@ -118,7 +122,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
                               child: Row(
                                 children: [
                                   InkWell(
-                                    onTap: () {
+                                    onTap: () async {
                                       if (_br.isRecording) {
                                         ToastGenerator.displayRegularMsg(
                                             "녹음 중에는 이동이 불가능합니다.");
@@ -126,9 +130,15 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
                                         _bp.stopPlaying();
                                         ToastGenerator.displayRegularMsg(
                                             "음성 재생이 중지되었습니다.");
-                                        return Navigator.pop(context);
+                                        await Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            MAIN_PAGE,
+                                            (route) => false);
                                       } else {
-                                        return Navigator.pop(context);
+                                        await Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            MAIN_PAGE,
+                                            (route) => false);
                                       }
                                     },
                                     child: Image.asset(
@@ -291,14 +301,14 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
                                       context: context,
                                       removeTop: true,
                                       child: ListView.builder(
-                                        // glow 제거
-                                        physics: const BouncingScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        shrinkWrap: true,
-                                        itemCount: _fl.fileList.length,
-                                        itemBuilder: (context, i) =>
-                                            _setListItemBuilder(context, i)
-                                      ),
+                                          // glow 제거
+                                          physics:
+                                              const BouncingScrollPhysics(),
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          itemCount: _fl.fileList.length,
+                                          itemBuilder: (context, i) =>
+                                              _setListItemBuilder(context, i)),
                                     )),
                                 Container(
                                     margin:
@@ -401,7 +411,8 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
                                                         _br.stopRecording();
 
                                                         // 파일 리스트 갱신
-                                                        _fl.fileList = _fl.loadFiles();
+                                                        _fl.fileList =
+                                                            _fl.loadFiles();
                                                         _checkSendAvailable();
                                                         _setPathForRecord();
                                                         if (_fl.fileList
@@ -748,8 +759,7 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
   }
 
   _setPathForRecord() {
-    _filePathForRecord =
-        '${_fl.storagePath}/음성샘플 ${_fl.lastNum + 1}.wav';
+    _filePathForRecord = '${_fl.storagePath}/음성샘플 ${_fl.lastNum + 1}.wav';
   }
 
   _initWordTrained() async {
@@ -923,12 +933,18 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
   Future<bool> _onBack() async {
     if (_br.isRecording) {
       ToastGenerator.displayRegularMsg("녹음 중에는 이동이 불가능합니다.");
+      await Navigator.pushNamedAndRemoveUntil(
+          context, MAIN_PAGE, (route) => false);
       return false;
     } else if (_bp.isPlaying) {
       _bp.stopPlaying();
       ToastGenerator.displayRegularMsg("음성 재생이 중지되었습니다.");
+      await Navigator.pushNamedAndRemoveUntil(
+          context, MAIN_PAGE, (route) => false);
       return true;
     } else {
+      await Navigator.pushNamedAndRemoveUntil(
+          context, MAIN_PAGE, (route) => false);
       return true;
     }
   }

@@ -104,8 +104,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                           return InkWell(
                               onDoubleTap: () async {
                                 if (!_br.isRecording) {
-                                  await Navigator.pushNamed(context, TEST_PAGE);
-                                  _resetServAddr();
+                                  await Navigator.pushNamedAndRemoveUntil(context, TEST_PAGE, (route) => false);
                                 } else {
                                   ToastGenerator.displayRegularMsg(
                                       "음성 입력 중에는 이동이 불가능합니다.");
@@ -132,8 +131,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       child: InkWell(
                           onTap: () async {
                             if (!_br.isRecording) {
-                              await Navigator.pushNamed(context, TRAINING_PAGE);
-                              _resetServAddr();
+                              await Navigator.pushNamedAndRemoveUntil(context, TRAINING_PAGE, (route) => false);
                             } else {
                               ToastGenerator.displayRegularMsg(
                                   "음성 입력 중에는 이동이 불가능합니다.");
@@ -469,7 +467,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     // 녹음 위한 FlutterSoundRecorder 객체 설정
     _br.setRecordingSession();
 
-    await _startCon();
+    // 무조건 재설정
+    _resetServAddr();
   }
 
   _setUser() async {
@@ -553,7 +552,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _br.recorderController.dispose();
+    // _br.recorderController.dispose();
     super.dispose();
   }
 }
