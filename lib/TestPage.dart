@@ -232,7 +232,7 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver{
                         child: GestureDetector(
                           onTap: () {
                             setState(() { _isResetBtnClicked = !_isResetBtnClicked; });
-                            _resetServAddr();
+                            _resetServAddrWithInput();
                           },
                           onTapDown: (_) => setState(() { _isResetBtnClicked = !_isResetBtnClicked; }),
                           onTapCancel: () => setState(() { _isResetBtnClicked = !_isResetBtnClicked; }),
@@ -648,6 +648,8 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver{
     await _br.init();
     await _setServ();
 
+    // 무조건 재설정
+    _resetServAddr();
     _isSocketExists = BasicTestClient.clntSocket != null;
 
     // 내부저장소 경로 로드
@@ -824,6 +826,13 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver{
   }
 
   _resetServAddr() async {
+    if (BasicTestClient.clntSocket != null) {
+      await _stopCon();
+    }
+    bool chk = await _startCon();
+  }
+
+  _resetServAddrWithInput() async {
     _client.setServAddr(
         _servIPAddrController!.text, int.parse(_servPortController!.text));
     _serv.setServerInfo(_servIPAddrController!.text, _servPortController!.text);

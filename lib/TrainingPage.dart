@@ -715,6 +715,8 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
   void _initializer() async {
     await _br.init();
 
+    // 무조건 재설정
+    _resetServAddr();
     _isSocketExists = BasicTestClient.clntSocket != null;
 
     // 내부저장소 경로 로드
@@ -843,18 +845,38 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
     });
   }
 
-  Future<void> _startCon() async {
-    await _client.sendRequest();
+  Future<bool> _startCon() async {
+    try {
+      await _client.sendRequest();
+    } on SocketException {
+      setState(() {
+        BasicTestClient.clntSocket = null;
+        _isSocketExists = BasicTestClient.clntSocket != null;
+
+        _isSending = false;
+        _isSendBtnClicked = false;
+      });
+      print("Connection refused");
+
+      return false;
+    } on Exception {
+      print("Unexpected exception");
+
+      return false;
+    }
     setState(() {
       _state = "Connected";
     });
     BasicTestClient.clntSocket!.listen((List<int> event) {
       setState(() {
         _state = utf8.decode(event);
-        if (_state == FIN_CODE) {
-        }
+        // 추후 동작 지정
       });
     });
+
+    _isSocketExists = BasicTestClient.clntSocket != null;
+
+    return true;
   }
 
   Future<void> _sendData() async {
@@ -877,6 +899,13 @@ class _TrainingPageState extends State<TrainingPage> with WidgetsBindingObserver
     setState(() {
       _state = "Disconnected";
     });
+  }
+
+  _resetServAddr() async {
+    if (BasicTestClient.clntSocket != null) {
+      await _stopCon();
+    }
+    bool chk = await _startCon();
   }
 
   void _deleteFile(i) {

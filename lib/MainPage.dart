@@ -102,9 +102,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       child: Builder(
                         builder: (context) {
                           return InkWell(
-                              onDoubleTap: () {
+                              onDoubleTap: () async {
                                 if (!_br.isRecording) {
-                                  Navigator.pushNamed(context, TEST_PAGE);
+                                  await Navigator.pushNamed(context, TEST_PAGE);
+                                  _resetServAddr();
                                 } else {
                                   ToastGenerator.displayRegularMsg(
                                       "음성 입력 중에는 이동이 불가능합니다.");
@@ -129,9 +130,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       width: 50,
                       height: 50,
                       child: InkWell(
-                          onTap: () {
+                          onTap: () async {
                             if (!_br.isRecording) {
-                              Navigator.pushNamed(context, TRAINING_PAGE);
+                              await Navigator.pushNamed(context, TRAINING_PAGE);
+                              _resetServAddr();
                             } else {
                               ToastGenerator.displayRegularMsg(
                                   "음성 입력 중에는 이동이 불가능합니다.");
@@ -489,7 +491,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     _filePathForRecord = '${_fl.storagePath}/input.wav'; // 파일 고정
   }
 
-  Future<void> _startCon() async {
+  Future<bool> _startCon() async {
     try {
       await _client.sendRequest();
     } on SocketException {
@@ -498,6 +500,12 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         BasicTestClient.clntSocket = null;
       });
       print("Connection refused");
+
+      return false;
+    } on Exception {
+      print("Unexpected exception");
+
+      return false;
     }
     setState(() {
       _state = "Connected";
@@ -513,6 +521,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         });
       });
     }
+
+    return true;
   }
 
   Future<void> _sendData() async {
@@ -531,6 +541,13 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     setState(() {
       _state = "Disconnected";
     });
+  }
+
+  _resetServAddr() async {
+    if (BasicTestClient.clntSocket != null) {
+      await _stopCon();
+    }
+    bool chk = await _startCon();
   }
 
   @override
