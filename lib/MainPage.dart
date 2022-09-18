@@ -113,7 +113,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                               child: Image.asset("assets/images/icon.png"));
                         },
                       )),
-                  if (MediaQuery.of(context).size.height >= 670) const Spacer(),
+                  const Spacer(),
                   if (BasicTestClient.clntSocket == null)
                     Container(
                         margin: const EdgeInsets.fromLTRB(0, 0, 8, 0),
@@ -229,7 +229,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           if (MediaQuery.of(context).size.height >= 670)
             const Spacer()
           else
-            const SizedBox(height: 16),
+            const SizedBox(height: 48),
           Container(
             alignment: Alignment.center,
             width: 296.0,
