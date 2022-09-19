@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/data/TrainingLabel.dart';
 import 'package:personalized_speech_interpreter/main.dart';
+import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicPlayer.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
@@ -61,6 +62,8 @@ class _TrainingPageState extends State<TrainingPage>
   late SharedPreferences _wordPrefs;
 
   TextEditingController dropDownTextController = TextEditingController();
+
+  late ServerInfo _serv;
 
   bool _isSocketExists = false;
 
@@ -725,6 +728,9 @@ class _TrainingPageState extends State<TrainingPage>
 
   void _initializer() async {
     await _br.init();
+    await _setServ();
+
+    _client.setServAddr(_serv.servIPAddr!, int.parse(_serv.servPort!));
 
     // 무조건 재설정
     _resetServAddr();
@@ -747,6 +753,12 @@ class _TrainingPageState extends State<TrainingPage>
     _br.setRecordingSession();
 
     await _initWordTrained();
+  }
+
+  _setServ() async {
+    _serv = ServerInfo();
+    await _serv.setPrefs();
+    _serv.loadServerInfo();
   }
 
   _setStoragePathWithWord(String word) {

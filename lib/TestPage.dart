@@ -688,6 +688,8 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
     await _br.init();
     await _setServ();
 
+    _client.setServAddr(_serv.servIPAddr!, int.parse(_serv.servPort!));
+
     // 무조건 재설정
     _resetServAddr();
     _isSocketExists = BasicTestClient.clntSocket != null;
@@ -717,6 +719,7 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
     _serv = ServerInfo();
     await _serv.setPrefs();
     _serv.loadServerInfo();
+    print("${_serv.servIPAddr!} ${_serv.servPort!}");
   }
 
   Future<void> _startSend() async {
@@ -875,7 +878,7 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
   _resetServAddrWithInput() async {
     _client.setServAddr(
         _servIPAddrController!.text, int.parse(_servPortController!.text));
-    _serv.setServerInfo(_servIPAddrController!.text, _servPortController!.text);
+    await _serv.setServerInfo(_servIPAddrController!.text, _servPortController!.text);
 
     if (BasicTestClient.clntSocket != null) {
       await _stopCon();
