@@ -8,6 +8,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/main.dart';
 import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
+import 'package:personalized_speech_interpreter/protocols/DecodingMessage.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
@@ -819,12 +820,27 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
     if (BasicTestClient.clntSocket != null) {
       BasicTestClient.clntSocket!.listen((List<int> event) {
         setState(() {
-          _state = utf8.decode(event);
           if (_typ != 2) {
             print("time elapsed: ${stopwatch.elapsed}");
             _elapsedTimeText = "${stopwatch.elapsed}";
           }
-          _returnedValue = _state;
+
+          int header = DecodingMessage.decodingMsg(event);
+          int msgSize = event[2];
+
+          if (header == 128) {
+            print(event[3]);
+            if (event[3] == 0) {
+              print("비정상");
+            } else if (event[3] == 1) {
+              print("정상");
+
+              int dataSize = msgSize - 1;
+              _returnedValue = utf8.decode(event.sublist(4, dataSize));
+            } else {
+              print("잘못된 상태코드");
+            }
+          }
         });
       });
     }
