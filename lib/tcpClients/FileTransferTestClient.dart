@@ -34,18 +34,18 @@ class FileTransferTestClient extends BasicTestClient {
       case 3:
         var start = Uint8List.fromList(utf8.encode("["));
         var typ = Uint8List.fromList([type]);
-        var msgSize = Uint8List.fromList([8]);
 
         var user = UserInfo();
         await user.setPrefs();
         user.loadUserInfo();
         var name = Uint8List.fromList(utf8.encode(user.userName!));
 
-        var nameSize = Uint8List.fromList(
-            TypeConverter.convertInt2Bytes(name.length, Endian.big, 4));
+        var msgLen = name.length;
+        var msgSize = Uint8List.fromList([msgLen + 4]);
+
         var end = Uint8List.fromList(utf8.encode("]"));
 
-        var msg = start + typ + msgSize + nameSize + name + end;
+        var msg = start + typ + msgSize + name + end;
 
         BasicTestClient.clntSocket!.add(msg);
         // stopClnt();
