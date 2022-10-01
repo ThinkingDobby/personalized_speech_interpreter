@@ -508,6 +508,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
 
       return false;
     }
+
+    // 이름 전송
+    _client.sendID(3);
+
     setState(() {
       _state = "Connected";
     });
