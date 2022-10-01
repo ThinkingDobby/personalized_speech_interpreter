@@ -66,7 +66,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _setServ();
+        // 메인 페이지의 경우 복귀 시 주소 변경이 일어날 수 있음
+        _setServAddr();
         _startCon();
         print("App Lifecycle State: resumed");
         break;
@@ -448,7 +449,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   void _initializer() async {
     await _br.init();
     await _setUser();
-    await _setServ();
+    await _setServAddr();
 
     _client.setServAddr(_serv.servIPAddr!, int.parse(_serv.servPort!));
 
@@ -469,7 +470,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     _br.setRecordingSession();
 
     // 무조건 재설정
-    _resetServAddr();
+    _resetServCon();
   }
 
   _setUser() async {
@@ -481,7 +482,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     });
   }
 
-  _setServ() async {
+  _setServAddr() async {
     _serv = ServerInfo();
     await _serv.setPrefs();
     _serv.loadServerInfo();
@@ -558,7 +559,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     });
   }
 
-  _resetServAddr() async {
+  _resetServCon() async {
     if (BasicTestClient.clntSocket != null) {
       await _stopCon();
     }

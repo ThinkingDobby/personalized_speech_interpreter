@@ -250,7 +250,7 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
                                 setState(() {
                                   _isResetBtnClicked = !_isResetBtnClicked;
                                 });
-                                _resetServAddrWithInput();
+                                _resetServConWithInput();
                               },
                               onTapDown: (_) => setState(() {
                                 _isResetBtnClicked = !_isResetBtnClicked;
@@ -687,12 +687,12 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
 
   void _initializer() async {
     await _br.init();
-    await _setServ();
+    await _setServAddr();
 
     _client.setServAddr(_serv.servIPAddr!, int.parse(_serv.servPort!));
 
     // 무조건 재설정
-    _resetServAddr();
+    _resetServCon();
     _isSocketExists = BasicTestClient.clntSocket != null;
 
     // 내부저장소 경로 로드
@@ -716,7 +716,7 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
     await _br.setRecordingSession();
   }
 
-  _setServ() async {
+  _setServAddr() async {
     _serv = ServerInfo();
     await _serv.setPrefs();
     _serv.loadServerInfo();
@@ -884,14 +884,14 @@ class _TestPageState extends State<TestPage> with WidgetsBindingObserver {
     });
   }
 
-  _resetServAddr() async {
+  _resetServCon() async {
     if (BasicTestClient.clntSocket != null) {
       await _stopCon();
     }
     bool chk = await _startCon();
   }
 
-  _resetServAddrWithInput() async {
+  _resetServConWithInput() async {
     _client.setServAddr(
         _servIPAddrController!.text, int.parse(_servPortController!.text));
     await _serv.setServerInfo(_servIPAddrController!.text, _servPortController!.text);
