@@ -133,7 +133,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       child: InkWell(
                           onTap: () async {
                             if (!_br.isRecording) {
-                              await Navigator.pushNamedAndRemoveUntil(context, TRAINING_PAGE, (route) => false);
+                              await Navigator.pushNamedAndRemoveUntil(context, SENTENCES_PAGE, (route) => false);
                             } else {
                               ToastGenerator.displayRegularMsg(
                                   "음성 입력 중에는 이동이 불가능합니다.");

@@ -10,6 +10,7 @@ import 'package:personalized_speech_interpreter/prefs/UserInfo.dart';
 import 'MainPage.dart';
 import 'TestPage.dart';
 import 'TrainingPage.dart';
+import 'SentencesPage.dart';
 
 void main() async {
   // 상태바, 내비게이션바 색상 조정
@@ -38,6 +39,7 @@ const String MAIN_PAGE = '/main';
 const String INIT_PAGE = '/init';
 const String TEST_PAGE = '/test';
 const String TRAINING_PAGE = '/training';
+const String SENTENCES_PAGE = '/words';
 
 class PSI extends StatelessWidget {
   final bool _userReady;
@@ -53,7 +55,8 @@ class PSI extends StatelessWidget {
           MAIN_PAGE: (context) => MainPage(),
           INIT_PAGE: (context) => InitPage(),
           TEST_PAGE: (context) => TestPage(),
-          TRAINING_PAGE: (context) => TrainingPage()
+          TRAINING_PAGE: (context) => TrainingPage(),
+          SENTENCES_PAGE: (context) => SentencesPage(),
         });
   }
 }
