@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:personalized_speech_interpreter/dialog/showLearningDialog.dart';
 import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
@@ -28,7 +29,6 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   bool _isSendBtnClicked = false;
   bool _isSendAvailable = false;
 
-  bool _isControlActivated = false;
   bool _cancelBtnPressed = false;
 
   String _state = "Unconnected";
@@ -46,7 +46,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   late FileTransferTestClient _client;
 
   // 단어 리스트
-  List<String> words = TrainingLabel.words;
+  List<String> _words = TrainingLabel.words;
   String? _selectedWord;
   final Map<String, bool> _wordTrained = {};
   List<String> _trainedWords = [];
@@ -156,7 +156,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                     Container(
                       width: 296,
                       child: const Text(
-                        "학습 시킬 문장을 선택해주세요.\n이미 학습된 문장을 다시 학습 시키는 것도 가능합니다.",
+                        "학습시킬 문장을 선택해주세요.\n이미 학습된 문장을 다시 학습시키는 것도 가능합니다.",
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 15,
@@ -185,6 +185,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                         Container(
                           width: 296,
                           height: 40,
+                          // focus 변경 적용 필요
                           child: TextFormField(
                             controller: searchTextController,
                             decoration: const InputDecoration(
@@ -204,6 +205,27 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                           ),
                         )
                       ]
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: Container(
+                        width: 312,
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                        child: MediaQuery.removePadding(
+                          context: context,
+                          removeTop: true,
+                          child: GridView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: _words.length,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 8,
+                              childAspectRatio: 156/100,
+                            ),
+                            itemBuilder: (context, i) => _setGridItemBuilder(context, i)
+                          ),
+                        )
+                      )
                     ),
                   ]
                 )
@@ -264,7 +286,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   _initWordTrained() async {
     _wordPrefs = await SharedPreferences.getInstance();
 
-    for (var word in TrainingLabel.words) {
+    for (var word in _words) {
       _wordTrained[word] = false;
     }
     _trainedWords = _wordPrefs.getStringList("trainedWords") ?? [];
@@ -369,6 +391,50 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
       // _checkSendAvailable();
       _setPathForRecord();
     });
+  }
+  ValueNotifier<int> dialogTrigger = ValueNotifier(0);
+  // GestureDetector 적용 필요
+  GestureDetector _setGridItemBuilder(BuildContext ctx, int i) {
+    return GestureDetector(
+      onTap: () {
+        showLearningDialog(context, ctx, _br);
+      },
+      child: Container(
+        width: 156,
+        height: 100,
+        child: Stack(
+          children: [
+            Container(
+                width: 156,
+                height: 100,
+                child: Image.asset("assets/images/sentences_iv_word.png")
+            ),
+            Container(
+              alignment: Alignment.center,
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+              child: Text(
+                _words[i],
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 16,
+                  color: Color(0xff191919),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            Container(
+                height: 18,
+                alignment: Alignment.topRight,
+                margin: const EdgeInsets.fromLTRB(0, 14, 18, 0),
+                child: Visibility(
+                  child: Image.asset("assets/images/sentences_iv_check.png"),
+                  visible: _wordTrained[_words[i]] ?? false,
+                )
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Future<bool> _onBack() async {
