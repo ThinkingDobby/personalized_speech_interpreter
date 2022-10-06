@@ -5,7 +5,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:personalized_speech_interpreter/dialog/showLearningDialog.dart';
+import 'package:personalized_speech_interpreter/dialog/LearningDialog.dart';
 import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
@@ -23,21 +23,9 @@ class SentencesPage extends StatefulWidget {
 }
 
 class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserver {
-  final BasicRecorder _br = BasicRecorder();
-
-  bool _isSending = false;
-  bool _isSendBtnClicked = false;
-  bool _isSendAvailable = false;
-
-  bool _cancelBtnPressed = false;
-
   String _state = "Unconnected";
   final String FIN_CODE = "Transfer Finished";
 
-  // 녹음 위한 파일 경로 (저장소 경로 + 파일명)
-  late String _filePathForRecord;
-
-  // late String _filePathForWaveVisualize;
   late Directory docsDir;
 
   // 파일 로드, 삭제 위한 객체
@@ -47,7 +35,6 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
 
   // 단어 리스트
   List<String> _words = TrainingLabel.words;
-  String? _selectedWord;
   final Map<String, bool> _wordTrained = {};
   List<String> _trainedWords = [];
 
@@ -90,11 +77,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () {
-          return _onBack();
-        },
-        child: Scaffold(
+    return Scaffold(
             body: Container(
                 margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
                 width: MediaQuery.of(context).size.width,
@@ -115,13 +98,8 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                         children: [
                           InkWell(
                             onTap: () async {
-                              if (_br.isRecording) {
-                                ToastGenerator.displayRegularMsg(
-                                    "녹음 중에는 이동이 불가능합니다.");
-                              } else {
-                                await Navigator.pushNamedAndRemoveUntil(
-                                    context, MAIN_PAGE, (route) => false);
-                              }
+                              await Navigator.pushNamedAndRemoveUntil(
+                                  context, MAIN_PAGE, (route) => false);
                             },
                             child: Image.asset(
                                 "assets/images/training_btn_back.png"),
@@ -230,12 +208,10 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                   ]
                 )
             )
-        )
     );
   }
 
   void _initializer() async {
-    await _br.init();
     await _setServAddr();
 
     _client.setServAddr(_serv.servIPAddr!, int.parse(_serv.servPort!));
@@ -250,15 +226,11 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     setState(() {
       // 파일 리스트 초기화
       _fl.fileList = _fl.loadFiles();
-      _setPathForRecord();
     });
     // _filePathForWaveVisualize = '${docsDir.path}/waveform.wav';
     if (_fl.fileList.isNotEmpty) {
       _fl.selectedFile = _fl.fileList[0];
     }
-
-    // 녹음 위한 FlutterSoundRecorder 객체 설정
-    _br.setRecordingSession();
 
     await _initWordTrained();
   }
@@ -267,20 +239,6 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     _serv = ServerInfo();
     await _serv.setPrefs();
     _serv.loadServerInfo();
-  }
-
-  // 단어 선택 시 호출
-  _setStoragePathWithWord(String word) {
-    _fl.storagePath = '${docsDir.path}/recorded_files/$word';
-    setState(() {
-      _fl.fileList = _fl.loadFiles();
-      // _checkSendAvailable();
-      _setPathForRecord();
-    });
-  }
-
-  _setPathForRecord() {
-    _filePathForRecord = '${_fl.storagePath}/음성샘플 ${_fl.lastNum + 1}.wav';
   }
 
   _initWordTrained() async {
@@ -296,24 +254,6 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     }
   }
 
-  Future<void> _startSend() async {
-    setState(() {
-      _isSending = true;
-    });
-
-    _wordTrained[_selectedWord!] = true;
-    _trainedWords.add(_selectedWord!);
-    _wordPrefs.setStringList("trainedWords", _trainedWords);
-    // _checkSendAvailable();
-
-    // await _sendData(); // 한 단어에 해당되는 파일들을 레이블과 함께 전송해야
-
-    setState(() {
-      _isSending = false;
-      _isSendBtnClicked = false;
-    });
-  }
-
   Future<bool> _startCon() async {
     try {
       await _client.sendRequest();
@@ -321,9 +261,6 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
       setState(() {
         BasicTestClient.clntSocket = null;
         _isSocketExists = BasicTestClient.clntSocket != null;
-
-        _isSending = false;
-        _isSendBtnClicked = false;
       });
       print("Connection refused");
 
@@ -381,23 +318,11 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     bool chk = await _startCon();
   }
 
-  void _deleteFile(i) {
-    setState(() {
-      _fl.selectedFile = _fl.fileList[i];
-    });
-    _fl.deleteFile("${_fl.storagePath}/${_fl.selectedFile}");
-    setState(() {
-      _fl.fileList = _fl.loadFiles();
-      // _checkSendAvailable();
-      _setPathForRecord();
-    });
-  }
-  ValueNotifier<int> dialogTrigger = ValueNotifier(0);
   // GestureDetector 적용 필요
   GestureDetector _setGridItemBuilder(BuildContext ctx, int i) {
     return GestureDetector(
       onTap: () {
-        showLearningDialog(context, ctx, _br);
+        showLearningDialog(ctx, i);
       },
       child: Container(
         width: 156,
@@ -437,23 +362,19 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     );
   }
 
-  Future<bool> _onBack() async {
-    if (_br.isRecording) {
-      ToastGenerator.displayRegularMsg("녹음 중에는 이동이 불가능합니다.");
-      await Navigator.pushNamedAndRemoveUntil(
-          context, MAIN_PAGE, (route) => false);
-      return false;
-    } else {
-      await Navigator.pushNamedAndRemoveUntil(
-          context, MAIN_PAGE, (route) => false);
-      return true;
-    }
+  void showLearningDialog(context, i) {
+    showDialog(
+        context: context,
+        //barrierDismissible - Dialog를 제외한 다른 화면 터치 x
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return LearningDialog(i);
+        });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _br.recorderController.dispose();
     searchTextController.dispose();
     super.dispose();
   }
