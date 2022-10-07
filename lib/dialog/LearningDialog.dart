@@ -8,6 +8,7 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:personalized_speech_interpreter/data/recordingState.dart';
 import 'package:personalized_speech_interpreter/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,8 +40,6 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
   bool _isSendBtnClicked = false;
   bool _isSendAvailable = false;
 
-  bool _cancelBtnPressed = false;
-
   String _state = "Unconnected";
   final String FIN_CODE = "Transfer Finished";
 
@@ -65,6 +64,8 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
   late ServerInfo _serv;
 
   bool _isSocketExists = false;
+
+  int _recordingState = 0;
 
   @override
   void initState() {
@@ -134,7 +135,7 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                     const SizedBox(height: 16),
                     Container(
                         child: Text(
-                          _words[_wordIdx] ?? "문장이 설정되지 않았습니다.",
+                          _words[_wordIdx],
                           style: TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 22,
@@ -147,12 +148,12 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                     Container(
                       width: 110,
                       height: 110,
-                      child: Image.asset("assets/images/learning_iv_book.png"),
+                      child: Image.asset(stateImages[_recordingState]),
                     ),
                     const SizedBox(height: 8),
                     Container(
                       child: Text(
-                        "총 10회의 녹음을 진행합니다.\n버튼을 눌러 녹음을 시작해주세요.",
+                        stateMessages[_recordingState],
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 15,
@@ -256,8 +257,8 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                         ? () => setState(() {
                                       _br.isNotRecording =
                                       !_br.isNotRecording;
-                                      _br.startRecording(
-                                          _filePathForRecord);
+                                      _br.startRecording(_filePathForRecord);
+                                      _recordingState = 1;
                                     })
                                         : null,
                                     child: _br.isRecording
@@ -293,6 +294,7 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                       _br.isRecording =
                                       !_br.isRecording;
                                       _br.stopRecording();
+                                      _recordingState = 2;
 
                                       // 파일 리스트 갱신
                                       _fl.fileList =

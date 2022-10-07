@@ -46,6 +46,8 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
 
   bool _isSocketExists = false;
 
+  bool _isDialogActivated = false;
+
   @override
   void initState() {
     super.initState();
@@ -58,15 +60,19 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _startCon();
-        Timer(const Duration(seconds: 1), () {
-          setState(() {
-            _isSocketExists = BasicTestClient.clntSocket != null;
+        if (!_isDialogActivated) {
+          _startCon();
+          Timer(const Duration(seconds: 1), () {
+            setState(() {
+              _isSocketExists = BasicTestClient.clntSocket != null;
+            });
           });
-        });
+        }
         break;
       case AppLifecycleState.inactive:
-        _stopCon();
+        if (!_isDialogActivated) {
+          _stopCon();
+        }
         break;
       case AppLifecycleState.paused:
         break;
@@ -321,8 +327,9 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   // GestureDetector 적용 필요
   GestureDetector _setGridItemBuilder(BuildContext ctx, int i) {
     return GestureDetector(
-      onTap: () {
-        showLearningDialog(ctx, i);
+      onTap: () async {
+        await _showLearningDialog(ctx, i);
+        _resetServCon();
       },
       child: Container(
         width: 156,
@@ -362,14 +369,16 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     );
   }
 
-  void showLearningDialog(context, i) {
-    showDialog(
+  Future<void> _showLearningDialog(context, i) async {
+    _isDialogActivated = true;
+    await showDialog(
         context: context,
         //barrierDismissible - Dialog를 제외한 다른 화면 터치 x
         barrierDismissible: false,
         builder: (BuildContext context) {
           return LearningDialog(i);
         });
+    _isDialogActivated = false;
   }
 
   @override
