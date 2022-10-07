@@ -290,23 +290,24 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                     })
                                         : null,
                                     onTap: _br.isRecording
-                                        ? () => setState(() {
-                                      _br.isRecording =
-                                      !_br.isRecording;
-                                      _br.stopRecording();
-                                      _recordingState = 2;
+                                        ? () async {
+                                          await _br.stopRecording();
+                                          // 녹음 완료 - 전송 시작
+                                          setState(() {
+                                            _br.isRecording = !_br.isRecording;
+                                            _recordingState = 2;
+                                          });
 
-                                      // 파일 리스트 갱신
-                                      _fl.fileList =
-                                          _fl.loadFiles();
-                                      _setPathForRecord();
-                                      if (_fl.fileList
-                                          .length ==
-                                          1) {
-                                        _fl.selectedFile =
-                                        _fl.fileList[0];
-                                      }
-                                    })
+                                          // 파일 리스트 갱신
+                                          _fl.fileList =
+                                              _fl.loadFiles();
+                                          _setPathForRecord();
+                                          if (_fl.fileList.length == 1) {
+                                            _fl.selectedFile = _fl.fileList[0];
+                                          }
+
+                                          await _sendData();
+                                        }
                                         : null,
                                     child: _br.isNotRecording
                                         ? Image.asset(
@@ -443,8 +444,11 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
       _state = "Connected";
     });
     BasicTestClient.clntSocket!.listen((List<int> event) {
+      // 임시 - 서버에서 항상 음성이 적합했다고 판단했음을 가정
       setState(() {
         _state = utf8.decode(event);
+        print("event: " + _state);
+        _recordingState = 3;
         // 추후 동작 지정
       });
     });
@@ -457,15 +461,10 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
   Future<void> _sendData() async {
     try {
       Uint8List data =
-      await _fl.readFile("${_fl.storagePath}/${_fl.selectedFile}");
-      _client.sendFile(1, data);
+      await _fl.readFile('${_fl.storagePath}/음성샘플 ${_fl.lastNum}.wav');
+      _client.sendFileWithInfo(4, _words[_wordIdx], _fl.lastNum, data);
     } on FileSystemException {
-      print("File not exists: ${_fl.selectedFile}");
-    }
-
-    if (BasicTestClient.clntSocket == null) {
-      ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
-      print("Connection refused");
+      print("File not exists: ${_fl.storagePath}/음성샘플 ${_fl.lastNum}.wav");
     }
   }
 

@@ -23,9 +23,8 @@ class FileTransferTestClient extends BasicTestClient {
         BasicTestClient.clntSocket!.add(data);
         // stopClnt();
         break;
-      case 2:
+      case 2: // pcm파일 실시간 전송은 우선 TestPage에서 직접 다루도록 구성
         break;
-      // pcm파일 실시간 전송은 우선 TestPage에서 직접 다루도록 구성
     }
   }
     
@@ -49,6 +48,36 @@ class FileTransferTestClient extends BasicTestClient {
 
         BasicTestClient.clntSocket!.add(msg);
         // stopClnt();
+        break;
+    }
+  }
+
+  void sendFileWithInfo(int type, String sentence, int num, Uint8List data) {
+    switch (type) {
+      case 4:
+        var start = Uint8List.fromList(utf8.encode("["));
+        var typ = Uint8List.fromList([type]);
+
+        var targetSentence = Uint8List.fromList(utf8.encode(sentence));
+        var fileNum = Uint8List.fromList([num]);
+
+        var msgLen = targetSentence.length;
+        var msgSize = Uint8List.fromList([msgLen + 12]);
+
+        var ext = Uint8List.fromList(utf8.encode("wav"));
+        var fileSize = Uint8List.fromList(
+            TypeConverter.convertInt2Bytes(data.length, Endian.big, 4));
+        var end = Uint8List.fromList(utf8.encode("]"));
+
+        var header = start + typ + msgSize + targetSentence + fileNum + ext + fileSize + end;
+        print(header);
+        print(msgSize);
+        print(targetSentence);
+        print(header.length);
+
+        BasicTestClient.clntSocket!.add(header);
+        BasicTestClient.clntSocket!.add(data);
+
         break;
     }
   }
