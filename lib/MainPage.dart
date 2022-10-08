@@ -489,7 +489,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   }
 
   _setPathForRecord() {
-    _filePathForRecord = '${_fl.storagePath}/input.wav'; // 파일 고정
+    _filePathForRecord = '${_fl.storagePath}/sample 0.wav'; // 파일 고정
   }
 
   Future<bool> _startCon() async {

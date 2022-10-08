@@ -383,7 +383,7 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
   }
 
   _setPathForRecord() {
-    _filePathForRecord = '${_fl.storagePath}/음성샘플 ${_fl.lastNum + 1}.wav';
+    _filePathForRecord = '${_fl.storagePath}/sample ${_fl.lastNum + 1}.wav';
   }
 
   _initWordTrained() async {
@@ -445,10 +445,10 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
   Future<void> _sendData() async {
     try {
       Uint8List data =
-      await _fl.readFile('${_fl.storagePath}/음성샘플 ${_fl.lastNum}.wav');
+      await _fl.readFile('${_fl.storagePath}/sample ${_fl.lastNum}.wav');
       _client.sendFileWithInfo(4, _words[_wordIdx], _fl.lastNum, data);
     } on FileSystemException {
-      print("File not exists: ${_fl.storagePath}/음성샘플 ${_fl.lastNum}.wav");
+      print("File not exists: ${_fl.storagePath}/sample ${_fl.lastNum}.wav");
     }
   }
 

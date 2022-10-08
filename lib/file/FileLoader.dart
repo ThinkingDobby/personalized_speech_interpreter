@@ -56,7 +56,7 @@ class FileLoader {
   }
 
   int getFileNumber(String fileName) {
-    String numStr = fileName.substring(5, fileName.length - 4);
+    String numStr = fileName.substring(7, fileName.length - 4);
     int num = 0;
     try {
       num = int.parse(numStr);
