@@ -11,6 +11,7 @@ import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
+import 'package:personalized_speech_interpreter/utils/getSearchedList.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/TrainingLabel.dart';
@@ -37,10 +38,11 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   List<String> _words = TrainingLabel.words;
   final Map<String, bool> _wordTrained = {};
   List<String> _trainedWords = [];
+  List<String> _searchedWords = [];
 
   late SharedPreferences _wordPrefs;
 
-  TextEditingController searchTextController = TextEditingController();
+  final TextEditingController _searchTextController = TextEditingController();
 
   late ServerInfo _serv;
 
@@ -176,7 +178,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                           height: 40,
                           // focus 변경 적용 필요
                           child: TextFormField(
-                            controller: searchTextController,
+                            controller: _searchTextController,
                             decoration: const InputDecoration(
                                 isDense: true,
                                 contentPadding:
@@ -205,7 +207,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                           removeTop: true,
                           child: GridView.builder(
                             physics: const BouncingScrollPhysics(),
-                            itemCount: _words.length,
+                            itemCount: _searchedWords.length,
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               mainAxisSpacing: 8,
@@ -244,6 +246,13 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     }
 
     await _initWordTrained();
+
+    _searchedWords = getSearchedList(_words, _searchTextController) as List<String>;
+    _searchTextController.addListener(() {
+      setState(() {
+        _searchedWords = getSearchedList(_words, _searchTextController) as List<String>;
+      });
+    });
   }
 
   _setServAddr() async {
@@ -332,7 +341,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   // GestureDetector 적용 필요
   GestureDetector _setGridItemBuilder(BuildContext ctx, int i) {
     return GestureDetector(
-      onTap: _wordTrained[_words[i]]! ? () => ToastGenerator.displayRegularMsg("이미 학습된 단어입니다.")
+      onTap: _wordTrained[_searchedWords[i]]! ? () => ToastGenerator.displayRegularMsg("이미 학습된 단어입니다.")
       : () async {
         await _showLearningDialog(ctx, i);
         _resetServCon();
@@ -354,7 +363,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
               alignment: Alignment.center,
               margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
               child: Text(
-                _words[i],
+                _searchedWords[i],
                 style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 16,
@@ -369,7 +378,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                 margin: const EdgeInsets.fromLTRB(0, 14, 18, 0),
                 child: Visibility(
                   child: Image.asset("assets/images/sentences_iv_check.png"),
-                  visible: _wordTrained[_words[i]] ?? false,
+                  visible: _wordTrained[_searchedWords[i]] ?? false,
                 )
             )
           ],
@@ -393,7 +402,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    searchTextController.dispose();
+    _searchTextController.dispose();
     super.dispose();
   }
 }
