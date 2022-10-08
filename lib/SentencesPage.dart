@@ -43,6 +43,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   late SharedPreferences _wordPrefs;
 
   final TextEditingController _searchTextController = TextEditingController();
+  FocusNode textFocus = FocusNode();
 
   late ServerInfo _serv;
 
@@ -85,12 +86,17 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    return GestureDetector(
+        onTap: (){
+      textFocus.unfocus();
+    },
+    child: WillPopScope(
         onWillPop: () async {
           await Navigator.pushNamedAndRemoveUntil(context, MAIN_PAGE, (route) => false);
           return true;
     },
     child: Scaffold(
+            resizeToAvoidBottomInset: false,
             body: Container(
                 margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
                 width: MediaQuery.of(context).size.width,
@@ -111,8 +117,19 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                         children: [
                           InkWell(
                             onTap: () async {
-                              await Navigator.pushNamedAndRemoveUntil(
-                                  context, MAIN_PAGE, (route) => false);
+                              if (FocusManager.instance.primaryFocus!
+                              is FocusScopeNode) {
+                                await Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    MAIN_PAGE,
+                                        (route) => false);
+                                ;
+                              } else {
+                                // 키보드에 포커스가 있는 경우
+                                // 키보드 내리기
+                                FocusManager.instance.primaryFocus
+                                    ?.unfocus();
+                              }
                             },
                             child: Image.asset(
                                 "assets/images/training_btn_back.png"),
@@ -176,9 +193,9 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                         Container(
                           width: 296,
                           height: 40,
-                          // focus 변경 적용 필요
                           child: TextFormField(
                             controller: _searchTextController,
+                            focusNode: textFocus,
                             decoration: const InputDecoration(
                                 isDense: true,
                                 contentPadding:
@@ -221,7 +238,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                   ]
                 )
             )
-    ));
+    )));
   }
 
   void _initializer() async {
@@ -343,11 +360,16 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
     return GestureDetector(
       onTap: _wordTrained[_searchedWords[i]]! ? () => ToastGenerator.displayRegularMsg("이미 학습된 단어입니다.")
       : () async {
-        await _showLearningDialog(ctx, i);
-        _resetServCon();
-        setState(() {
-          _initWordTrained();
-        });
+        if (FocusManager.instance.primaryFocus! is FocusScopeNode) {
+          await _showLearningDialog(ctx, i);
+          _resetServCon();
+          setState(() {
+            _initWordTrained();
+          });
+        } else {
+          FocusManager.instance.primaryFocus
+              ?.unfocus();
+        }
       },
       child: Container(
         width: 156,
