@@ -255,10 +255,15 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                         : null,
                                     onTap: _br.isNotRecording
                                         ? () => setState(() {
-                                      _br.isNotRecording =
-                                      !_br.isNotRecording;
-                                      _br.startRecording(_filePathForRecord);
-                                      _recordingState = 1;
+                                          if (_isSending) {
+                                            ToastGenerator.displayRegularMsg("전송중에는 녹음이 불가능합니다.");
+                                          } else {
+                                            _br.isNotRecording =
+                                            !_br.isNotRecording;
+                                            _br.startRecording(
+                                                _filePathForRecord);
+                                            _recordingState = 1;
+                                          }
                                     })
                                         : null,
                                     child: _br.isRecording
@@ -295,6 +300,7 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                           // 녹음 완료 - 전송 시작
                                           setState(() {
                                             _br.isRecording = !_br.isRecording;
+                                            _isSending = true;
                                             _recordingState = 2;
                                           });
 
@@ -434,6 +440,8 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
         } else {
           _recordingState = 3;
         }
+
+        _isSending = false;
       });
     });
 
