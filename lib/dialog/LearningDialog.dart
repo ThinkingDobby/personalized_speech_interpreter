@@ -56,7 +56,6 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
 
   // 단어 리스트
   List<String> _words = TrainingLabel.words;
-  final Map<String, bool> _wordTrained = {};
   List<String> _trainedWords = [];
 
   late SharedPreferences _wordPrefs;
@@ -66,6 +65,7 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
   bool _isSocketExists = false;
 
   int _recordingState = 0;
+  bool _finished = false;
 
   @override
   void initState() {
@@ -191,7 +191,7 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                       ],
                     ),
                     const SizedBox(height: 32),
-                    Container(
+                    _finished ? Container() : Container(
                       width: 250,
                       child: Row(
                         children: [
@@ -389,32 +389,7 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
   _initWordTrained() async {
     _wordPrefs = await SharedPreferences.getInstance();
 
-    for (var word in _words) {
-      _wordTrained[word] = false;
-    }
     _trainedWords = _wordPrefs.getStringList("trainedWords") ?? [];
-
-    for (var word in _trainedWords) {
-      _wordTrained[word] = true;
-    }
-  }
-
-  Future<void> _startSend() async {
-    setState(() {
-      _isSending = true;
-    });
-
-    _wordTrained[_words[_wordIdx]] = true;
-    _trainedWords.add(_words[_wordIdx]);
-    _wordPrefs.setStringList("trainedWords", _trainedWords);
-    // _checkSendAvailable();
-
-    // await _sendData(); // 한 단어에 해당되는 파일들을 레이블과 함께 전송해야
-
-    setState(() {
-      _isSending = false;
-      _isSendBtnClicked = false;
-    });
   }
 
   Future<bool> _startCon() async {
@@ -448,8 +423,17 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
       setState(() {
         _state = utf8.decode(event);
         print("event: " + _state);
-        _recordingState = 3;
-        // 추후 동작 지정
+
+        // 임시 - 음성 파일이 10개이고, 서버에서 응답이 온 경우, 항상 학습이 완료되었다고 가정
+        if (_fl.lastNum >= 10) {
+          _recordingState = 6;
+          _finished = true;
+
+          _trainedWords.add(_words[_wordIdx]);
+          _wordPrefs.setStringList("trainedWords", _trainedWords);
+        } else {
+          _recordingState = 3;
+        }
       });
     });
 

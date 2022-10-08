@@ -1,3 +1,15 @@
+/*
+상태
+
+0: 다일로그 실행
+1: 녹음중
+2: 전송중
+3: 전송 성공
+4: 전송 실패
+5: 학습 진행 중
+6: 학습 완료
+ */
+
 List<String> stateImages = [
   "assets/images/learning_iv_book.png",
   "assets/images/learning_iv_signal.png",

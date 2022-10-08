@@ -83,7 +83,12 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: () async {
+          await Navigator.pushNamedAndRemoveUntil(context, MAIN_PAGE, (route) => false);
+          return true;
+    },
+    child: Scaffold(
             body: Container(
                 margin: const EdgeInsets.fromLTRB(0, 26, 0, 0),
                 width: MediaQuery.of(context).size.width,
@@ -214,7 +219,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                   ]
                 )
             )
-    );
+    ));
   }
 
   void _initializer() async {
@@ -327,9 +332,13 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   // GestureDetector 적용 필요
   GestureDetector _setGridItemBuilder(BuildContext ctx, int i) {
     return GestureDetector(
-      onTap: () async {
+      onTap: _wordTrained[_words[i]]! ? () => ToastGenerator.displayRegularMsg("이미 학습된 단어입니다.")
+      : () async {
         await _showLearningDialog(ctx, i);
         _resetServCon();
+        setState(() {
+          _initWordTrained();
+        });
       },
       child: Container(
         width: 156,
