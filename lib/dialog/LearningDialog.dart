@@ -255,14 +255,21 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                         : null,
                                     onTap: _br.isNotRecording
                                         ? () => setState(() {
-                                          if (_isSending) {
-                                            ToastGenerator.displayRegularMsg("전송중에는 녹음이 불가능합니다.");
+                                          if (BasicTestClient.clntSocket == null) {
+                                            _br.isNotRecording = true;
+                                            _br.isRecording = false;
+                                            ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+                                            print("Connection refused");
                                           } else {
-                                            _br.isNotRecording =
-                                            !_br.isNotRecording;
-                                            _br.startRecording(
-                                                _filePathForRecord);
-                                            _recordingState = 1;
+                                            if (_isSending) {
+                                              ToastGenerator.displayRegularMsg(
+                                                  "전송중에는 녹음이 불가능합니다.");
+                                            } else {
+                                              _br.isNotRecording = !_br.isNotRecording;
+                                              _br.startRecording(
+                                                  _filePathForRecord);
+                                              _recordingState = 1;
+                                            }
                                           }
                                     })
                                         : null,
@@ -299,8 +306,8 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                           await _br.stopRecording();
                                           // 녹음 완료 - 전송 시작
                                           setState(() {
-                                            _br.isRecording = !_br.isRecording;
                                             _isSending = true;
+                                            _br.isRecording = !_br.isRecording;
                                             _recordingState = 2;
                                           });
 

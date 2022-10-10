@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/dialog/LearningDialog.dart';
+import 'package:personalized_speech_interpreter/dialog/showLearningResetDialog.dart';
 import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
@@ -164,7 +165,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                     Container(
                       width: 296,
                       child: const Text(
-                        "학습시킬 문장을 선택해주세요.\n이미 학습된 문장을 다시 학습시키는 것도 가능합니다.",
+                        "학습시킬 문장을 선택해주세요.\n이미 학습된 문장은 초기화 후 재학습이 가능합니다.",
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 15,
@@ -358,7 +359,21 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   // GestureDetector 적용 필요
   GestureDetector _setGridItemBuilder(BuildContext ctx, int i) {
     return GestureDetector(
-      onTap: _wordTrained[_searchedWords[i]]! ? () => ToastGenerator.displayRegularMsg("이미 학습된 단어입니다.")
+      onTap: BasicTestClient.clntSocket == null ? () {
+        ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+        print("Connection refused");
+      } :
+      _wordTrained[_searchedWords[i]]! ? () async {
+        bool result = await showLearningResetDialog(ctx, _searchedWords[i]);
+        // print("chkflag: " + result.toString());
+        if (result) {
+          setState(() {
+            _trainedWords.remove(_searchedWords[i]);
+            _wordTrained[_searchedWords[i]] = false;
+            ToastGenerator.displayRegularMsg("초기화 되었습니다.");
+          });
+        }
+      }
       : () async {
         if (FocusManager.instance.primaryFocus! is FocusScopeNode) {
           await _showLearningDialog(ctx, i);

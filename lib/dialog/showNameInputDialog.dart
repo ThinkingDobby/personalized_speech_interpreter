@@ -48,6 +48,7 @@ void showNameInputDialog(parent, context) {
                     hintText: '이름을 입력하세요.',
                     hintStyle: TextStyle(
                       fontFamily: 'Pretendard',
+                      color: Color(0xff191919),
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
