@@ -51,6 +51,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   bool _isSocketExists = false;
 
   bool _isDialogActivated = false;
+  final Map<String, bool> _wordClicked = {};
 
   @override
   void initState() {
@@ -284,6 +285,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
 
     for (var word in _words) {
       _wordTrained[word] = false;
+      _wordClicked[word] = false;
     }
     _trainedWords = _wordPrefs.getStringList("trainedWords") ?? [];
 
@@ -359,11 +361,15 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
   // GestureDetector 적용 필요
   GestureDetector _setGridItemBuilder(BuildContext ctx, int i) {
     return GestureDetector(
+      onTapCancel: () => {setState(() {_wordClicked[_searchedWords[i]] = false;})},
+      onTapDown: (_) => {setState(() {_wordClicked[_searchedWords[i]] = true;})},
       onTap: BasicTestClient.clntSocket == null ? () {
+        setState(() {_wordClicked[_searchedWords[i]] = false;});
         ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
         print("Connection refused");
       } :
       _wordTrained[_searchedWords[i]]! ? () async {
+        setState(() {_wordClicked[_searchedWords[i]] = false;});
         bool result = await showLearningResetDialog(ctx, _searchedWords[i]);
         // print("chkflag: " + result.toString());
         if (result) {
@@ -375,6 +381,7 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
         }
       }
       : () async {
+        setState(() {_wordClicked[_searchedWords[i]] = false;});
         if (FocusManager.instance.primaryFocus! is FocusScopeNode) {
           await _showLearningDialog(ctx, i);
           _resetServCon();
@@ -394,17 +401,18 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
             Container(
                 width: 156,
                 height: 100,
-                child: Image.asset("assets/images/sentences_iv_word.png")
+                child: _wordClicked[_searchedWords[i]]! ? Image.asset("assets/images/sentences_iv_word_clicked.png", gaplessPlayback: true,)
+                    : Image.asset("assets/images/sentences_iv_word.png", gaplessPlayback: true,)
             ),
             Container(
               alignment: Alignment.center,
               margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
               child: Text(
                 _searchedWords[i],
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 16,
-                  color: Color(0xff191919),
+                  color: _wordClicked[_searchedWords[i]]! ? const Color(0xff757575) : const Color(0xff191919),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -414,8 +422,9 @@ class _SentencesPageState extends State<SentencesPage> with WidgetsBindingObserv
                 alignment: Alignment.topRight,
                 margin: const EdgeInsets.fromLTRB(0, 14, 18, 0),
                 child: Visibility(
-                  child: Image.asset("assets/images/sentences_iv_check.png"),
                   visible: _wordTrained[_searchedWords[i]] ?? false,
+                  child: _wordClicked[_searchedWords[i]]! ? Image.asset("assets/images/sentences_iv_check_clicked.png", gaplessPlayback: true,)
+                      : Image.asset("assets/images/sentences_iv_check.png", gaplessPlayback: true,),
                 )
             )
           ],
