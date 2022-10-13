@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
    <application
-        android:label="음성번역기"
+        android:label="에코보이스"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:roundIcon="@mipmap/ic_launcher_round"
