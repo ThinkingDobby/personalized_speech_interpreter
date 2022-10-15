@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ToastGenerator {
-  static void displayRegularMsg(text) {
+  static void displayRegularMsg(String text) {
     Fluttertoast.showToast(
         msg: text,
         toastLength: Toast.LENGTH_SHORT,

@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 class BasicTestClient {
-  String _host = "210.93.53.8";
+  // String _host = "210.93.53.8";
+  String _host = "192.168.35.69";
 
   int _port = 10001;
 

@@ -4,10 +4,10 @@ import 'package:personalized_speech_interpreter/main.dart';
 
 import '../prefs/UserInfo.dart';
 
-void showNameInputDialog(parent, context) {
+Future<void> showNameInputDialog(parent, context) async {
   var userNameController = TextEditingController();
 
-  showDialog(
+  await showDialog(
       context: context,
       //barrierDismissible - Dialog를 제외한 다른 화면 터치 x
       barrierDismissible: false,
@@ -18,13 +18,7 @@ void showNameInputDialog(parent, context) {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const <Widget>[
-              Text("사용자 등록",
-                style: TextStyle(
-                  color: Color(0xff191919),
-                  fontFamily: 'Pretendard',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),),
+
             ],
           ),
           //
@@ -32,6 +26,22 @@ void showNameInputDialog(parent, context) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              const Text("사용자 등록",
+                style: TextStyle(
+                  color: Color(0xff191919),
+                  fontFamily: 'Pretendard',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                ),),
+              const SizedBox(height: 8),
+              const Text("앱에서 사용될 이름을 입력하세요.",
+                style: TextStyle(
+                  color: Color(0xff676767),
+                  fontFamily: 'Pretendard',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),),
+              const SizedBox(height: 32),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 width: 232,
