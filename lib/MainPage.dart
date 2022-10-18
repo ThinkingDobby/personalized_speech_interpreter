@@ -14,6 +14,7 @@ import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
 import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
 import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
+import 'package:personalized_speech_interpreter/utils/checkAndRequestPermission.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'file/FileLoader.dart';
@@ -328,27 +329,40 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             })
                         : null,
                     onTap: _br.isNotRecording
-                        ? () => setState(() async {
-                              if (BasicTestClient.clntSocket == null) {
-                                ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
-                                print("Connection refused");
-                                _br.isNotRecording = true;
-                                _br.isRecording = false;
-                              } else {
-                                _br.isNotRecording = !_br.isNotRecording;
+                        ? () async {
+                      if (await checkAndRequestPermission(context)) {
+                        if (BasicTestClient.clntSocket == null) {
+                          ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+                          print("Connection refused");
+                          setState(() {
+                            _br.isNotRecording = true;
+                            _br.isRecording = false;
+                          });
+                        } else {
+                          setState(() {
+                            _br.isNotRecording = !_br.isNotRecording;
+                          });
 
-                                _time = 0;
-                                _timeText = "00:00";
+                          setState(() {
+                            _time = 0;
+                            _timeText = "00:00";
 
-                                _timer = Timer.periodic(
-                                    const Duration(seconds: 1), (timer) {
-                                  _time += 1;
-                                  _timeText = sprintf(
-                                      "%02d:%02d", [_time ~/ 60, _time % 60]);
-                                });
-                                await _br.startRecording(_filePathForRecord);
-                              }
-                            })
+                            _timer = Timer.periodic(
+                                const Duration(seconds: 1), (timer) {
+                              _time += 1;
+                              _timeText = sprintf(
+                                  "%02d:%02d", [_time ~/ 60, _time % 60]);
+                            });
+                          });
+
+                          await _br.startRecording(_filePathForRecord);
+                        }
+                      } else {
+                        setState(() {
+                          _br.isRecording = false;
+                        });
+                      }
+                    }
                         : null,
                     child: _br.isRecording
                         ? Image.asset(

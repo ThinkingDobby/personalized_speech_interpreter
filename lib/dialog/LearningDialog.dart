@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personalized_speech_interpreter/data/recordingState.dart';
 import 'package:personalized_speech_interpreter/main.dart';
+import 'package:personalized_speech_interpreter/utils/checkAndRequestPermission.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/TrainingLabel.dart';
@@ -249,29 +250,42 @@ class _LearningDialogState extends State<LearningDialog> with WidgetsBindingObse
                                         : null,
                                     onTapCancel: _br.isNotRecording
                                         ? () => setState(() {
-                                      _br.isRecording =
-                                      !_br.isRecording;
+                                      _br.isRecording = !_br.isRecording;
                                     })
                                         : null,
                                     onTap: _br.isNotRecording
-                                        ? () => setState(() {
-                                          if (BasicTestClient.clntSocket == null) {
-                                            _br.isNotRecording = true;
-                                            _br.isRecording = false;
-                                            ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
-                                            print("Connection refused");
-                                          } else {
-                                            if (_isSending) {
-                                              ToastGenerator.displayRegularMsg(
-                                                  "전송중에는 녹음이 불가능합니다.");
+                                        ? () async {
+                                          if (await checkAndRequestPermission(context)) {
+                                            if (BasicTestClient.clntSocket == null) {
+                                              ToastGenerator.displayRegularMsg("연결에 실패했습니다.");
+                                              print("Connection refused");
+                                              setState(() {
+                                                _br.isNotRecording = true;
+                                                _br.isRecording = false;
+                                              });
                                             } else {
-                                              _br.isNotRecording = !_br.isNotRecording;
-                                              _br.startRecording(
-                                                  _filePathForRecord);
-                                              _recordingState = 1;
+                                              if (_isSending) {
+                                                ToastGenerator
+                                                    .displayRegularMsg("전송중에는 녹음이 불가능합니다.");
+                                                setState(() {
+                                                  _br.isRecording = !_br.isRecording;
+                                                });
+                                              } else {
+                                                setState(() {
+                                                  _br.isNotRecording = !_br.isNotRecording;
+                                                  _recordingState = 1;
+                                                });
+
+                                                await _br.startRecording(_filePathForRecord);
+                                              }
                                             }
+                                          } else {
+                                            setState(() {
+                                              _br.isRecording = false;
+                                            });
+                                            print("check recording");
                                           }
-                                    })
+                                    }
                                         : null,
                                     child: _br.isRecording
                                         ? Image.asset(

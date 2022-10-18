@@ -29,6 +29,15 @@ Future<bool> showLearningResetDialog(context, target) async {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
+              SizedBox(height: 8),
+              Text("학습 초기화",
+                style: TextStyle(
+                  color: Color(0xff191919),
+                  fontFamily: 'Pretendard',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                ),),
+              SizedBox(height: 16),
               Text("이미 학습된 단어입니다.",
                 style: TextStyle(
                   color: Color(0xff191919),

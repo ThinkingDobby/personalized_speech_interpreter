@@ -14,18 +14,11 @@ Future<void> showNameInputDialog(parent, context) async {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          //Dialog Main Title
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const <Widget>[
-
-            ],
-          ),
-          //
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              const SizedBox(height: 8),
               const Text("사용자 등록",
                 style: TextStyle(
                   color: Color(0xff191919),
@@ -33,7 +26,7 @@ Future<void> showNameInputDialog(parent, context) async {
                   fontSize: 17,
                   fontWeight: FontWeight.w500,
                 ),),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               const Text("앱에서 사용될 이름을 입력하세요.",
                 style: TextStyle(
                   color: Color(0xff676767),
@@ -71,57 +64,61 @@ Future<void> showNameInputDialog(parent, context) async {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
+              ),
+              const SizedBox(height: 22),
+              Row(
+                children: [
+                  Spacer(),
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    child: const Text(
+                      "확인",
+                      style: TextStyle(
+                        color: Color(0xffDB8278),
+                        fontFamily: 'Pretendard',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onTap: () async {
+                      if (userNameController.text.isEmpty) {
+                        Fluttertoast.showToast(
+                            msg: "이름을 한 글자 이상 입력하세요.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: const Color(0xff999999),
+                            textColor: const Color(0xfffefefe),
+                            fontSize: 16.0);
+                      } else if (userNameController.text.length > 7) {
+                        Fluttertoast.showToast(
+                            msg: "일곱 글자가 넘는 이름은 입력할 수 없습니다.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: const Color(0xff999999),
+                            textColor: const Color(0xfffefefe),
+                            fontSize: 16.0);
+                      } else {
+                        // 키보드 내리기
+                        FocusManager.instance.primaryFocus?.unfocus();
+
+                        UserInfo _user = UserInfo();
+                        await _user.setPrefs();
+                        await _user.setUserInfo(userNameController.text);
+                        print("username:" + userNameController.text);
+
+                        Navigator.pop(context);
+                        Navigator.pop(parent);
+                        Navigator.pushNamed(context, MAIN_PAGE);
+                      }
+                    },
+                  ),
+                ],
               )
             ],
           ),
-          actions: <Widget>[
-            FlatButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              child: const Text(
-                  "확인",
-                style: TextStyle(
-                  color: Color(0xffDB8278),
-                  fontFamily: 'Pretendard',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              onPressed: () async {
-                if (userNameController.text.isEmpty) {
-                  Fluttertoast.showToast(
-                      msg: "이름을 한 글자 이상 입력하세요.",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.CENTER,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: const Color(0xff999999),
-                      textColor: const Color(0xfffefefe),
-                      fontSize: 16.0);
-                } else if (userNameController.text.length > 7) {
-                  Fluttertoast.showToast(
-                      msg: "일곱 글자가 넘는 이름은 입력할 수 없습니다.",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.CENTER,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: const Color(0xff999999),
-                      textColor: const Color(0xfffefefe),
-                      fontSize: 16.0);
-                } else {
-                  // 키보드 내리기
-                  FocusManager.instance.primaryFocus?.unfocus();
-
-                  UserInfo _user = UserInfo();
-                  await _user.setPrefs();
-                  await _user.setUserInfo(userNameController.text);
-                  print("username:" + userNameController.text);
-
-                  Navigator.pop(context);
-                  Navigator.pop(parent);
-                  Navigator.pushNamed(context, MAIN_PAGE);
-                }
-              },
-            ),
-          ],
         );
       });
 }
