@@ -10,10 +10,10 @@ import 'package:personalized_speech_interpreter/main.dart';
 import 'package:personalized_speech_interpreter/prefs/ServerInfo.dart';
 import 'package:personalized_speech_interpreter/protocols/DecodingMessage.dart';
 import 'package:personalized_speech_interpreter/soundUtils/BasicRecorder.dart';
-import 'package:personalized_speech_interpreter/tcpClients/BasicTestClient.dart';
+import 'package:personalized_speech_interpreter/tcpClients/BasicClient.dart';
 import 'package:personalized_speech_interpreter/utils/ToastGenerator.dart';
 
-import 'package:personalized_speech_interpreter/tcpClients/FileTransferTestClient.dart';
+import 'package:personalized_speech_interpreter/tcpClients/FileTransferClient.dart';
 import 'package:personalized_speech_interpreter/file/FileLoader.dart';
 
 class TestPage extends StatefulWidget {

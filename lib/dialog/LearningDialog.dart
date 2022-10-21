@@ -18,8 +18,8 @@ import '../file/FileLoader.dart';
 import '../prefs/ServerInfo.dart';
 import '../prefs/UserInfo.dart';
 import '../soundUtils/BasicRecorder.dart';
-import '../tcpClients/BasicTestClient.dart';
-import '../tcpClients/FileTransferTestClient.dart';
+import '../tcpClients/BasicClient.dart';
+import '../tcpClients/FileTransferClient.dart';
 import '../utils/ToastGenerator.dart';
 
 class LearningDialog extends StatefulWidget {

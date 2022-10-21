@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import '../prefs/UserInfo.dart';
 import '../utils/TypeConverter.dart';
-import 'BasicTestClient.dart';
+import 'BasicClient.dart';
 
 class FileTransferTestClient extends BasicTestClient {
   void sendFile(int type, Uint8List data) async {
